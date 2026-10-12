@@ -2,13 +2,28 @@
 
 namespace AtomEngine
 {
-	bool EditorApp::Initialize()
+	class EditorScene final : public Scene
 	{
-		return true;
+	public:
+		explicit EditorScene(SceneManager& manager) : Scene("Editor", manager)
+		{
+			mCamera = &mEditorCamera;
+			mEditorCamera.SetLookAt(Vector3(0.0f, 2.0f, -5.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+			mEditorCamera.Update();
+		}
+		void Update(float) override { mEditorCamera.Update(); }
+	private:
+		Camera mEditorCamera;
+	};
+
+	void EditorApp::Initialize()
+	{
+		mSceneManager.PushScene(std::make_unique<EditorScene>(mSceneManager));
 	}
 
 	void EditorApp::Update(float deltaTime)
 	{
+		mSceneManager.Update(deltaTime);
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(viewport->Pos);
 		ImGui::SetNextWindowSize(viewport->Size);
@@ -31,6 +46,6 @@ namespace AtomEngine
 	}
 	void EditorApp::Shutdown()
 	{
-
+		mSceneManager.Shutdown();
 	}
 }

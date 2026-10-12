@@ -112,30 +112,6 @@
     <Filter Include="Source\Editor">
       <UniqueIdentifier>{8a30af3e-6c67-4a80-af90-74fee2333931}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Game">
-      <UniqueIdentifier>{9fc891b4-937b-4dcf-b214-a2a497143078}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Camera">
-      <UniqueIdentifier>{304ab5cf-401f-4b9b-b221-af2297dce4b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Collision">
-      <UniqueIdentifier>{f089764a-ee6e-45f5-b064-bf74d97d843a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Component">
-      <UniqueIdentifier>{c5c852bc-6a49-4d27-ad4e-23a4ec52b18b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Editor">
-      <UniqueIdentifier>{b924214e-c84d-4a53-ac34-d93b991c9f03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Scene">
-      <UniqueIdentifier>{b0dc599a-cbc2-4468-b5ea-3d04545db331}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\System">
-      <UniqueIdentifier>{95785287-2e8c-4dad-b78e-4648ff46b3c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game\Voxel">
-      <UniqueIdentifier>{a2d1e8cd-cbf6-454f-a2ae-390d8e6e1115}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Runtime">
       <UniqueIdentifier>{31c4e432-4e28-4e3d-a90e-5b42a4e55051}</UniqueIdentifier>
     </Filter>
@@ -251,66 +227,6 @@
     </ClCompile>
     <ClCompile Include="Source\Editor\main.cpp">
       <Filter>Source\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Game.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Camera\InGameCameraController.cpp">
-      <Filter>Source\Game\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Collision\BVHNode.cpp">
-      <Filter>Source\Game\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Collision\CollisionFunc.cpp">
-      <Filter>Source\Game\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Editor\ItemGoalEditor.cpp">
-      <Filter>Source\Game\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Editor\LadderEditor.cpp">
-      <Filter>Source\Game\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Editor\PlatformEditor.cpp">
-      <Filter>Source\Game\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Scene\ClearScene.cpp">
-      <Filter>Source\Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Scene\GameScene.cpp">
-      <Filter>Source\Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Scene\TitleScene.cpp">
-      <Filter>Source\Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\CollisionSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\GoalSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\ItemSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\LadderSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\MoveSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\PlatformSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\PlayerSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\SoundManaged.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\System\VoxelCollisionSystem.cpp">
-      <Filter>Source\Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Voxel\VoxelWorld.cpp">
-      <Filter>Source\Game\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\EngineCore.cpp">
       <Filter>Source\Runtime</Filter>
@@ -616,105 +532,6 @@
     </ClInclude>
     <ClInclude Include="Source\Editor\ImGuiCommon.h">
       <Filter>Source\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\EasingFunctions.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\fwd.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Game.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Tag.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Camera\InGameCameraController.h">
-      <Filter>Source\Game\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Collision\BVHNode.h">
-      <Filter>Source\Game\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Collision\CollisionCommon.h">
-      <Filter>Source\Game\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Collision\CollisionFunc.h">
-      <Filter>Source\Game\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\ColliderComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\DynamicVoxelBodyComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\GoalComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\ItemComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\LadderComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\PlatformComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\UiComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\VelocityComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Component\VoxelColliderComponent.h">
-      <Filter>Source\Game\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Editor\ItemGoalEditor.h">
-      <Filter>Source\Game\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Editor\LadderEditor.h">
-      <Filter>Source\Game\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Editor\PlatformEditor.h">
-      <Filter>Source\Game\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Scene\ClearScene.h">
-      <Filter>Source\Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Scene\GameScene.h">
-      <Filter>Source\Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Scene\TitleScene.h">
-      <Filter>Source\Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\CollisionSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\GoalSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\ItemSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\LadderSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\MoveSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\PlatformSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\PlayerSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\SoundManaged.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\System\VoxelCollisionSystem.h">
-      <Filter>Source\Game\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Voxel\VoxelWorld.h">
-      <Filter>Source\Game\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Runtime\EngineCore.h">
       <Filter>Source\Runtime</Filter>

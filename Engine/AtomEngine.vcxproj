@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -196,32 +196,10 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\TrailComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.h" />
-    <ClInclude Include="Source\Game\System\SoundManaged.h" />
-    <ClInclude Include="Source\Game\Camera\InGameCameraController.h" />
-    <ClInclude Include="Source\Game\Component\DynamicVoxelBodyComponent.h" />
-    <ClInclude Include="Source\Game\Component\GoalComponent.h" />
-    <ClInclude Include="Source\Game\Component\ItemComponent.h" />
-    <ClInclude Include="Source\Game\Component\LadderComponent.h" />
-    <ClInclude Include="Source\Game\Component\PlatformComponent.h" />
-    <ClInclude Include="Source\Game\Component\UiComponent.h" />
-    <ClInclude Include="Source\Game\Component\VoxelColliderComponent.h" />
-    <ClInclude Include="Source\Game\Editor\ItemGoalEditor.h" />
-    <ClInclude Include="Source\Game\Editor\LadderEditor.h" />
-    <ClInclude Include="Source\Game\Editor\PlatformEditor.h" />
-    <ClInclude Include="Source\Game\Scene\ClearScene.h" />
-    <ClInclude Include="Source\Game\System\GoalSystem.h" />
-    <ClInclude Include="Source\Game\System\ItemSystem.h" />
-    <ClInclude Include="Source\Game\System\LadderSystem.h" />
-    <ClInclude Include="Source\Game\System\PlatformSystem.h" />
-    <ClInclude Include="Source\Game\System\VoxelCollisionSystem.h" />
     <ClInclude Include="Source\Runtime\Function\Audio\Audio.h" />
     <ClInclude Include="Source\Runtime\Function\Render\GridRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\GamePadCamera.h" />
-    <ClInclude Include="Source\Game\System\PlayerSystem.h" />
-    <ClInclude Include="Source\Game\EasingFunctions.h" />
     <ClInclude Include="External\vox\ogt_vox.h" />
-    <ClInclude Include="Source\Game\System\CollisionSystem.h" />
-    <ClInclude Include="Source\Game\System\MoveSystem.h" />
     <ClInclude Include="Source\Runtime\Function\Render\MeshRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\Particle.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleCommon.h" />
@@ -229,15 +207,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSystem.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\PostEffect.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.h" />
-    <ClInclude Include="Source\Game\Scene\GameScene.h" />
-    <ClInclude Include="Source\Game\Collision\BVHNode.h" />
-    <ClInclude Include="Source\Game\Collision\CollisionCommon.h" />
-    <ClInclude Include="Source\Game\Component\ColliderComponent.h" />
-    <ClInclude Include="Source\Game\Component\VelocityComponent.h" />
-    <ClInclude Include="Source\Game\fwd.h" />
     <ClInclude Include="Source\Editor\ImGuiCommon.h" />
-    <ClInclude Include="Source\Game\Collision\CollisionFunc.h" />
-    <ClInclude Include="Source\Game\Tag.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\MaterialComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Primitive.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\PostProcessPass.h" />
@@ -269,7 +239,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Resource\Material.h" />
     <ClInclude Include="Source\Runtime\Resource\ModelLoader.h" />
     <ClInclude Include="Source\Runtime\Resource\AssetManager.h" />
-    <ClInclude Include="Source\Game\Game.h" />
     <ClInclude Include="Source\Runtime\Application\GameApp.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\ECSCommon.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.h" />
@@ -329,9 +298,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Sprite\Sprite.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\TransformComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\World.h" />
-    <ClInclude Include="Source\Game\Scene\TitleScene.h" />
     <ClInclude Include="Source\Runtime\Function\Render\SpriteRenderer.h" />
-    <ClInclude Include="Source\Game\Voxel\VoxelWorld.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\SSAO.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.h" />
   </ItemGroup>
@@ -349,34 +316,16 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="External\imgui\include\imgui_widgets.cpp" />
     <ClCompile Include="External\imgui\include\ImSequencer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.cpp" />
-    <ClCompile Include="Source\Game\System\SoundManaged.cpp" />
-    <ClCompile Include="Source\Game\Camera\InGameCameraController.cpp" />
-    <ClCompile Include="Source\Game\Editor\ItemGoalEditor.cpp" />
-    <ClCompile Include="Source\Game\Editor\LadderEditor.cpp" />
-    <ClCompile Include="Source\Game\Editor\PlatformEditor.cpp" />
-    <ClCompile Include="Source\Game\Scene\ClearScene.cpp" />
-    <ClCompile Include="Source\Game\System\GoalSystem.cpp" />
-    <ClCompile Include="Source\Game\System\ItemSystem.cpp" />
-    <ClCompile Include="Source\Game\System\LadderSystem.cpp" />
-    <ClCompile Include="Source\Game\System\PlatformSystem.cpp" />
-    <ClCompile Include="Source\Game\System\VoxelCollisionSystem.cpp" />
     <ClCompile Include="Source\Runtime\Function\Audio\Audio.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\GridRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\GamePadCamera.cpp" />
-    <ClCompile Include="Source\Game\System\PlayerSystem.cpp" />
-    <ClCompile Include="Source\Game\System\CollisionSystem.cpp" />
-    <ClCompile Include="Source\Game\System\MoveSystem.cpp" />
-    <ClCompile Include="Source\Game\Voxel\VoxelWorld.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\MeshRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\Particle.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\PostEffect.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.cpp" />
-    <ClCompile Include="Source\Game\Scene\GameScene.cpp" />
-    <ClCompile Include="Source\Game\Collision\BVHNode.cpp" />
     <ClCompile Include="Source\Editor\ImGuiCommon.cpp" />
-    <ClCompile Include="Source\Game\Collision\CollisionFunc.cpp" />
     <ClCompile Include="Source\Runtime\Function\Framework\Component\MaterialComponent.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Primitive.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\ForwardRenderingPass.cpp" />
@@ -403,10 +352,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Runtime\Function\Light\LightManager.cpp" />
     <ClCompile Include="Source\Runtime\Resource\ModelLoader.cpp" />
     <ClCompile Include="Source\Runtime\Resource\AssetManager.cpp" />
-    <ClCompile Include="Source\Game\Game.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
-      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
-    </ClCompile>
     <ClCompile Include="Source\Runtime\Application\GameApp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -607,7 +552,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
-    <ClCompile Include="Source\Game\Scene\TitleScene.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\SSAO.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.cpp" />
