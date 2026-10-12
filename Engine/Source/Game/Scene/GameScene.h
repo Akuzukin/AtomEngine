@@ -27,6 +27,7 @@ private:
 	Camera mDebugViewCamera;
 	std::unique_ptr<DebugCamera> mDebugCamera;
 	bool mUseDebugCamera = true;
+	bool mIsModelRotating = true;
 private:
 	void DestroyGameObject();
 	void ImGuiHandleObjects();

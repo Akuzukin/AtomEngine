@@ -26,20 +26,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -189,6 +189,12 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="External\imgui\include\imstb_textedit.h" />
     <ClInclude Include="External\imgui\include\imstb_truetype.h" />
     <ClInclude Include="External\imgui\include\ImZoomSlider.h" />
+    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h" />
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\IPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h" />
+    <ClInclude Include="Source\Runtime\Function\Framework\Component\TrailComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.h" />
     <ClInclude Include="Source\Game\System\SoundManaged.h" />
     <ClInclude Include="Source\Game\Camera\InGameCameraController.h" />
@@ -242,6 +248,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Framework\Component\MeshComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GUID.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\DebugCamera.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\TrailRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Scene\Scene.h" />
     <ClInclude Include="Source\Runtime\Function\Scene\SceneManager.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\BufferManager.h" />
@@ -254,7 +261,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\ShadowBuffer.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\D3dUtility\d3dx12.h" />
-    <ClInclude Include="Source\Runtime\Platform\DirectX12\RayTrace\RayTracedShadow.h" />
     <ClInclude Include="Source\Runtime\Resource\GeometryGenerator.h" />
     <ClInclude Include="Source\Runtime\Resource\PrimitiveMesh.h" />
     <ClInclude Include="Source\Runtime\Resource\Skeleton.h" />
@@ -302,7 +308,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Core\GraphicsCommon.h" />
     <ClInclude Include="Source\Runtime\Function\Global\GlobalContext.h" />
     <ClInclude Include="Source\Runtime\EngineCore.h" />
-    <ClInclude Include="Source\Editor\editor.h" />
+    <ClInclude Include="Source\Editor\EditorApp.h" />
     <ClInclude Include="Source\Runtime\Function\Input\Input.h" />
     <ClInclude Include="Source\Runtime\Core\Color\Color.h" />
     <ClInclude Include="Source\Runtime\Core\Utility\Hash.h" />
@@ -380,6 +386,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Runtime\Function\Framework\Component\MeshComponent.cpp" />
     <ClCompile Include="Source\Runtime\Function\Framework\ECS\GUID.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\DebugCamera.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Render\TrailRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Scene\Scene.cpp" />
     <ClCompile Include="Source\Runtime\Function\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\BufferManager.cpp" />
@@ -390,7 +397,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\ReadbackBuffer.cpp" />
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\ShadowBuffer.cpp" />
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.cpp" />
-    <ClCompile Include="Source\Runtime\Platform\DirectX12\RayTrace\RayTracedShadow.cpp" />
     <ClCompile Include="Source\Runtime\Resource\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Runtime\Resource\PrimitiveMesh.cpp" />
     <ClCompile Include="Source\Runtime\Resource\Skeleton.cpp" />
@@ -529,7 +535,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
-    <ClCompile Include="Source\Editor\editor.cpp">
+    <ClCompile Include="Source\Editor\EditorApp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>

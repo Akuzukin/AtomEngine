@@ -22,7 +22,15 @@ namespace AtomEngine
 	void PostProcessPass::Update(GraphicsContext& Context, float deltaTime)
 	{
 		ParticleSystem::Update(Context.GetComputeContext(), deltaTime);
+#ifndef RELEASE
+
 		TemporalAA::ImGuiSettingsWindow();
+		ImGui::Begin("Motion Blur");
+		ImGui::Checkbox("Enable", &mIsMotionBlurEnabled);
+		MotionBlur::SedtEnableMotionBlur(mIsMotionBlurEnabled);
+		ImGui::End();
+#endif // !RELEASE
+
 	}
 
 	void PostProcessPass::Render(GraphicsContext& gfxContext)

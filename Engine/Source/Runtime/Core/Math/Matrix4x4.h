@@ -224,14 +224,8 @@ namespace AtomEngine
 			mat[3][3] = 1.0f;
 		}
 
-		Matrix4x4(const Quaternion& rot, const Vector3& position)
+		Matrix4x4(const Quaternion& r, const Vector3& position)
 		{
-			Quaternion r = rot;
-			if (r.IsNaN())
-			{
-				r = Quaternion::IDENTITY;
-			}
-			r.Normalize();
 
 			float xx = r.x * r.x;
 			float yy = r.y * r.y;

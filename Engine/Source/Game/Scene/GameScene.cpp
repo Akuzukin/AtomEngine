@@ -92,13 +92,26 @@ void GameScene::Update(float deltaTime)
 	gContext.imgui->ShowPerformanceWindow(deltaTime);
 #endif
 	LightManager::UpdateRandomMotion(deltaTime);
-	//helmatRotation += Radian(Math::PIDiv4 * deltaTime);
-	//mWorld.GetComponent<TransformComponent>(helmatEntity).rotation.FromAngleAxis(helmatRotation, Vector3::UP);
-	//bunnyRotation += Radian(Math::HalfPI * deltaTime);
-	//mWorld.GetComponent<TransformComponent>(bunnyEntity).rotation.FromAngleAxis(bunnyRotation, Vector3::UP);
+	if (mIsModelRotating)
+	{
+		helmatRotation += Radian(Math::PIDiv4 * deltaTime);
+		mWorld.GetComponent<TransformComponent>(helmatEntity).rotation.FromAngleAxis(helmatRotation, Vector3::UP);
+		bunnyRotation += Radian(Math::HalfPI * deltaTime);
+		mWorld.GetComponent<TransformComponent>(bunnyEntity).rotation.FromAngleAxis(bunnyRotation, Vector3::UP);
+	}
+
 	ImGui::Begin("Camera");
 	ImGui::Checkbox("Use Debug Camera", &mUseDebugCamera);
 	ImGui::End();
+	ImGui::Begin("Light");
+	ImGui::Checkbox("Enable Light Motion", &lightMotionEnabled);
+	ImGui::End();
+	ImGui::Begin("Model Rotation");
+	ImGui::Checkbox("Enable Model Rotation", &mIsModelRotating);
+	ImGui::End();
+
+	LightManager::EnableRandomMotion(lightMotionEnabled);
+
 	if (mUseDebugCamera)
 	{
 		// デバッグカメラが独立カメラを操作する -> それを現在の描画カメラにする
@@ -111,20 +124,20 @@ void GameScene::Update(float deltaTime)
 		mCamera = &mGameCamera;
 	}
 
-#ifndef RELEASE
+//#ifndef RELEASE
 	ImGuiHandleObjects();
-#endif
+//#endif
 	DestroyGameObject();
 }
 
 void GameScene::Render()
 {
 	// デバッグモードなら、デバッグカメラの視点で主カメラのワールド視錐体を描画
-	if (mUseDebugCamera)
-	{
-		const Frustum& mainFrustumWS = mGameCamera.GetWorldSpaceFrustum();
-		mainFrustumWS.DebugDraw(mCamera->GetViewProjMatrix(), Color::Cyan);
-	}
+	//if (mUseDebugCamera)
+	//{
+	//	const Frustum& mainFrustumWS = mGameCamera.GetWorldSpaceFrustum();
+	//	mainFrustumWS.DebugDraw(mCamera->GetViewProjMatrix(), Color::Cyan);
+	//}
 }
 
 void GameScene::DestroyGameObject()
@@ -159,11 +172,11 @@ void GameScene::ImGuiHandleObjects()
 		{
 			std::string entityID = " EntityID:" + std::to_string((uint32_t)entity);
 
-			if (ImGui::CollapsingHeader((name.value + entityID).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader((name.value + entityID).c_str(), ImGuiTreeNodeFlags_None))
 			{
 				ImGui::PushID(index);
 
-				if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_None))
 				{
 					ImGui::DragFloat3("Position##A", transform.transition.ptr(), 0.01f);
 					ImGui::DragFloat4("Rotation##A", transform.rotation.ptr(), 0.01f);
@@ -199,8 +212,5 @@ void GameScene::ImGuiHandleObjects()
 			}
 		});
 	ImGui::End();
-	ImGui::Begin("Light");
-	LightManager::EnableRandomMotion(lightMotionEnabled);
-	ImGui::Checkbox("Enable Light Motion", &lightMotionEnabled);
-	ImGui::End();
+
 }

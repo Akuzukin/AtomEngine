@@ -18,6 +18,8 @@ namespace AtomEngine
 		static void RenderCameraBlur(CommandContext& Context, const Matrix4x4& reprojectionMatrix, float nearClip, float farClip, bool UseLinearZ = true);
 
 		static void RenderObjectBlur(CommandContext& Context, ColorBuffer& velocityBuffer);
+		
+		static void SedtEnableMotionBlur(bool Enable);
 	};
 }
 

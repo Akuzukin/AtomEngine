@@ -64,7 +64,6 @@ namespace AtomEngine
 
 		inline Vector3 GetWorldPosition()
 		{
-			Matrix4x4 tmp = GetMatrix();
 			return GetMatrix().GetTrans();
 		}
 	};

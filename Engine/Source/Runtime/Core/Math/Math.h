@@ -232,6 +232,13 @@ namespace AtomEngine
 		}
 
 		template <typename T>
+		static T SmoothStep(const T& lhs, const T& rhs, float alpha)
+		{
+			float t = Clamp((alpha - lhs) / (rhs - lhs), 0.0f, 1.0f);
+			return t * t * (3.0f - 2.0f * t);
+		}
+		
+		template <typename T>
 		static T Max(const T& a, const T& b)
 		{
 			return std::max(a, b);

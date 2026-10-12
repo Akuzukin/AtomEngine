@@ -268,4 +268,8 @@ namespace AtomEngine
 			GrContext.Draw(3);
 		}
 	}
+	void MotionBlur::SedtEnableMotionBlur(bool Enable)
+	{
+		EnableMotionBlur = Enable;
+	}
 }

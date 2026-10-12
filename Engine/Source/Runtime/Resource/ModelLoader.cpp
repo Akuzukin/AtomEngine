@@ -301,12 +301,13 @@ namespace AtomEngine
 		}
 
 		float opacity = 1.0f;
-		if (AI_SUCCESS == mat->Get(AI_MATKEY_OPACITY, opacity))
+		if (AI_SUCCESS == mat->Get(AI_MATKEY_OPACITY, opacity) ||
+			AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_TRANSPARENT, opacity))
 		{
 			if (opacity < 1.0f)
 				material.hasAlphaBlend = true;
-			material.baseColorFactor[3] *= opacity;
 		}
+
 		material.textures.clear();
 		for (auto& entry : textureMap)
 			SetTextures(material, mat, entry.aiType, entry.slot);

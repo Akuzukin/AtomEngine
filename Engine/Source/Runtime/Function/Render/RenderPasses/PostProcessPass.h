@@ -16,6 +16,7 @@ namespace AtomEngine
 		//システム
 		std::unique_ptr<GridRenderer> mGridRenderer;
 		std::unique_ptr<PostEffect> mPostEffect;
+		bool mIsMotionBlurEnabled = false;
 	};
 }
 
