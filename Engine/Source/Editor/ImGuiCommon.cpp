@@ -130,22 +130,6 @@ namespace AtomEngine
 		draw.AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 	}
 
-	void ImGuiCommon::ShowPerformanceWindow(float deltaTime)
-	{
-		static float frameRates[1000] = {};
-		static int frameIndex = 0;
-		const float frameRate = ImGui::GetIO().Framerate;
-		frameRates[frameIndex] = ImGui::GetIO().Framerate;
-		frameIndex = (frameIndex + 1) % IM_ARRAYSIZE(frameRates);
-
-		ImGui::Begin("Performance");
-		ImGui::Text("FPS: %.2f", frameRate);
-		ImGui::Text("DeltaTime: %f", deltaTime);
-		ImGui::Text("Frame Time: %.3f ms", 1000.0f / frameRate);
-		ImGui::PlotLines("Frame Rate", frameRates, IM_ARRAYSIZE(frameRates), 0, nullptr, 0.0f, 144.0f, ImVec2(0, 160));
-		ImGui::End();
-	}
-
 	void ImGuiCommon::Shutdown()
 	{
 		mUiTarget.Destroy();

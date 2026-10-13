@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="External">
@@ -384,6 +384,7 @@
     <ClCompile Include="Source\Runtime\Function\Render\TrailRenderer.cpp">
       <Filter>Source\Runtime\Function\Render</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Editor\EditorLocalization.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\vox\ogt_vox.h">
@@ -942,6 +943,7 @@
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Asset\Localization\zh-CN.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\EditorLayer.cpp" />
@@ -1004,7 +1006,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\tinyxml2\tinyxml2.cpp" />
-    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl"><Filter>Source\Runtime\Function\Framework\ECS</Filter></ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl">
+      <Filter>Source\Runtime\Function\Framework\ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shaders\ImGuiPresentPS.hlsl" />

@@ -651,7 +651,7 @@ void EditorLayer::Inspector(Scene &s)
             Color4("BaseColor", m.mBaseColor.ptr());
             Float("Metallic", &m.mMetallic, .01f, 0, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp);
             Float("Roughness", &m.mRoughness, .01f, .045f, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-            Float3("Specular F0", m.mFresnelF0.ptr(), 0.01, 0.0f, 1.0f);
+            Float3("Specular F0", m.mFresnelF0.ptr(), 0.01f, 0.0f, 1.0f);
             Color3("Emissive", m.mEmissive.ptr());
             Float("Normal strength", &m.mNormalScale, .01f, 0, 8);
             Float("AO", &m.mAO, .01f, 0, 1);

@@ -25,8 +25,5 @@ class ImGuiCommon
     ColorBuffer mUiTarget;
     RootSignature mPresentRoot;
     GraphicsPSO mPresentPipeline;
-
-  public:
-    void ShowPerformanceWindow(float deltaTime);
 };
 } // namespace AtomEngine

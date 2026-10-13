@@ -1086,7 +1086,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli" />
     <None Include="Asset\Shaders\Utility.hlsli" />
     <None Include="packages.config" />
-    <None Include="README.md" />
     <None Include="Source\Runtime\Function\Framework\ECS\GameObject.inl">
       <FileType>Document</FileType>
     </None>

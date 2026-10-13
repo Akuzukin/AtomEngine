@@ -1,7 +1,8 @@
 # AtomEngine
 
-AtomEngine 是一个面向 Windows x64 的 C++20 实时 3D 引擎与场景编辑器。项目基于 Direct3D 12 和 HLSL，提供场景编辑、模型与材质渲染、物理模拟、C# 行为脚本及运行时 UI 等功能。当前仓库主要用于引擎功能开发和示例场景验证。
+AtomEngine 是一个面向 Windows x64 的 3D 引擎与场景编辑器。项目基于 Direct3D 12，提供场景编辑、模型与材质渲染、物理模拟、C# 行为脚本及运行时 UI 等功能。当前仓库主要用于引擎功能开发和示例场景验证。
 
+---
 ## 功能概览
 
 - **场景编辑器**：Hierarchy、Inspector、Viewport、资源浏览、Console 和 Scene 面板；支持场景创建/加载/保存、对象层级编辑、撤销/重做，以及 Play、Pause、Step、Stop。
@@ -12,9 +13,8 @@ AtomEngine 是一个面向 Windows x64 的 C++20 实时 3D 引擎与场景编辑
 - **交互与 UI**：键盘、鼠标和手柄输入；运行时 UI 支持图片、UTF-8 文本、按钮点击及脚本回调。编辑器提供视口拾取、相机控制和 ImGuizmo 变换工具。
 - **开发辅助**：HLSL/HLSLI 着色器变更检测、编译诊断和成功后管线刷新；文件日志、D3D12 调试层日志，以及 smoke-test 检查入口。
 
+---
 ## 渲染器实现
-
-渲染器采用 Direct3D 12，使用 HLSL Shader Model 6.x 着色器和前向渲染流程。当前代码实现包括：
 
 - 深度预通道、静态网格与蒙皮网格渲染，以及金属度—粗糙度 PBR 着色。
 - 方向光阴影、自动拟合阴影范围和 PCF 过滤；天空盒、IBL 环境贴图与 BRDF LUT。
@@ -22,39 +22,15 @@ AtomEngine 是一个面向 Windows x64 的 C++20 实时 3D 引擎与场景编辑
 - HDR/LDR 色调映射、亮度直方图与自适应曝光、Bloom 提取/模糊/合成。
 - 相机与物体运动模糊、GPU 粒子更新与绘制、网格和调试绘制、选中对象轮廓。
 - 编辑器视口通过 UI Overlay 呈现；运行时 UI 使用 DirectWrite 生成文字纹理并合成，支持中文字体回退。
-
-当前**未启用抗锯齿替代方案**：TAA 已移除，尚无替代实现。项目尚未实现 Render Graph；部分渲染资源和效果仍按主视图组织，并非完整的独立多视图实现。
-
-## 构建要求
-
-- Windows x64、Visual Studio C++ 工具链（项目工具集 v145）和 Windows SDK。
-- CMake、.NET 10 x64 SDK，以及运行时使用的 .NET 10 x64 Runtime。
-- 恢复 `Microsoft.GameInput` 3.5.283 NuGet 包。
-- 首次构建会通过 CMake 构建 Jolt，耗时可能较长。
-
-## 构建与启动
-
-1. 使用 Visual Studio 打开 `AtomEngine.sln`。
-2. 选择 `Debug|x64` 或 `Release|x64`，还原 NuGet 包并生成解决方案。MSBuild 会构建 Jolt 和 C# 项目，并将托管脚本运行所需文件复制到输出目录。
-3. Debug 配置请将工作目录设为本项目目录（包含 `Asset` 的 `Engine` 目录），然后运行 `AtomEngine.exe`。Release 构建会将 `Asset` 复制到输出目录，可从该输出目录启动。
-4. 编辑器默认根据 `Asset/Editor.xml` 中的 `startupScene` 加载场景。示例场景为 `Asset/Scenes/MaterialTest.scene`。
-
-也可以在本项目目录运行 MSBuild：
-
-```powershell
-msbuild AtomEngine.sln /p:Configuration=Debug /p:Platform=x64
-```
-
-将 `Debug` 替换为 `Release` 可生成发布配置。若通过命令行启动 Debug 程序，工作目录仍应设为项目目录以便解析 `Asset/...` 相对路径。
-
+---
 ## 基本使用
 
 - 在 **Hierarchy** 中选择或创建场景对象，在 **Inspector** 编辑变换、网格、材质、碰撞体、刚体、脚本和 UI 组件。
 - 在 **Viewport** 使用鼠标选择对象，并用移动、旋转、缩放工具调整变换；`Alt + 左键` 旋转相机，中键平移，右键缩放。`F` 聚焦选中对象，`Escape` 取消选择。
 - 使用 **Play** 运行场景，Pause 暂停，Step 单步推进，Stop 恢复开始运行前的编辑快照。Stop 不会把模拟结果写回编辑状态。
-- 在 Inspector 添加 C# Script，Assembly 默认路径为 `Scripts/AtomScripts.dll`，Class 填写完整类型名（例如 `Game.Rotate`）。C# 修改后需重新构建脚本并重启引擎；目前不支持程序集热重载。
+- 在 **Inspector** 添加 C# Script，Assembly 默认路径为 `Scripts/AtomScripts.dll`，Class 填写完整类型名（例如 `Game.xxx`）。支持C#热重载。
 - 场景通过 Scene 面板保存为 `.scene`；选中对象可保存为 `.prefab` 并实例化。快捷键包括 `Ctrl+S` 保存、`Ctrl+Z` 撤销、`Ctrl+Y` 重做、`Ctrl+D` 复制和 `Delete` 删除。
-
+---
 ## 第三方库与平台组件
 
 | 组件 | 用途 / 说明 |
@@ -72,10 +48,11 @@ msbuild AtomEngine.sln /p:Configuration=Debug /p:Platform=x64
 
 除 Jolt、TinyXML2 和 .NET Native Hosting 外，其余库的具体版本及许可信息请以各自随附文件和上游项目为准。更多依赖来源说明见 [`External/DEPENDENCIES.md`](External/DEPENDENCIES.md)。
 
+---
 ## TODO
 
-- 物理碰撞体目前限于简单凸体；没有网格碰撞体或关节约束。
-- 预制体为数据快照，尚无覆盖差异管理和修改传播；场景文件尚未保存相机与环境参数。
-- C# 程序集没有热重载；资源加载仍以同步操作为主。
-- TAA 已移除，当前没有启用其他抗锯齿方案；渲染器尚无 Render Graph 和完整 per-view 资源隔离。
-- ImGui颜色空间问题（当前为线性空间，viewport中的游戏画面为正确的SRGB）待修复
+- [x] FXAA
+- [ ] CSM SHADOW
+- [ ] GI
+- [ ] Raytracing
+- [ ] Game Demo

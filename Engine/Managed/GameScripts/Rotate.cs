@@ -19,7 +19,7 @@ public sealed class Rotate : Behaviour
     { 
 
     }
-    public overridevoid OnCollision(uint other, bool trigger)
+    public override void OnCollision(uint other, bool trigger)
     { 
 
     }
