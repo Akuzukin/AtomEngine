@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -264,7 +264,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Global\GlobalContext.h" />
     <ClInclude Include="Source\Runtime\EngineCore.h" />
     <ClInclude Include="Source\Editor\EditorApp.h" />
-<ClInclude Include="Source\Runtime\Function\Input\Input.h" />
+    <ClInclude Include="Source\Runtime\Function\Input\Input.h" />
     <ClInclude Include="Source\Runtime\Core\Color\Color.h" />
     <ClInclude Include="Source\Runtime\Core\Utility\Hash.h" />
     <ClInclude Include="Source\Runtime\Core\Math\Quaternion.h" />
@@ -1084,6 +1084,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli" />
     <None Include="Asset\Shaders\Utility.hlsli" />
     <None Include="packages.config" />
+    <None Include="README.md" />
     <None Include="Source\Runtime\Function\Framework\ECS\GameObject.inl">
       <FileType>Document</FileType>
     </None>
