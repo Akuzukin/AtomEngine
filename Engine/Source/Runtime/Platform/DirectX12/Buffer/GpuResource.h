@@ -3,6 +3,8 @@
 
 namespace AtomEngine
 {
+    void RetireGpuResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource);
+
     class GpuResource
     {
         friend class CommandContext;
@@ -29,7 +31,7 @@ namespace AtomEngine
 
         virtual void Destroy()
         {
-            mResource = nullptr;
+            if (mResource) RetireGpuResource(std::move(mResource));
             mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
             ++mVersionID;
         }

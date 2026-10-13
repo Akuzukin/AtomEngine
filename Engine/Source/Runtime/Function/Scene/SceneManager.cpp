@@ -5,10 +5,8 @@ namespace AtomEngine
 	void SceneManager::Update(float deltaTime)
 	{
 		Scene* current = GetCurrentScene();
-		if (!current || !current->IsInitialized())
-			return;
-
-		current->Update(deltaTime);
+		if (current && current->IsInitialized())
+			current->Update(deltaTime);
 
 		ProcessSceneChange();
 	}
@@ -27,6 +25,8 @@ namespace AtomEngine
 				scene->Shutdown();
 
 		mScenes.clear();
+		mPendingScene.reset();
+		mSceneState = SceneState::None;
 	}
 
 	bool SceneManager::Exit()
@@ -45,19 +45,19 @@ namespace AtomEngine
 
 	void SceneManager::OnPopScene()
 	{
-		mSceneState = SceneState::In;
+		mSceneState = SceneState::Pop;
 	}
 
 	void SceneManager::OnPushScene(std::unique_ptr<Scene> scene)
 	{
 		mPendingScene = std::move(scene);
-		mSceneState = SceneState::out;
+		mSceneState = SceneState::Push;
 	}
 
 	void SceneManager::OnReplaceScene(std::unique_ptr<Scene> scene)
 	{
 		mPendingScene = std::move(scene);
-		mSceneState = SceneState::Change;
+		mSceneState = SceneState::Replace;
 	}
 
 	void SceneManager::ProcessSceneChange()
@@ -65,23 +65,24 @@ namespace AtomEngine
 		if (mSceneState == SceneState::None)
 			return;
 
-		switch (mSceneState)
+		const auto command = mSceneState;
+		auto pending = std::move(mPendingScene);
+		mSceneState = SceneState::None;
+		switch (command)
 		{
-		case SceneState::In:
-			PushScene(std::move(mPendingScene));
+		case SceneState::Push:
+			PushScene(std::move(pending));
 			break;
 
-		case SceneState::out:
+		case SceneState::Pop:
 			PopScene();
 			break;
 
-		case SceneState::Change:
-			ReplaceScene(std::move(mPendingScene));
+		case SceneState::Replace:
+			ReplaceScene(std::move(pending));
 			break;
 		}
 
-		mPendingScene.reset();
-		mSceneState = SceneState::None;
 	}
 
 	void SceneManager::PushScene(std::unique_ptr<Scene>&& scene)
@@ -104,11 +105,6 @@ namespace AtomEngine
 		top->Shutdown();
 		mScenes.pop_back();
 
-		if (mPendingScene)
-		{
-			PushScene(std::move(mPendingScene));
-			mPendingScene.reset();
-		}
 	}
 
 	void SceneManager::ReplaceScene(std::unique_ptr<Scene>&& scene)

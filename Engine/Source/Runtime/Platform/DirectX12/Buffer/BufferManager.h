@@ -41,9 +41,6 @@ namespace AtomEngine
 
     extern ColorBuffer gMotionPrepBuffer;
     extern ColorBuffer gLumaBuffer;
-    extern ColorBuffer gTemporalColor[2];
-    extern ColorBuffer gTemporalMinBound;
-    extern ColorBuffer gTemporalMaxBound;
     extern ColorBuffer gBloomUAV1[2];	// 640x384 (1/3)
     extern ColorBuffer gBloomUAV2[2];	// 320x192 (1/6) 
     extern ColorBuffer gBloomUAV3[2];	// 160x96  (1/12)

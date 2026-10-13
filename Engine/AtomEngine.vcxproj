@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -74,12 +74,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;JPH_OBJECT_LAYER_BITS=16;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)External;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -92,7 +92,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)External\assimp\lib\$(Configuration);$(SolutionDir)External\DirectXTex\lib\x64\Debug;$(SolutionDir)External\imgui\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gameinput.lib;DirectXTex.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\generated\dependencies\build\$(AtomDependencyConfig)\Jolt.lib;gameinput.lib;DirectXTex.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Message>
@@ -112,19 +112,19 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RELEASE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RELEASE;NDEBUG;_CONSOLE;JPH_OBJECT_LAYER_BITS=16;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)External;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)External\assimp\lib\$(Configuration);$(SolutionDir)External\DirectXTex\lib\x64\Release;$(SolutionDir)External\imgui\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gameinput.lib;DirectXTex.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\generated\dependencies\build\$(AtomDependencyConfig)\Jolt.lib;gameinput.lib;DirectXTex.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Message>
@@ -145,12 +145,12 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;JPH_OBJECT_LAYER_BITS=16;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)External;$(SolutionDir)External\DirectXTex\include;$(SolutionDir)External\assimp\include;$(SolutionDir)External\entt;$(SolutionDir)External\nlohmannjson;$(SolutionDir)External\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -159,7 +159,7 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)External\assimp\lib\Release;$(SolutionDir)External\DirectXTex\lib\x64\Release;$(SolutionDir)External\imgui\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gameinput.lib;DirectXTex.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\generated\dependencies\build\$(AtomDependencyConfig)\Jolt.lib;gameinput.lib;DirectXTex.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
@@ -175,32 +175,22 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="External\imgui\include\GraphEditor.h" />
     <ClInclude Include="External\imgui\include\imconfig.h" />
-    <ClInclude Include="External\imgui\include\ImCurveEdit.h" />
-    <ClInclude Include="External\imgui\include\ImGradient.h" />
     <ClInclude Include="External\imgui\include\imgui.h" />
     <ClInclude Include="External\imgui\include\ImGuizmo.h" />
     <ClInclude Include="External\imgui\include\imgui_impl_dx12.h" />
     <ClInclude Include="External\imgui\include\imgui_impl_win32.h" />
     <ClInclude Include="External\imgui\include\imgui_internal.h" />
-    <ClInclude Include="External\imgui\include\ImSequencer.h" />
     <ClInclude Include="External\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="External\imgui\include\imstb_textedit.h" />
     <ClInclude Include="External\imgui\include\imstb_truetype.h" />
     <ClInclude Include="External\imgui\include\ImZoomSlider.h" />
-    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h" />
-    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\IPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\TrailComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.h" />
     <ClInclude Include="Source\Runtime\Function\Audio\Audio.h" />
     <ClInclude Include="Source\Runtime\Function\Render\GridRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\GamePadCamera.h" />
     <ClInclude Include="External\vox\ogt_vox.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\MeshRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\Particle.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleCommon.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleEditor.h" />
@@ -209,14 +199,12 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.h" />
     <ClInclude Include="Source\Editor\ImGuiCommon.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\MaterialComponent.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\Primitive.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\PostProcessPass.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\RenderPassesInclude.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\ForwardRenderingPass.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\ShadowCamera.h" />
     <ClInclude Include="Source\Runtime\Function\Render\SkyboxRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\MeshComponent.h" />
-    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GUID.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\DebugCamera.h" />
     <ClInclude Include="Source\Runtime\Function\Render\TrailRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Scene\Scene.h" />
@@ -231,8 +219,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\ShadowBuffer.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\D3dUtility\d3dx12.h" />
-    <ClInclude Include="Source\Runtime\Resource\GeometryGenerator.h" />
-    <ClInclude Include="Source\Runtime\Resource\PrimitiveMesh.h" />
     <ClInclude Include="Source\Runtime\Resource\Skeleton.h" />
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Shader\LightData.h" />
     <ClInclude Include="Source\Runtime\Function\Light\LightManager.h" />
@@ -278,7 +264,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Global\GlobalContext.h" />
     <ClInclude Include="Source\Runtime\EngineCore.h" />
     <ClInclude Include="Source\Editor\EditorApp.h" />
-    <ClInclude Include="Source\Runtime\Function\Input\Input.h" />
+<ClInclude Include="Source\Runtime\Function\Input\Input.h" />
     <ClInclude Include="Source\Runtime\Core\Color\Color.h" />
     <ClInclude Include="Source\Runtime\Core\Utility\Hash.h" />
     <ClInclude Include="Source\Runtime\Core\Math\Quaternion.h" />
@@ -300,26 +286,19 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\World.h" />
     <ClInclude Include="Source\Runtime\Function\Render\SpriteRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\SSAO.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="External\imgui\include\GraphEditor.cpp" />
-    <ClCompile Include="External\imgui\include\ImCurveEdit.cpp" />
-    <ClCompile Include="External\imgui\include\ImGradient.cpp" />
     <ClCompile Include="External\imgui\include\imgui.cpp" />
     <ClCompile Include="External\imgui\include\ImGuizmo.cpp" />
-    <ClCompile Include="External\imgui\include\imgui_demo.cpp" />
     <ClCompile Include="External\imgui\include\imgui_draw.cpp" />
     <ClCompile Include="External\imgui\include\imgui_impl_dx12.cpp" />
     <ClCompile Include="External\imgui\include\imgui_impl_win32.cpp" />
     <ClCompile Include="External\imgui\include\imgui_tables.cpp" />
     <ClCompile Include="External\imgui\include\imgui_widgets.cpp" />
-    <ClCompile Include="External\imgui\include\ImSequencer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.cpp" />
     <ClCompile Include="Source\Runtime\Function\Audio\Audio.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\GridRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\GamePadCamera.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Render\MeshRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\Particle.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleSystem.cpp" />
@@ -327,13 +306,11 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.cpp" />
     <ClCompile Include="Source\Editor\ImGuiCommon.cpp" />
     <ClCompile Include="Source\Runtime\Function\Framework\Component\MaterialComponent.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Render\Primitive.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\ForwardRenderingPass.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\ShadowCamera.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\PostProcessPass.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\SkyboxRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Framework\Component\MeshComponent.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Framework\ECS\GUID.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\DebugCamera.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\TrailRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Scene\Scene.cpp" />
@@ -346,11 +323,10 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\ReadbackBuffer.cpp" />
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\ShadowBuffer.cpp" />
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.cpp" />
-    <ClCompile Include="Source\Runtime\Resource\GeometryGenerator.cpp" />
-    <ClCompile Include="Source\Runtime\Resource\PrimitiveMesh.cpp" />
-    <ClCompile Include="Source\Runtime\Resource\Skeleton.cpp" />
     <ClCompile Include="Source\Runtime\Function\Light\LightManager.cpp" />
     <ClCompile Include="Source\Runtime\Resource\ModelLoader.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Animation\AnimationPlayer.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Render\ModelGpuBuilder.cpp" />
     <ClCompile Include="Source\Runtime\Resource\AssetManager.cpp" />
     <ClCompile Include="Source\Runtime\Application\GameApp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
@@ -385,10 +361,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Core\Math\BoundingSphere.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
-      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Resource\Animation.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
@@ -554,7 +526,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Render\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\SSAO.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shaders\DepthOnlySkinVS.hlsl">
@@ -578,22 +549,6 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\DepthViewPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\DepthViewVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Asset\Shaders\GridPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -969,55 +924,11 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\BoundNeighborhood.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
     <FxCompile Include="Asset\Shaders\PostEffects\MotionBlur\CameraVelocityCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\ResolveTAA.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\SharpenTAA.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\TemporalBlend.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
@@ -1177,14 +1088,95 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorLayer.cpp" />
+    <ClCompile Include="Source\Editor\EditorDocument.cpp" />
+    <ClCompile Include="Source\Editor\EditorWorkflow.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Input\GameInputBackend.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Input\XInputBackend.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Render\SelectionRenderer.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneFiles.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneRuntime.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneSerializer.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Scripting\ScriptSystem.cpp" />
+    <ClCompile Include="Source\Runtime\Function\UI\UiRenderer.cpp" />
+    <ClCompile Include="Source\Runtime\Resource\Shader.cpp" />
+    <ClCompile Include="External\tinyxml2\tinyxml2.cpp" />
+    <ClInclude Include="Source\Editor\EditorLayer.h" />
+    <ClInclude Include="Source\Editor\EditorDocument.h" />
+    <ClInclude Include="Source\Runtime\Function\Animation\AnimationPlayer.h" />
+    <ClInclude Include="Source\Runtime\Function\Framework\Component\SceneComponents.h" />
+    <ClInclude Include="Source\Runtime\Function\Input\InputBackend.h" />
+    <ClInclude Include="Source\Runtime\Function\Physics\PhysicsWorld.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\ModelGpuBuilder.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\SelectionRenderer.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneRuntime.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneSerializer.h" />
+    <ClInclude Include="Source\Runtime\Function\Scripting\ScriptSystem.h" />
+    <ClInclude Include="Source\Runtime\Function\UI\UiRenderer.h" />
+    <ClInclude Include="Source\Runtime\Resource\Shader.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="packages\Microsoft.GameInput.3.1.26100.6879\build\native\targets\Microsoft.GameInput.targets" Condition="Exists('packages\Microsoft.GameInput.3.1.26100.6879\build\native\targets\Microsoft.GameInput.targets')" />
+    <Import Project="packages\Microsoft.GameInput.3.5.283\build\native\targets\Microsoft.GameInput.targets" Condition="Exists('packages\Microsoft.GameInput.3.5.283\build\native\targets\Microsoft.GameInput.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\Microsoft.GameInput.3.1.26100.6879\build\native\targets\Microsoft.GameInput.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.GameInput.3.1.26100.6879\build\native\targets\Microsoft.GameInput.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.GameInput.3.5.283\build\native\targets\Microsoft.GameInput.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.GameInput.3.5.283\build\native\targets\Microsoft.GameInput.targets'))" />
   </Target>
+  <PropertyGroup>
+    <AtomDependencyConfig Condition="'$(Configuration)'=='Debug'">Debug</AtomDependencyConfig>
+    <AtomDependencyConfig Condition="'$(Configuration)'!='Debug'">Release</AtomDependencyConfig>
+    <AtomManagedOutput>$(ProjectDir)..\generated\managed\$(Configuration)\</AtomManagedOutput>
+  </PropertyGroup>
+  <Target Name="BuildEngineDependencies" BeforeTargets="PrepareForBuild">
+    <Exec Command="cmake -S &quot;$(ProjectDir)External&quot; -B &quot;$(ProjectDir)..\generated\dependencies\build&quot; -G &quot;Visual Studio 18 2026&quot; -A x64" />
+    <Exec Command="cmake --build &quot;$(ProjectDir)..\generated\dependencies\build&quot; --config $(AtomDependencyConfig) --target Jolt -j 8" />
+    <Exec Command="dotnet build &quot;$(ProjectDir)Managed\Atom.Managed\Atom.Managed.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
+    <Exec Command="dotnet build &quot;$(ProjectDir)Managed\GameScripts\GameScripts.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
+  </Target>
+  <Target Name="CopyManagedRuntime" AfterTargets="Build">
+    <ItemGroup>
+      <ManagedArtifacts Include="$(AtomManagedOutput)*.dll;$(AtomManagedOutput)*.json;$(AtomManagedOutput)*.pdb" />
+      <NetHost Include="$(ProgramW6432)\dotnet\packs\Microsoft.NETCore.App.Host.win-x64\10.*\runtimes\win-x64\native\nethost.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ManagedArtifacts)" DestinationFolder="$(TargetDir)Scripts" SkipUnchangedFiles="true" />
+    <Error Condition="'@(NetHost)'==''" Text=".NET 10 x64 SDK native host pack is required." />
+    <Copy SourceFiles="@(NetHost)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Function\Render\DebugDraw.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\DebugDraw.h" />
+    <ClCompile Include="Source\Runtime\Function\Render\ModelRenderResources.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\ModelRenderResources.h" />
+    <ClCompile Include="Source\Runtime\Resource\Primitive.cpp" />
+    <ClInclude Include="Source\Runtime\Resource\Primitive.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\UI\UiSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\EditorSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\RenderCameraSmokeChecks.h" />
+    <ClInclude Include="Tests\ShadowMaterialSmokeChecks.h" />
+    <ClInclude Include="Tests\SceneViewSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Resource\MaterialPreset.cpp" />
+    <ClInclude Include="Source\Runtime\Resource\MaterialPreset.h" />
+    <ClCompile Include="Source\Editor\MaterialPreviewRenderer.cpp" />
+    <ClInclude Include="Source\Editor\MaterialPreviewRenderer.h" />
+    <ClCompile Include="Source\Editor\EditorMaterials.cpp" />
+    <ClCompile Include="Source\Editor\EditorSceneControls.cpp" />
+    <ClInclude Include="Source\Editor\CameraGizmos.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl" />
+  </ItemGroup>
 </Project>

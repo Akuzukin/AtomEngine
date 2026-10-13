@@ -1,20 +1,19 @@
 #pragma once
 #include "Mesh.h"
 #include "Animation.h"
-#include "TextureRef.h"
 #include "Material.h"
 #include "Skeleton.h"
 
-#include "../Platform/DirectX12/Buffer/GpuBuffer.h"
 
 #include "../Core/Math/BoundingBox.h"
 #include "../Core/Math/BoundingSphere.h"
 
 #include <map>
+#include <memory>
 
 namespace AtomEngine
 {
-	class RenderQueue;
+	class ModelRenderResources;
 
 	struct JointXform
 	{
@@ -38,28 +37,14 @@ namespace AtomEngine
 	class Model
 	{
 	public:
-		~Model(){Destroy();}
-		
-		void Render(RenderQueue& sorter,
-			const GpuBuffer& meshConstants,
-			const std::vector<Matrix4x4> sphereTransforms,
-			const JointXform* skeleton) const;
+        ~Model();
+        std::shared_ptr<ModelRenderResources> renderResources;
 
-		void Render(RenderQueue& sorter,
-			const GpuBuffer& meshConstants,
-			const GpuBuffer& materialConstants,
-			const std::vector<Matrix4x4> sphereTransforms,
-			const JointXform* skelton)const;
-
+		std::shared_ptr<const MeshGeometry> mGeometry;
 		BoundingSphere mBoundingSphere;
 		AxisAlignedBox mBoundingBox;
 
-		ByteAddressBuffer mVertexBuffer;
-		ByteAddressBuffer mIndexBuffer;
-		ByteAddressBuffer mMaterialConstants;
-
-		std::vector<Material> mMaterials;
-		std::map<uint32_t,std::vector<TextureRef>> mTextures;
+        std::vector<Material> mMaterials;
 		std::vector<Mesh> mMeshData;
 		std::vector<uint8_t> mKeyFrameData;
 		std::vector<AnimationClip> mAnimationData;
@@ -68,9 +53,7 @@ namespace AtomEngine
 
 		Skeleton mSkeleton;
 		uint32_t mNumJoints = 0;
-	protected:
 
-		void Destroy();
 	};
 }
 

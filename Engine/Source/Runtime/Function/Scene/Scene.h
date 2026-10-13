@@ -2,6 +2,7 @@
 #include "Runtime/Function/Framework/ECS/World.h"
 #include "Runtime/Function/Camera/CameraBase.h"
 #include <string>
+#include <filesystem>
 
 namespace AtomEngine
 {
@@ -21,7 +22,7 @@ namespace AtomEngine
 		virtual void Render() {};
 		virtual void Shutdown() {};
 		virtual bool Exit() { return false; }
-		
+
 		//シーンポップを要求
 		void RequestPopScene();
 		//シーンプッシュを要求
@@ -29,6 +30,10 @@ namespace AtomEngine
 		//シーンリプレースを要求
 		void RequestReplaceScene(std::unique_ptr<Scene>&& scene);
 
+		void Save(const std::filesystem::path& path);
+        void Load(const std::filesystem::path& path);
+        const std::string& GetName()const{return mName;}
+        void SetName(std::string name){mName=std::move(name);}
 		World& GetWorld() { return mWorld; }
 		Camera& GetCamera() { return *mCamera; }
 		bool IsInitialized() const { return mIsInitialized; }
@@ -36,7 +41,7 @@ namespace AtomEngine
 	protected:
 		std::string mName;
 		World mWorld;
-		Camera* mCamera;
+		Camera* mCamera = nullptr;
 		SceneManager& mManager;
 
 		bool mIsInitialized;

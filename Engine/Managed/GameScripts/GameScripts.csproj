@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>AtomScripts</AssemblyName><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+ <ItemGroup><ProjectReference Include="../Atom.Managed/Atom.Managed.csproj" /></ItemGroup>
+</Project>

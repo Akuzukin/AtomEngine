@@ -30,6 +30,8 @@ __declspec(align(256)) struct MaterialConstants
 	float metallicFactor = 1.0f;               // default=1
 	float roughnessFactor = 1.0f;              // default=1
 	uint32_t uselight = 1;
+    float aoFactor=1;
+    uint32_t textureOverrides=0;
 };
 
 __declspec(align(256)) struct GlobalConstants

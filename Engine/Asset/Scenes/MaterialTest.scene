@@ -1,0 +1,1359 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Scene version="1" name="Material Test">
+    <Object id="sample-1" name="Child" parent="sample-51">
+        <Transform>
+            <Position x="0" y="3" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+    </Object>
+    <Object id="sample-2" name="UI Text">
+        <Transform>
+            <Position x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <UI x="20" y="20" width="450" height="50" text="AtomEngine / C# / 文本渲染" texture="" fontSize="20" visible="true">
+            <Color x="1" y="1" z="1" alpha="1" />
+        </UI>
+    </Object>
+    <Object id="sample-3" name="Sphere_6_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-4" name="Sphere_6_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-5" name="Sphere_6_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-6" name="Sphere_6_3">
+        <Transform>
+            <Position x="0" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-7" name="Sphere_6_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-8" name="Sphere_6_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-9" name="Sphere_6_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="1" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-10" name="Sphere_5_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-11" name="Sphere_5_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-12" name="Sphere_5_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-13" name="Sphere_5_3">
+        <Transform>
+            <Position x="0" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-14" name="Sphere_5_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-15" name="Sphere_5_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-16" name="Sphere_5_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.83333331" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-17" name="Sphere_4_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-18" name="Sphere_4_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-19" name="Sphere_4_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-20" name="Sphere_4_3">
+        <Transform>
+            <Position x="0" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-21" name="Sphere_4_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-22" name="Sphere_4_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-23" name="Sphere_4_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.66666669" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-24" name="Sphere_3_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-25" name="Sphere_3_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-26" name="Sphere_3_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-27" name="Sphere_3_3">
+        <Transform>
+            <Position x="0" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-28" name="Sphere_3_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-29" name="Sphere_3_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-30" name="Sphere_3_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.5" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-31" name="Sphere_2_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-32" name="Sphere_2_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-33" name="Sphere_2_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-34" name="Sphere_2_3">
+        <Transform>
+            <Position x="0" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-35" name="Sphere_2_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-36" name="Sphere_2_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-37" name="Sphere_2_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="-2.5999999" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.33333334" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-38" name="Sphere_1_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-39" name="Sphere_1_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-40" name="Sphere_1_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-41" name="Sphere_1_3">
+        <Transform>
+            <Position x="0" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-42" name="Sphere_1_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-43" name="Sphere_1_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-44" name="Sphere_1_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="-5.1999998" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0.16666667" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-45" name="Sphere_0_6">
+        <Transform>
+            <Position x="7.7999997" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="1" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-46" name="Sphere_0_5">
+        <Transform>
+            <Position x="5.1999998" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.83333331" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-47" name="Sphere_0_4">
+        <Transform>
+            <Position x="2.5999999" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.66666669" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-48" name="Sphere_0_3">
+        <Transform>
+            <Position x="0" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.5" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-49" name="Sphere_0_2">
+        <Transform>
+            <Position x="-2.5999999" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.33333334" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-50" name="Sphere_0_1">
+        <Transform>
+            <Position x="-5.1999998" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.16666667" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-51" name="Sphere_0_0">
+        <Transform>
+            <Position x="-7.7999997" y="1" z="-7.7999997" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="3" asset="" visible="true" />
+        <Material metallic="0" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="1" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+        <Script assembly="Scripts/AtomScripts.dll" type="Game.Rotate" enabled="true">
+            <Field name="Speed" value="1.25" />
+        </Script>
+    </Object>
+    <Object id="sample-52" name="Ground">
+        <Transform>
+            <Position x="0" y="-0.02" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="24" y="1" z="24" />
+        </Transform>
+        <Mesh primitive="1" asset="" visible="true" />
+        <Material metallic="0" roughness="0.80000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.25" y="0.27000001" z="0.30000001" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="0" radius="1" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="-0.0099999998" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.0099999998" z="0.5" />
+        </Collider>
+        <RigidBody motion="0" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+    </Object>
+    <Object id="sample-dynamic-cube" name="Physics Cube">
+        <Transform>
+            <Position x="0" y="5" z="-5" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true" />
+        <Material metallic="0" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="0" radius="0.5" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="2" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+        <Script assembly="Scripts/AtomScripts.dll" type="Game.KeyboardMover" enabled="true">
+            <Field name="Speed" value="4" />
+        </Script>
+    </Object>
+    <Object id="sample-ui-button" name="Click counter">
+        <UI x="20" y="80" width="220" height="40" text="Click me" fontSize="20" interactable="true" layer="1">
+            <Color x="1" y="1" z="1" alpha="1" />
+            <Background x=".15" y=".2" z=".3" alpha=".85" />
+        </UI>
+        <Script assembly="Scripts/AtomScripts.dll" type="Game.ClickCounter" enabled="true" />
+    </Object>
+</Scene>

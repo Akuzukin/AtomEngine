@@ -13,7 +13,7 @@ namespace AtomEngine
 	template<typename T>
 	inline bool GameObject::HasComponent() const
 	{
-		return mWorld->HasComponent<T>(mHandle);
+		return IsValid() && mWorld->HasComponent<T>(mHandle);
 	}
 
 	template<typename T>

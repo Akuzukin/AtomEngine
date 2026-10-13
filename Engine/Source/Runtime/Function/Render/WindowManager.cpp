@@ -1,4 +1,5 @@
 #include "WindowManager.h"
+#include "Runtime/Function/Input/Input.h"
 #include "RenderSystem.h"
 
 #include "Runtime/Core/Utility/Utility.h"
@@ -6,14 +7,11 @@
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 #include "Runtime/Platform/DirectX12/Core/CommandListManager.h"
 
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx12.h"
+
 
 #include <mfapi.h>
 
-#ifndef RELEASE
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
-#endif // 
+
 
 namespace AtomEngine
 {
@@ -81,10 +79,20 @@ namespace AtomEngine
 
 		ASSERT(mHwnd != 0);
 
-		DX12Core::InitializeDx12();
+
 
 		ShowWindow(mHwnd, SW_SHOWDEFAULT);
 
+	}
+
+	void WindowManager::Shutdown()
+	{
+		messageHandler = {};
+		onResize = {};
+		if (mHwnd) { DestroyWindow(mHwnd); mHwnd = nullptr; }
+		UnregisterClassW(L"MainWnd", GetModuleHandle(nullptr));
+		MFShutdown();
+		CoUninitialize();
 	}
 
 	void WindowManager::CloseWindow()
@@ -109,10 +117,8 @@ namespace AtomEngine
 
 	LRESULT WindowManager::WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-#ifndef RELEASE
-		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-			return true;
-#endif
+		if (msg == WM_MOUSEWHEEL) Input::GetInstance()->OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
+		if (messageHandler && messageHandler(hWnd, msg, wParam, lParam)) return true;
 		switch (msg)
 		{
 		case WM_SIZE:
@@ -132,6 +138,6 @@ namespace AtomEngine
 
 	void WindowManager::OnResize(uint32_t width, uint32_t height)
 	{
-		DX12Core::OnResize(width, height);
+		if (width && height && onResize) onResize(width, height);
 	}
 }

@@ -6,6 +6,11 @@
 
 namespace AtomEngine
 {
+	enum CommonTextureSlot { DiffuseIBL, SpecularIBL, BRDFLUT, AmbientOcclusion, SunShadow };
+
+	class ColorBuffer;
+	class DepthBuffer;
+
 	enum RootBindings
 	{
 		kMeshConstants,			// メッシュ定数バッファ
@@ -37,6 +42,17 @@ namespace AtomEngine
 		kNumPSOs
 	};
 
+	// Per-draw view contract. History effects currently belong to the primary view.
+	struct RenderView
+	{
+		World& world;
+		Camera& camera;
+		ColorBuffer& color;
+		DepthBuffer& depth;
+		D3D12_VIEWPORT viewport;
+		D3D12_RECT scissor;
+	};
+
 	class Renderer
 	{
 	public:
@@ -47,6 +63,7 @@ namespace AtomEngine
 		static void UpdateBuffers();
 		static void Render(World& world,Camera& camera ,float deltaTime);
 
+		static void Render(const RenderView& view);
 		static void Shutdown();
 
 		static DescriptorHeap& GetTextureHeap() { return gTextureHeap; }
@@ -55,7 +72,8 @@ namespace AtomEngine
 		static const RootSignature& GetRootSignature() { return mRootSig; }
 		static const GraphicsPSO& GetPSO(uint16_t psoFlags);
 	private:
-		static std::vector<GraphicsPSO> gPSOs;
+		static void RebuildPipelines();
+        static std::vector<GraphicsPSO> gPSOs;
 		static RootSignature mRootSig;
 		static DescriptorHeap gTextureHeap;
 		static DescriptorHandle gCommonTextures;

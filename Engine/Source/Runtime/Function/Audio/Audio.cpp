@@ -192,8 +192,9 @@ namespace AtomEngine
 				pair.second.pSourceVoice = nullptr;
 			}
 		}
+		soundDatas.clear();
+		if (masterVoice) { masterVoice->DestroyVoice(); masterVoice = nullptr; }
 		xAudio2.Reset();
-		MFShutdown();
 	}
 
 	Audio::SoundData Audio::SoundLoadWave(const std::string& filename)

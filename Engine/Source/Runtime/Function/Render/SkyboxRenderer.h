@@ -31,8 +31,8 @@ namespace AtomEngine
 		TextureRef mIrradianceCubeMap;
 		TextureRef mBRDF_LUT;
 
-		float mSpecularIBLRange;
-		float mSpecularIBLBias;
+		float mSpecularIBLRange = 0;
+		float mSpecularIBLBias = 0;
 
 		RootSignature mSkyboxRootSig;
 		GraphicsPSO mSkyboxPSO;

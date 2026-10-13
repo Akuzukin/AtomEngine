@@ -7,6 +7,7 @@
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 #include "Runtime/Platform/DirectX12/Context/ComputeContext.h"
 #include "imgui.h"
+#include "Runtime/Function/Global/GlobalContext.h"
 
 namespace
 {
@@ -112,7 +113,8 @@ namespace AtomEngine
 	{
 #ifndef RELEASE
 
-		ImGui::Begin("Post Effect");
+		if(ImGui::GetCurrentContext() && gContext.showRenderDiagnostics){
+        ImGui::Begin("Post Effect");
 		ImGui::Checkbox("EnableHDR", &mEnableHDR);
 		ImGui::Checkbox("EnableAdaptation", &mEnableAdaptation);
 		ImGui::DragFloat("MinExposure", &mMinExposure, 0.01f, -8.0f, 0.0f);
@@ -128,6 +130,7 @@ namespace AtomEngine
 		ImGui::DragFloat("BloomStrength", &mBloomStrength, 0.01f, 0.0f, 2.0f);
 		ImGui::DragFloat("BloomUpsampleFactor", &mBloomUpsampleFactor, 0.01f, 0.0f, 1.0f);
 		ImGui::End();
+        }
 #endif
 		Context.SetRootSignature(mPostEffectsRS);
 

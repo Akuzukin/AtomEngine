@@ -1,14 +1,12 @@
 /**
  * @file GameObject.h
  * @brief ゲームオブジェクトのラッパークラス
- * 
+ *
  * EnTTエンティティをラップし、より直感的なAPIを提供する。
  */
 
 #pragma once
 #include "ECSCommon.h"
-#include "GUID.h"
-
 namespace AtomEngine
 {
 	class World;
@@ -16,10 +14,10 @@ namespace AtomEngine
 	/**
 	 * @class GameObject
 	 * @brief ゲームオブジェクトクラス
-	 * 
+	 *
 	 * ECSのエンティティをラップし、コンポーネントの追加・削除・取得などの
 	 * 操作を簡潔に行えるようにする。
-	 * 
+	 *
 	 * 使用例:
 	 * @code
 	 * auto obj = world.CreateGameObject("Player");
@@ -37,7 +35,7 @@ namespace AtomEngine
 		 */
 		GameObject(Entity handle, World* world);
 		~GameObject()= default;
-		
+
 		operator Entity() const { return mHandle; }
 		operator bool() const { return IsValid(); }
 
@@ -46,7 +44,7 @@ namespace AtomEngine
 		 * @return 有効ならtrue
 		 */
 		bool IsValid() const;
-		
+
 		/**
 		 * @brief エンティティハンドルを取得
 		 * @return エンティティハンドル
@@ -89,24 +87,25 @@ namespace AtomEngine
 		 * @brief このゲームオブジェクトを破棄
 		 */
 		void Destroy();
-		
+
 		/**
 		 * @brief オブジェクトの名前を取得
 		 * @return オブジェクト名
 		 */
 		std::string GetName();
-		
+
 		/**
 		 * @brief オブジェクトに名前を設定
 		 * @param name 設定する名前
 		 */
 		void SetName(const std::string& name);
 
-		bool operator==(const GameObject& other) const { return mHandle == other.mHandle; }
+		bool operator==(const GameObject& other) const { return mWorld == other.mWorld && mHandle == other.mHandle; }
 		bool operator!=(const GameObject& other) const { return !(*this == other); }
 
 	private:
 		Entity mHandle{ entt::null };  ///< エンティティハンドル
+		std::weak_ptr<void> mWorldLifetime;
 		World* mWorld = nullptr;     ///< ワールドへのポインタ
 	};
 }

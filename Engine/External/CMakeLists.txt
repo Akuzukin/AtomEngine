@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.20)
+project(AtomDependencies LANGUAGES CXX)
+set(PHYSICS_REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(INTERPROCEDURAL_OPTIMIZATION OFF)
+set(ENABLE_OBJECT_STREAM OFF)
+set(OBJECT_LAYER_BITS 16)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+include(Jolt/Jolt.cmake)

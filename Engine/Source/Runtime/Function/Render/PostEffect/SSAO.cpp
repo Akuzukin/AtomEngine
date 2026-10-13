@@ -6,6 +6,7 @@
 #include "Runtime/Function/Camera/CameraBase.h"
 #include "Runtime/Platform/DirectX12/Shader/ShaderCompiler.h"
 #include "imgui.h"
+#include "Runtime/Function/Global/GlobalContext.h"
 
 //param
 namespace
@@ -121,7 +122,8 @@ namespace AtomEngine
 	void SSAO::Render(GraphicsContext& GfxContext, const float* ProjMat, float NearClipDist, float FarClipDist)
 	{
 #ifndef RELEASE
-		ImGui::Begin("SSAO");
+		if(ImGui::GetCurrentContext() && gContext.showRenderDiagnostics){
+        ImGui::Begin("SSAO");
 		ImGui::Checkbox("Enable SSAO", &sEnableSSAO);
 		ImGui::Checkbox("SSAO Debug View", &sEnableDebugView);
 		ImGui::DragFloat("NoiseFilterTolerance(log10)", &sNoiseFilterTolerance, 0.25f, -8.0f, 0.0f);
@@ -132,6 +134,7 @@ namespace AtomEngine
 		ImGui::DragInt("HierarchyDepth", &sHierarchyDepth, 1, 1, 4);
 		ImGui::DragInt("QualityLevel", reinterpret_cast<int*>(&gQualityLevel), 1, 0, kNumSsaoQualitySettings - 1);
 		ImGui::End();
+        }
 #endif // !RELEASE
 
 

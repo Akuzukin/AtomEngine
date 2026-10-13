@@ -1,7 +1,6 @@
 #include "BufferManager.h"
 #include "../Core/DirectX12Core.h"
 #include "Runtime/Platform/DirectX12/Context/GraphicsContext.h"
-#include "Runtime/Function/Render/PostEffect/TemporalAA.h"
 
 namespace AtomEngine
 {
@@ -39,9 +38,6 @@ namespace AtomEngine
 
 	ColorBuffer gMotionPrepBuffer;
 	ColorBuffer gLumaBuffer;
-	ColorBuffer gTemporalColor[2];
-	ColorBuffer gTemporalMinBound;
-	ColorBuffer gTemporalMaxBound;
 	ColorBuffer gBloomUAV1[2];	// 640x384 (1/3)
 	ColorBuffer gBloomUAV2[2];	// 320x192 (1/6) 
 	ColorBuffer gBloomUAV3[2];	// 160x96  (1/12)
@@ -53,7 +49,6 @@ namespace AtomEngine
 
 	void InitializeBuffers(uint32_t bufferWidth, uint32_t bufferHeight)
 	{
-		GraphicsContext& InitContext = GraphicsContext::Begin();
 
 		const uint32_t bufferWidth1 = (bufferWidth + 1) / 2;
 		const uint32_t bufferWidth2 = (bufferWidth + 3) / 4;
@@ -107,17 +102,6 @@ namespace AtomEngine
 			gAOHighQuality4.Create(L"AO High Quality 4", bufferWidth4, bufferHeight4, 1, DXGI_FORMAT_R8_UNORM);
 
 		}
-		
-		//TAA
-		{
-			gTemporalColor[0].Create(L"Temporal Color 0", bufferWidth, bufferHeight, 1, DXGI_FORMAT_R16G16B16A16_FLOAT);
-			gTemporalColor[1].Create(L"Temporal Color 1", bufferWidth, bufferHeight, 1, DXGI_FORMAT_R16G16B16A16_FLOAT);
-			TemporalAA::ClearHistory(InitContext);
-
-			gTemporalMinBound.Create(L"Temporal Min Color", bufferWidth, bufferHeight, 1, DXGI_FORMAT_R11G11B10_FLOAT);
-			gTemporalMaxBound.Create(L"Temporal Max Color", bufferWidth, bufferHeight, 1, DXGI_FORMAT_R11G11B10_FLOAT);
-
-		}
 
 		//Motion Blur
 		{
@@ -143,7 +127,6 @@ namespace AtomEngine
 			gHistogram.Create(L"Histogram", 256, 4);
 		}
 
-		InitContext.Finish();
 	}
 	void DestroyBuffers()
 	{
@@ -161,16 +144,30 @@ namespace AtomEngine
 		gSSAOFullScreen.Destroy();
 		gLinearDepth[0].Destroy();
 		gLinearDepth[1].Destroy();
+		gDepthDownsize1.Destroy();
+		gDepthDownsize2.Destroy();
+		gDepthDownsize3.Destroy();
+		gDepthDownsize4.Destroy();
+		gDepthTiled1.Destroy();
+		gDepthTiled2.Destroy();
+		gDepthTiled3.Destroy();
+		gDepthTiled4.Destroy();
+		gAOMerged1.Destroy();
+		gAOMerged2.Destroy();
+		gAOMerged3.Destroy();
+		gAOMerged4.Destroy();
+		gAOSmooth1.Destroy();
+		gAOSmooth2.Destroy();
+		gAOSmooth3.Destroy();
+		gAOHighQuality1.Destroy();
+		gAOHighQuality2.Destroy();
+		gAOHighQuality3.Destroy();
+		gAOHighQuality4.Destroy();
 
 		gLumaBuffer.Destroy();
 		gLumaLR.Destroy();
 
 		gMotionPrepBuffer.Destroy();
-		gLumaBuffer.Destroy();
-		gTemporalColor[0].Destroy();
-		gTemporalColor[1].Destroy();
-		gTemporalMinBound.Destroy();
-		gTemporalMaxBound.Destroy();
 		gBloomUAV1[0].Destroy();
 		gBloomUAV1[1].Destroy();
 		gBloomUAV2[0].Destroy();
@@ -181,7 +178,6 @@ namespace AtomEngine
 		gBloomUAV4[1].Destroy();
 		gBloomUAV5[0].Destroy();
 		gBloomUAV5[1].Destroy();
-		gLumaLR.Destroy();
 		gHistogram.Destroy();
 	}
 	void ResizeBuffers(uint32_t Width, uint32_t Height)

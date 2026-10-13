@@ -17,6 +17,8 @@ namespace AtomEngine
 		void Render(GraphicsContext& Context);
 		void Shutdown();
 
+	private:
+        std::string mIniPath;
 	public:
 
 		void ShowPerformanceWindow(float deltaTime);

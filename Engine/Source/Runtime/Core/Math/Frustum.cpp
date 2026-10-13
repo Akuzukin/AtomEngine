@@ -105,21 +105,21 @@ namespace AtomEngine
 	void Frustum::DebugDraw(const Matrix4x4& viewProj, const Color& color) const
 	{
 		// Near rect
-		Primitive::DrawLine(m_FrustumCorners[kNearLowerLeft], m_FrustumCorners[kNearUpperLeft], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearUpperLeft], m_FrustumCorners[kNearUpperRight], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearUpperRight], m_FrustumCorners[kNearLowerRight], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearLowerRight], m_FrustumCorners[kNearLowerLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearLowerLeft], m_FrustumCorners[kNearUpperLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearUpperLeft], m_FrustumCorners[kNearUpperRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearUpperRight], m_FrustumCorners[kNearLowerRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearLowerRight], m_FrustumCorners[kNearLowerLeft], color, viewProj);
 
 		// Far rect
-		Primitive::DrawLine(m_FrustumCorners[kFarLowerLeft], m_FrustumCorners[kFarUpperLeft], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kFarUpperLeft], m_FrustumCorners[kFarUpperRight], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kFarUpperRight], m_FrustumCorners[kFarLowerRight], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kFarLowerRight], m_FrustumCorners[kFarLowerLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kFarLowerLeft], m_FrustumCorners[kFarUpperLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kFarUpperLeft], m_FrustumCorners[kFarUpperRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kFarUpperRight], m_FrustumCorners[kFarLowerRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kFarLowerRight], m_FrustumCorners[kFarLowerLeft], color, viewProj);
 
 		// Sides
-		Primitive::DrawLine(m_FrustumCorners[kNearLowerLeft], m_FrustumCorners[kFarLowerLeft], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearUpperLeft], m_FrustumCorners[kFarUpperLeft], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearLowerRight], m_FrustumCorners[kFarLowerRight], color, viewProj);
-		Primitive::DrawLine(m_FrustumCorners[kNearUpperRight], m_FrustumCorners[kFarUpperRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearLowerLeft], m_FrustumCorners[kFarLowerLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearUpperLeft], m_FrustumCorners[kFarUpperLeft], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearLowerRight], m_FrustumCorners[kFarLowerRight], color, viewProj);
+		DebugDraw::DrawLine(m_FrustumCorners[kNearUpperRight], m_FrustumCorners[kFarUpperRight], color, viewProj);
 	}
 }

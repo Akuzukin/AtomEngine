@@ -4,7 +4,7 @@
 #include "BoundingSphere.h"
 #include "BoundingBox.h"
 #include "Runtime/Core/Color/Color.h"
-#include "Runtime/Function/Render/Primitive.h"
+#include "Runtime/Function/Render/DebugDraw.h"
 
 namespace AtomEngine
 {

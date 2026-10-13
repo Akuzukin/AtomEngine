@@ -11,6 +11,7 @@ namespace AtomEngine
         virtual ~RenderPass() = default;
 
         virtual void Initialize() {};
+        virtual void Shutdown() {};
         virtual void Update(GraphicsContext& Context, float deltaTime) {};
         virtual void Render(GraphicsContext& gfxContext) = 0;
 

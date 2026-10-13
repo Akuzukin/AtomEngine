@@ -193,6 +193,19 @@ namespace AtomEngine
 
         if (OldState != NewState)
         {
+            // Keep chained transitions (including split barriers) in separate batches.
+            // Their states are ordered; submitting both for the same subresource in
+            // one ResourceBarrier call triggers the debug layer's duplicate warning.
+            for (uint32_t i = 0; i < mNumBarriersToFlush; ++i)
+            {
+                const auto& pending = mResourceBarrierBuffer[i];
+                if (pending.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION &&
+                    pending.Transition.pResource == Resource.GetResource())
+                {
+                    FlushResourceBarriers();
+                    break;
+                }
+            }
             ASSERT(mNumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
             D3D12_RESOURCE_BARRIER& BarrierDesc = mResourceBarrierBuffer[mNumBarriersToFlush++];
 
@@ -229,6 +242,16 @@ namespace AtomEngine
 
         if (OldState != NewState)
         {
+            for (uint32_t i = 0; i < mNumBarriersToFlush; ++i)
+            {
+                const auto& pending = mResourceBarrierBuffer[i];
+                if (pending.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION &&
+                    pending.Transition.pResource == Resource.GetResource())
+                {
+                    FlushResourceBarriers();
+                    break;
+                }
+            }
             ASSERT(mNumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
             D3D12_RESOURCE_BARRIER& BarrierDesc = mResourceBarrierBuffer[mNumBarriersToFlush++];
 

@@ -34,7 +34,8 @@ namespace AtomEngine
     {
         if (speed <= 0.0f) return target;
         float alpha = std::clamp(dt * speed, 0.0f, 1.0f);
-        return Quaternion::Slerp(current, target, alpha);
+        auto rotation=Quaternion::Dot(current,target)<0.f ? -target : target;
+        return Quaternion::Slerp(current, rotation, alpha).NormalizeCopy();
     }
 }
 

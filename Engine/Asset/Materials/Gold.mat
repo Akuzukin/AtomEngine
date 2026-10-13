@@ -1,0 +1,7 @@
+<MaterialPreset version="1" name="Gold">
+  <Material metallic="1" roughness="0.22" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="true">
+    <BaseColor x="1" y="0.766" z="0.336" alpha="1" />
+    <Emissive x="0" y="0" z="0" />
+    <Fresnel x="0.04" y="0.04" z="0.04" />
+  </Material>
+</MaterialPreset>

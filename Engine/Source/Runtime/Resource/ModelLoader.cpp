@@ -1,4 +1,6 @@
 #include "ModelLoader.h"
+#include "Runtime/Core/Utility/Utility.h"
+#include <functional>
 #include <map>
 
 namespace AtomEngine
@@ -18,6 +20,7 @@ namespace AtomEngine
 		{ aiTextureType_HEIGHT,						TextureSlot::kNormal			},
 		{ aiTextureType_LIGHTMAP,					TextureSlot::kOcclusion			},
 		{ aiTextureType_AMBIENT_OCCLUSION,			TextureSlot::kOcclusion			},
+		{ aiTextureType_SPECULAR, TextureSlot::kSpecular },
 		{ aiTextureType_EMISSIVE,					TextureSlot::kEmissive			}
 	};
 
@@ -292,8 +295,8 @@ namespace AtomEngine
 		material.metallicFactor = metallic;
 		material.roughnessFactor = roughness;
 
-		aiColor3D emission = { 1,1,1 };
-		if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, emission))
+		aiColor3D emission = { 0,0,0 };
+		if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_EMISSIVE, emission))
 		{
 			material.emissiveFactor[0] = emission.r;
 			material.emissiveFactor[1] = emission.g;

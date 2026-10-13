@@ -52,6 +52,7 @@ namespace AtomEngine
 	{
 	public:
 		World();
+        void ReplaceWith(World& source);
 		~World();
 
 		/**
@@ -66,7 +67,9 @@ namespace AtomEngine
 		 * @param entity エンティティID
 	  * @return ゲームオブジェクトのポインタ
 		 */
-		GameObject* GetGameObject(Entity entity);
+		std::unique_ptr<GameObject> GetGameObject(Entity entity);
+		std::weak_ptr<void> GetLifetime() const { return mLifetime; }
+		bool IsValid(Entity entity) const { return mRegistry.valid(entity); }
 
 		/**
 			   * @brief ゲームオブジェクトを破棄
@@ -121,7 +124,7 @@ namespace AtomEngine
 		template<typename T>
 		void RemoveComponent(Entity e)
 		{
-			mRegistry.remove<T>(e);
+			if (!mRegistry.valid(e) || !mRegistry.remove<T>(e)) return;
 			mDispatcher.trigger(ComponentRemovedEvent{ e, std::type_index(typeid(T)) });
 		}
 
@@ -170,7 +173,7 @@ namespace AtomEngine
 		 * @brief レジストリを取得
 		 * @return レジストリへの参照
 		 */
-		entt::registry& GetRegistry() { return mRegistry; }
+		const entt::registry& GetRegistry() const { return mRegistry; }
 
 		/**
 		 * @brief エンティティに名前を設定
@@ -180,12 +183,13 @@ namespace AtomEngine
 		void SetName(Entity entity, const std::string& name);
 
 	private:
+		std::shared_ptr<void> mLifetime = std::make_shared<int>(0);
 		entt::registry mRegistry;         ///< enttレジストリ
 		entt::dispatcher mDispatcher;     ///< イベントディスパッチャー
 
-		std::unordered_map<Entity, GameObject*> mEntityToObject;  ///< エンティティ→オブジェクトマップ
 
-		std::unordered_map<std::string, Entity> mNameLookup;      ///< 名前→エンティティマップ
+
+
 
 		ComponentCallback mOnComponentAdded = nullptr;            ///< コンポーネント追加コールバック
 		ComponentCallback mOnComponentRemoved = nullptr;          ///< コンポーネント削除コールバック

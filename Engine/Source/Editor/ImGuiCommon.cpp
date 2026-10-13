@@ -14,17 +14,34 @@ namespace AtomEngine
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 		io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
-		// セットImGuiスタイル
-		ImGui::StyleColorsDark();
+		wchar_t exe[32768]{};GetModuleFileNameW(nullptr,exe,DWORD(std::size(exe)));
+        mIniPath=WStringToUTF8((std::filesystem::path(exe).parent_path()/"AtomEditor.ini").wstring());
+        io.IniFilename=mIniPath.c_str();
+        if(std::filesystem::exists("C:/Windows/Fonts/msyh.ttc"))io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/msyh.ttc",17.f,nullptr,io.Fonts->GetGlyphRangesChineseFull());
+        ImGui::StyleColorsDark();
+        io.ConfigWindowsMoveFromTitleBarOnly = true;
+
+        // セットImGuiスタイル
+		//ImGui::StyleColorsDark();
 
 		//スケーリングの設定
 		ImGuiStyle& style = ImGui::GetStyle();
-		style.ScaleAllSizes(mainScale);
+		style.WindowMenuButtonPosition=ImGuiDir_None;
+        style.FrameRounding = 3;
+        style.GrabRounding = 3;
+        style.FramePadding = ImVec2(8, 5);
+        style.ItemSpacing = ImVec2(8, 6);
+        style.WindowPadding = ImVec2(10, 10);
+        //style.Colors[ImGuiCol_WindowBg] = ImVec4(.10f,.11f,.13f,1);
+        //style.Colors[ImGuiCol_Header] = ImVec4(.18f,.26f,.36f,1);
+        //style.Colors[ImGuiCol_Button] = ImVec4(.18f,.23f,.30f,1);
+        //style.Colors[ImGuiCol_TabSelected] = ImVec4(.19f,.30f,.43f,1);
+        style.ScaleAllSizes(mainScale);
 		style.FontScaleDpi = mainScale;
 		io.ConfigDpiScaleFonts = true;
 		io.ConfigDpiScaleViewports = true;
@@ -53,7 +70,7 @@ namespace AtomEngine
 				*out_cpu_handle = D3D12_CPU_DESCRIPTOR_HANDLE(handle);
 				*out_gpu_handle = D3D12_GPU_DESCRIPTOR_HANDLE(handle);
 			};
-		init_info.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) {};
+		init_info.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) { Renderer::GetTextureHeap().Free(DescriptorHandle(cpu_handle, gpu_handle)); };
 		ImGui_ImplDX12_Init(&init_info);
 	}
 

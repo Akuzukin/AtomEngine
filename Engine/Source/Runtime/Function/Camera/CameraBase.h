@@ -224,9 +224,9 @@ namespace AtomEngine
 		
 		/**
 		 * @brief デプスバッファのクリア値を取得
-		 * @return クリア値（ReverseZなら1.0、通常なら0.0）
+		 * @return クリア値（ReverseZなら0.0、通常なら1.0）
 		 */
-		float GetClearDepth() const { return mReverseZ ? 1.0f : 0.0f; }
+		float GetClearDepth() const { return mReverseZ ? 0.0f : 1.0f; }
 		
 	private:
 		/**

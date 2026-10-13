@@ -432,19 +432,19 @@ namespace AtomEngine
 			return Matrix3x3(*this);
 		}
 
-		Quaternion GetRotation() const
-		{
-			return Quaternion(*this);
-		}
+        Quaternion GetRotation() const
+        {
+            auto scale=GetScale();
+            if(scale.x<1e-6f||scale.y<1e-6f||scale.z<1e-6f)return Quaternion::IDENTITY;
+            Matrix4x4 rotation=*this;
+            for(size_t row=0;row<3;++row)for(size_t col=0;col<3;++col)rotation[row][col]/=scale[row];
+            return Quaternion(rotation).NormalizeCopy();
+        }
 
-		Vector3 GetScale() const
-		{
-			Vector3 result;
-			result.x = mat[0][0];
-			result.y = mat[1][1];
-			result.z = mat[2][2];
-			return result;
-		}
+        Vector3 GetScale() const
+        {
+            return Vector3(GetX().Length(),GetY().Length(),GetZ().Length());
+        }
 
 		static Matrix4x4 RotationMatrix(Vector3 normal)
 		{
@@ -482,7 +482,7 @@ namespace AtomEngine
 
 			mat[3][0] = v.x;
 			mat[3][1] = v.y;
-			mat[3][2] = v.y;
+			mat[3][2] = v.z;
 			mat[3][3] = 1.0;
 		}
 
@@ -809,7 +809,7 @@ namespace AtomEngine
 
 	inline Vector3 Math::Transform(const Vector3& v, const Matrix4x4& m)
 	{
-		return v * m;
+		return Math::TransformCoord(v,m);
 	}
 
 

@@ -13,6 +13,7 @@ AtomEngine::MaterialComponent::MaterialComponent(const std::shared_ptr<Model> mo
             mMaterials[i].mRoughness = material.roughnessFactor;
 			mMaterials[i].mEmissive = material.emissiveFactor;
 			mMaterials[i].mNormalScale = material.normalScale;
+            mMaterials[i].mAO=material.ao;
 		}
 	}
 	else

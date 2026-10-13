@@ -5,18 +5,47 @@
 #include "Runtime/Function/Render/WindowManager.h"
 #include "Runtime/Function/Render/RenderSystem.h"
 #include "Runtime/Function/Global/GlobalContext.h"
-#include "Runtime/Resource/AssetManager.h"
-#include "Runtime/Function/Render/PostEffect/TemporalAA.h"
+
 
 #include "../Context/GraphicsContext.h"
 #include "../Buffer/BufferManager.h"
 #include "../Shader/ShaderCompiler.h"
 
-#pragma comment(lib, "d3d12.lib") 
-#pragma comment(lib, "dxgi.lib") 
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
 using namespace Microsoft::WRL;
+
+namespace AtomEngine
+{
+	namespace {
+		struct RetiredResource {
+			Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+			uint64_t graphics, compute, copy;
+		};
+		std::mutex retirementMutex;
+		std::vector<RetiredResource> retiredResources;
+	}
+	void RetireGpuResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
+	{
+		if (!resource || !DX12Core::gCommandManager.GetGraphicsQueue().IsReady()) return;
+		std::lock_guard<std::mutex> lock(retirementMutex);
+		auto& manager = DX12Core::gCommandManager;
+		retiredResources.push_back({std::move(resource),
+			manager.GetGraphicsQueue().IncrementFence(),
+			manager.GetComputeQueue().IncrementFence(),
+			manager.GetCopyQueue().IncrementFence()});
+	}
+	void CollectRetiredResources()
+	{
+		std::lock_guard<std::mutex> lock(retirementMutex);
+		auto& manager = DX12Core::gCommandManager;
+		std::erase_if(retiredResources, [&](const RetiredResource& r) {
+			return manager.IsFenceComplete(r.graphics) && manager.IsFenceComplete(r.compute) && manager.IsFenceComplete(r.copy);
+		});
+	}
+}
 
 namespace AtomEngine
 {
@@ -25,6 +54,17 @@ namespace AtomEngine
 		void CompositeOverlays(GraphicsContext& Context);
 
 		ComPtr<ID3D12Device> gDevice = nullptr;
+#ifdef _DEBUG
+        ComPtr<ID3D12InfoQueue1> debugInfoQueue;
+        DWORD debugMessageCookie=0;
+        void CALLBACK DebugMessage(D3D12_MESSAGE_CATEGORY, D3D12_MESSAGE_SEVERITY severity,
+                                   D3D12_MESSAGE_ID id, LPCSTR description, void*) {
+            auto level=severity==D3D12_MESSAGE_SEVERITY_CORRUPTION?LogLevel::Critical:
+                       severity==D3D12_MESSAGE_SEVERITY_ERROR?LogLevel::Error:
+                       severity==D3D12_MESSAGE_SEVERITY_WARNING?LogLevel::Warning:LogLevel::Debug;
+            WriteLog(level,"D3D12","["+std::to_string(int(id))+"] "+description);
+        }
+#endif
 		CommandListManager gCommandManager;
 		ContextManager gContextManager;
 
@@ -67,7 +107,7 @@ namespace AtomEngine
 		float sharpeningRotation = 45.0f;
 		float sharpeningStrength = 0.1f;
 
-		bool s_EnableVSync = true;	
+		bool s_EnableVSync = true;
 
 		static void ResolutionToUINT(eResolution res, uint32_t& width, uint32_t& height)
 		{
@@ -210,7 +250,7 @@ namespace AtomEngine
 					gEnableHDROutput = true;
 				}
 			}
-#endif 
+#endif
 
 			for (uint32_t i = 0; i < kSwapChainBufferCount; ++i)
 			{
@@ -303,12 +343,12 @@ namespace AtomEngine
 		{
 #ifdef _DEBUG
 
-			//ComPtr<ID3D12Debug1> debugController = nullptr;
-			//if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-			//{
-			//	debugController->EnableDebugLayer();
-			//	debugController->SetEnableGPUBasedValidation(TRUE);
-			//}
+			ComPtr<ID3D12Debug1> debugController = nullptr;
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+			{
+				debugController->EnableDebugLayer();
+				debugController->SetEnableGPUBasedValidation(TRUE);
+			}
 
 #endif // _DEBUG
 
@@ -400,6 +440,9 @@ namespace AtomEngine
 				filter.DenyList.pSeverityList = severities;
 				//指定したメッセージの表示を抑制する
 				infoQueue->PushStorageFilter(&filter);
+                if(SUCCEEDED(gDevice.As(&debugInfoQueue)))
+                    ThrowIfFailed(debugInfoQueue->RegisterMessageCallback(DebugMessage,D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+                                                                          nullptr,&debugMessageCookie));
 
 			}
 #endif
@@ -432,16 +475,15 @@ namespace AtomEngine
 			gCommandManager.Create(gDevice.Get());
 			InitializeCommonState();
 			InitSwapChain();
-			AssetManager::Initialize(L"");
-			Renderer::Initialize();
+
 		}
 
 		void DX12Core::ShutdownDx12()
 		{
 			gCommandManager.IdleGPU();
 
+			CollectRetiredResources();
 			CommandContext::DestroyAllContexts();
-			gCommandManager.Shutdown();
 
 			PSO::DestroyAll();
 			RootSignature::DestroyAll();
@@ -449,11 +491,18 @@ namespace AtomEngine
 			DestroyCommonState();
 			DestroyBuffers();
 
-			Renderer::Shutdown();
-			AssetManager::Shutdown();
+
 
 			ShutdownSwapChain();
+			// Contexts and buffers retire their resources during destruction. Drain
+			// their new fences while the queues are still alive, before releasing the device.
+			gCommandManager.IdleGPU();
+			CollectRetiredResources();
+			gCommandManager.Shutdown();
 
+#ifdef _DEBUG
+            if(debugInfoQueue) {debugInfoQueue->UnregisterMessageCallback(debugMessageCookie);debugInfoQueue.Reset();}
+#endif
 			gDevice.Reset();
 
 			Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
@@ -543,25 +592,24 @@ namespace AtomEngine
 
 			}
 			CompositeOverlays(Context);
-		
-			//ImGui Present
-			gContext.imgui->Render(Context);
-			
+
+			if (gContext.prepareEditorViewport) gContext.prepareEditorViewport(Context, gFrameBuffers[gCurrentBuffer]);
+
+            //ImGui Present
+			if (gContext.renderOverlay) gContext.renderOverlay(Context);
+
 			Context.TransitionResource(gFrameBuffers[gCurrentBuffer], D3D12_RESOURCE_STATE_PRESENT);
 
-			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-			{
-				ImGui::UpdatePlatformWindows();
-				ImGui::RenderPlatformWindowsDefault();
-			}
+			if (gContext.renderPlatformWindows) gContext.renderPlatformWindows();
 			Context.Finish(true);
+            if (gContext.capturePresented) gContext.capturePresented(gFrameBuffers[gCurrentBuffer]);
 
 			gSwapChain->Present(s_EnableVSync ? 1 : 0, 0);
 			gCurrentBuffer = gSwapChain->GetCurrentBackBufferIndex();
 
+			CollectRetiredResources();
 			++gFrameIndex;
 
-			TemporalAA::Update(gFrameIndex);
 
 			SetNativeResolution();
 			SetWindowResolution();

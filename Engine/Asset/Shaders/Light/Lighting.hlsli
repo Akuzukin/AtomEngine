@@ -78,12 +78,13 @@ float3 ApplyAmbientLight(
 
 float GetDirectionalShadow(float3 ShadowCoord, Texture2D<float> texShadow)
 {
+    if(any(ShadowCoord<0) || any(ShadowCoord>1))return 1.0;
     float sum = 0.0f;
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float2 offset = float2(x, y) * ShadowTexelSize.x;
+            float2 offset = float2(x, y) * ShadowTexelSize.xy;
             sum += texShadow.SampleCmpLevelZero(shadowSampler, ShadowCoord.xy + offset, ShadowCoord.z);
         }
     }

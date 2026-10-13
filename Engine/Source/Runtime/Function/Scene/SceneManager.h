@@ -7,6 +7,7 @@ namespace AtomEngine
 	{
 	public:
 
+		void LoadScene(const std::filesystem::path& path);
 		void Update(float deltaTime);
 		void Render();
 		void Shutdown();
@@ -27,16 +28,16 @@ namespace AtomEngine
 	private:
 		enum class SceneState
 		{
-			None,		
-			In,		//シーンに入る
-			out,	//シーンから出る
-			Change	//シーンを変更
+			None,
+			Push,
+			Pop,
+			Replace
 		};
 
 		std::vector<std::unique_ptr<Scene>> mScenes;
         SceneState mSceneState = SceneState::None;
 		std::unique_ptr<Scene> mPendingScene;
-	
+
 	private:
 
 		//シーン状態処置

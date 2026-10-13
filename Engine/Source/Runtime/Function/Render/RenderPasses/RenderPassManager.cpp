@@ -67,6 +67,7 @@ namespace AtomEngine
 
 	void RenderPassManager::Shutdown()
 	{
+		for (auto it = mAllPasses.rbegin(); it != mAllPasses.rend(); ++it) (*it)->Shutdown();
 		mAllPasses.clear();
 		mCurrentPasses.clear();
 	}

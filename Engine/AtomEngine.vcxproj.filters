@@ -1,71 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="External">
       <UniqueIdentifier>{19756598-85e6-4118-ab0a-5fb80cb8176b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp">
-      <UniqueIdentifier>{ac1a73f8-5466-46c0-bfa5-942a43250ff0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp\include">
-      <UniqueIdentifier>{1f77b7f0-7249-4af8-b1b8-840c82fc3dc8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp\include\assimp">
-      <UniqueIdentifier>{153375df-ea0c-4aca-8191-534febaa562c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp\include\assimp\Compiler">
-      <UniqueIdentifier>{eeefa2bd-a614-43d5-9461-4a9dc94e71e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp\include\assimp\port">
-      <UniqueIdentifier>{b295d56a-7b43-474c-a8b9-37408134a79f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\assimp\include\assimp\port\AndroidJNI">
-      <UniqueIdentifier>{4fc31830-7750-432f-944c-c15e1b4e455a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\DirectXTex">
-      <UniqueIdentifier>{7c34503b-cdba-4a7e-bea0-4b5048cc61b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\DirectXTex\include">
-      <UniqueIdentifier>{22f30c1d-4c4b-4270-b4ee-dd35762af72e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt">
-      <UniqueIdentifier>{fd2bd991-9c65-4ca9-ab4f-eb2248b205a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\config">
-      <UniqueIdentifier>{d8c5928b-3290-4aff-b1e0-1acf3a28905c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\container">
-      <UniqueIdentifier>{1d944cae-fc71-46ca-b5ea-9b0ecb5acbc6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\core">
-      <UniqueIdentifier>{40c0fe4c-8350-4b9d-8937-7fc4784011b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\entity">
-      <UniqueIdentifier>{25164b5e-2444-4064-907d-efa6b587cfc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\graph">
-      <UniqueIdentifier>{22447bad-6dc5-430a-850b-dad3879cf147}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\locator">
-      <UniqueIdentifier>{1634c50e-28e3-4da2-9c68-79a2651b3fc7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\meta">
-      <UniqueIdentifier>{10793d3f-531f-4b80-9ea0-e17944b2b38b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\poly">
-      <UniqueIdentifier>{e43c8155-1a4e-4cfb-ad31-858d8cd14266}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\process">
-      <UniqueIdentifier>{742076e2-2c49-41be-a6f7-1a4abb6f7892}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\resource">
-      <UniqueIdentifier>{62a7e1d7-8dc7-4343-b0e0-9d5e605370b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\signal">
-      <UniqueIdentifier>{b76d4364-790a-4c7a-8fb9-859e7257a293}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\entt\tools">
-      <UniqueIdentifier>{00b88566-a72b-483b-8a7f-b311b10949d4}</UniqueIdentifier>
     </Filter>
     <Filter Include="External\imgui">
       <UniqueIdentifier>{afa6f1d7-3c39-4160-887d-482b0faeb6b9}</UniqueIdentifier>
@@ -73,38 +10,8 @@
     <Filter Include="External\imgui\include">
       <UniqueIdentifier>{38260391-1922-4118-a4d3-0894008f7a72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External\nlohmannjson">
-      <UniqueIdentifier>{b06f755d-00d8-435e-9d7a-d7c1a3b96256}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External\vox">
       <UniqueIdentifier>{4e752cb8-7db2-4557-82e3-57e3b9f43e72}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages">
-      <UniqueIdentifier>{bb44281e-0138-4936-8c05-bc2c4cf419a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879">
-      <UniqueIdentifier>{549546a2-4495-45eb-8602-6752edfa4161}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native">
-      <UniqueIdentifier>{ac844a8e-f1ef-42ce-814d-cfcea9d07ca5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\include">
-      <UniqueIdentifier>{6692b080-ceb7-4ff5-b1a2-a41496853b5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\include\v0">
-      <UniqueIdentifier>{604d6733-d68f-4baf-995a-f194079de9ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\include\v1">
-      <UniqueIdentifier>{c3bdae8d-6d67-4129-b69c-b86ffead49b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\include\v2">
-      <UniqueIdentifier>{303d8f64-2358-4657-8e16-ccd42999d27b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\lib">
-      <UniqueIdentifier>{3ffbd708-d00b-4451-9690-368feb90e0cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="packages\Microsoft.GameInput.3.1.26100.6879\native\lib\x64">
-      <UniqueIdentifier>{fac609b5-fa10-4dd6-b78e-9dd9c391f9d9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{a5ffa484-0ada-4949-8391-0f485d61af37}</UniqueIdentifier>
@@ -123,9 +30,6 @@
     </Filter>
     <Filter Include="Source\Runtime\Core\Color">
       <UniqueIdentifier>{74caf297-295f-4cd4-89ec-a1624c3ae11d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Runtime\Core\Json">
-      <UniqueIdentifier>{9ad6056f-6d1f-4504-9b3c-79232c665088}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Runtime\Core\LogSystem">
       <UniqueIdentifier>{9012d794-c285-4708-a37f-4e98806b8151}</UniqueIdentifier>
@@ -198,9 +102,6 @@
     </Filter>
     <Filter Include="Source\Runtime\Platform\DirectX12\Pipeline">
       <UniqueIdentifier>{6d63fd87-8c85-4c92-9aae-f591738ca12a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Runtime\Platform\DirectX12\RayTrace">
-      <UniqueIdentifier>{0686eedf-22a0-4276-8045-41214562e378}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Runtime\Platform\DirectX12\Shader">
       <UniqueIdentifier>{30736ab6-4771-4e30-9f8b-4be3b905cfe4}</UniqueIdentifier>
@@ -300,9 +201,6 @@
     <ClCompile Include="Source\Runtime\Function\Framework\ECS\GameObject.cpp">
       <Filter>Source\Runtime\Function\Framework\ECS</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Framework\ECS\GUID.cpp">
-      <Filter>Source\Runtime\Function\Framework\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Framework\ECS\World.cpp">
       <Filter>Source\Runtime\Function\Framework\ECS</Filter>
     </ClCompile>
@@ -316,12 +214,6 @@
       <Filter>Source\Runtime\Function\Light</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Render\GridRenderer.cpp">
-      <Filter>Source\Runtime\Function\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Render\MeshRenderer.cpp">
-      <Filter>Source\Runtime\Function\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Render\Primitive.cpp">
       <Filter>Source\Runtime\Function\Render</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Render\RenderQueue.cpp">
@@ -408,25 +300,13 @@
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Shader\ShaderCompiler.cpp">
       <Filter>Source\Runtime\Platform\DirectX12\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Runtime\Resource\Animation.cpp">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Runtime\Resource\AssetManager.cpp">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Resource\GeometryGenerator.cpp">
       <Filter>Source\Runtime\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Resource\Model.cpp">
       <Filter>Source\Runtime\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Resource\ModelLoader.cpp">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Resource\PrimitiveMesh.cpp">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Resource\Skeleton.cpp">
       <Filter>Source\Runtime\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Resource\Texture.cpp">
@@ -477,22 +357,7 @@
     <ClCompile Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.cpp">
       <Filter>Source\Runtime\Platform\DirectX12\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="External\imgui\include\GraphEditor.cpp">
-      <Filter>External\imgui\include</Filter>
-    </ClCompile>
-    <ClCompile Include="External\imgui\include\ImCurveEdit.cpp">
-      <Filter>External\imgui\include</Filter>
-    </ClCompile>
-    <ClCompile Include="External\imgui\include\ImGradient.cpp">
-      <Filter>External\imgui\include</Filter>
-    </ClCompile>
     <ClCompile Include="External\imgui\include\imgui.cpp">
-      <Filter>External\imgui\include</Filter>
-    </ClCompile>
-    <ClCompile Include="External\imgui\include\imgui_demo.cpp">
       <Filter>External\imgui\include</Filter>
     </ClCompile>
     <ClCompile Include="External\imgui\include\imgui_draw.cpp">
@@ -511,9 +376,6 @@
       <Filter>External\imgui\include</Filter>
     </ClCompile>
     <ClCompile Include="External\imgui\include\ImGuizmo.cpp">
-      <Filter>External\imgui\include</Filter>
-    </ClCompile>
-    <ClCompile Include="External\imgui\include\ImSequencer.cpp">
       <Filter>External\imgui\include</Filter>
     </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\MotionBlur.cpp">
@@ -626,9 +488,6 @@
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.h">
       <Filter>Source\Runtime\Function\Framework\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GUID.h">
-      <Filter>Source\Runtime\Function\Framework\ECS</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\World.h">
       <Filter>Source\Runtime\Function\Framework\ECS</Filter>
     </ClInclude>
@@ -642,12 +501,6 @@
       <Filter>Source\Runtime\Function\Light</Filter>
     </ClInclude>
     <ClInclude Include="Source\Runtime\Function\Render\GridRenderer.h">
-      <Filter>Source\Runtime\Function\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\MeshRenderer.h">
-      <Filter>Source\Runtime\Function\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\Primitive.h">
       <Filter>Source\Runtime\Function\Render</Filter>
     </ClInclude>
     <ClInclude Include="Source\Runtime\Function\Render\RenderQueue.h">
@@ -758,9 +611,6 @@
     <ClInclude Include="Source\Runtime\Resource\AssetManager.h">
       <Filter>Source\Runtime\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Runtime\Resource\GeometryGenerator.h">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Runtime\Resource\Material.h">
       <Filter>Source\Runtime\Resource</Filter>
     </ClInclude>
@@ -771,9 +621,6 @@
       <Filter>Source\Runtime\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Runtime\Resource\ModelLoader.h">
-      <Filter>Source\Runtime\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Runtime\Resource\PrimitiveMesh.h">
       <Filter>Source\Runtime\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Runtime\Resource\Skeleton.h">
@@ -833,19 +680,7 @@
     <ClInclude Include="Source\Runtime\Platform\DirectX12\Buffer\UploadBuffer.h">
       <Filter>Source\Runtime\Platform\DirectX12\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\PostEffect\TemporalAA.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="External\imgui\include\GraphEditor.h">
-      <Filter>External\imgui\include</Filter>
-    </ClInclude>
     <ClInclude Include="External\imgui\include\imconfig.h">
-      <Filter>External\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="External\imgui\include\ImCurveEdit.h">
-      <Filter>External\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="External\imgui\include\ImGradient.h">
       <Filter>External\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="External\imgui\include\imgui.h">
@@ -861,9 +696,6 @@
       <Filter>External\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="External\imgui\include\ImGuizmo.h">
-      <Filter>External\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="External\imgui\include\ImSequencer.h">
       <Filter>External\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="External\imgui\include\imstb_rectpack.h">
@@ -887,11 +719,6 @@
     <ClInclude Include="Source\Runtime\Function\Render\TrailRenderer.h">
       <Filter>Source\Runtime\Function\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Panels\IPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h" />
-    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shaders\BufferCopyPS.hlsl">
@@ -901,12 +728,6 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shaders\DepthOnlyVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\DepthViewPS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\DepthViewVS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shaders\FullScreenQuad.hlsl">
@@ -1023,9 +844,6 @@
     <FxCompile Include="Asset\Shaders\PostEffects\BloomExtractAndDownsampleHdr.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\BoundNeighborhood.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
     <FxCompile Include="Asset\Shaders\PostEffects\CopyBackPostBuffer.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
@@ -1045,15 +863,6 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shaders\PostEffects\SSAO\LinearizeDepth.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\ResolveTAA.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\SharpenTAA.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shaders\PostEffects\TAA\TemporalBlend.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shaders\PostEffects\MotionBlur\CameraMotionBlurPrePassCS.hlsl">
@@ -1127,5 +936,68 @@
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli">
       <Filter>Shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorLayer.cpp" />
+    <ClInclude Include="Source\Editor\EditorLayer.h" />
+    <ClCompile Include="Source\Runtime\Function\Animation\AnimationPlayer.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Animation\AnimationPlayer.h" />
+    <ClInclude Include="Source\Runtime\Function\Framework\Component\SceneComponents.h" />
+    <ClCompile Include="Source\Runtime\Function\Input\GameInputBackend.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Input\InputBackend.h" />
+    <ClCompile Include="Source\Runtime\Function\Input\XInputBackend.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Physics\PhysicsWorld.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Physics\PhysicsWorld.h" />
+    <ClCompile Include="Source\Runtime\Function\Render\DebugDraw.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\DebugDraw.h" />
+    <ClCompile Include="Source\Runtime\Function\Render\ModelGpuBuilder.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\ModelGpuBuilder.h" />
+    <ClCompile Include="Source\Runtime\Function\Render\ModelRenderResources.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\ModelRenderResources.h" />
+    <ClCompile Include="Source\Runtime\Function\Render\SelectionRenderer.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Render\SelectionRenderer.h" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneFiles.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneRuntime.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneRuntime.h" />
+    <ClCompile Include="Source\Runtime\Function\Scene\SceneSerializer.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneSerializer.h" />
+    <ClCompile Include="Source\Runtime\Function\Scripting\ScriptSystem.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Scripting\ScriptSystem.h" />
+    <ClCompile Include="Source\Runtime\Function\UI\UiRenderer.cpp" />
+    <ClInclude Include="Source\Runtime\Function\UI\UiRenderer.h" />
+    <ClCompile Include="Source\Runtime\Resource\Primitive.cpp" />
+    <ClInclude Include="Source\Runtime\Resource\Primitive.h" />
+    <ClCompile Include="Source\Runtime\Resource\Shader.cpp" />
+    <ClInclude Include="Source\Runtime\Resource\Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\UI\UiSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\EditorSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorDocument.cpp" />
+    <ClCompile Include="Source\Editor\EditorWorkflow.cpp" />
+    <ClInclude Include="Source\Editor\EditorDocument.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\RenderCameraSmokeChecks.h" />
+    <ClInclude Include="Tests\ShadowMaterialSmokeChecks.h" />
+    <ClInclude Include="Tests\SceneViewSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Resource\MaterialPreset.cpp" />
+    <ClInclude Include="Source\Runtime\Resource\MaterialPreset.h" />
+    <ClCompile Include="Source\Editor\MaterialPreviewRenderer.cpp" />
+    <ClInclude Include="Source\Editor\MaterialPreviewRenderer.h" />
+    <ClCompile Include="Source\Editor\EditorMaterials.cpp" />
+    <ClCompile Include="Source\Editor\EditorSceneControls.cpp" />
+    <ClInclude Include="Source\Editor\CameraGizmos.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="External\tinyxml2\tinyxml2.cpp" />
+    <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl"><Filter>Source\Runtime\Function\Framework\ECS</Filter></ClInclude>
   </ItemGroup>
 </Project>

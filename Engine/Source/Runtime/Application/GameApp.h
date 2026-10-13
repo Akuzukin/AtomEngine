@@ -21,15 +21,23 @@ public:
 	virtual ~GameApp() = default;
 
 	virtual void Initialize() = 0;
+	virtual void BeginFrame() {}
+    virtual bool AllowsRuntimeUiInput()const{return true;}
+    virtual Vector2 RuntimePointerPosition() const { auto& m=Input::GetInstance()->GetMouseState(); return Vector2(float(m.positionX),float(m.positionY)); }
+    virtual void OnRuntimeError(const std::string&) {}
+    virtual bool IsPlaying() const { return true; }
+    virtual bool IsPaused() const {return false;}
+    virtual float RuntimeDeltaTime(float dt) const {return dt;}
+	bool HasScene() const { return mSceneManager.GetCurrentScene() != nullptr; }
 	virtual void Update(float deltaTime) = 0;
 	virtual void Render() = 0;
 	virtual void Shutdown() = 0;
 	virtual bool Exit();
-	World& GetWorld() 
+	World& GetWorld()
 	{
 		return mSceneManager.GetCurrentScene()->GetWorld();
 	}
-    Camera& GetCamera() 
+    Camera& GetCamera()
 	{
         return mSceneManager.GetCurrentScene()->GetCamera();
 	}

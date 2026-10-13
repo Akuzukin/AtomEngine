@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Prefab version="1" root="sample-dynamic-cube">
+    <Object id="sample-dynamic-cube" name="Physics Cube">
+        <Transform>
+            <Position x="0" y="5" z="-5" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <Scale x="1" y="1" z="1" />
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true" />
+        <Material metallic="0" roughness="0.050000001" normalScale="1" ao="1" useLight="1" shadingModel="0">
+            <BaseColor x="0.80000001" y="0.41999999" z="0.16" alpha="1" />
+            <Emissive x="0" y="0" z="0" />
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999" />
+            <UV>
+                <Position x="0" y="0" z="0" />
+                <Rotation x="0" y="0" z="0" w="1" />
+                <Scale x="1" y="1" z="1" />
+            </UV>
+        </Material>
+        <Collider shape="0" radius="0.5" halfHeight="0.5" trigger="false" visible="true">
+            <Center x="0" y="0" z="0" />
+            <Rotation x="0" y="0" z="0" w="1" />
+            <HalfExtents x="0.5" y="0.5" z="0.5" />
+        </Collider>
+        <RigidBody motion="2" mass="1" friction="0.5" restitution="0.1" gravity="true">
+            <Velocity x="0" y="0" z="0" />
+        </RigidBody>
+        <Script assembly="Scripts/AtomScripts.dll" type="Game.KeyboardMover" enabled="true">
+            <Field name="Speed" value="4" />
+        </Script>
+    </Object>
+</Prefab>

@@ -1,4 +1,6 @@
 #include "EngineCore.h"
+#include "Runtime/Function/Scene/SceneRuntime.h"
+#include "Runtime/Function/Scene/SceneView.h"
 #include "Runtime/Core/LogSystem/LogSystem.h"
 #include "Runtime/Function/Global/GlobalContext.h"
 #include "Runtime/Function/Render/WindowManager.h"
@@ -8,44 +10,76 @@
 
 #include "Runtime/Application/GameApp.h"
 
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx12.h"
+#include "Runtime/Resource/AssetManager.h"
+#include "Runtime/Function/Render/ModelGpuBuilder.h"
 
 using namespace AtomEngine;
 namespace Engine
 {
 	AtomEngine::AtomEngine()
 	{
-		gContext.Initialize();
 
-		Log("Engine Start");
 	}
 
-	void AtomEngine::Run(GameApp& app)
+	AtomEngine::~AtomEngine()
 	{
+		if (mInitialized) Shutdown();
+	}
+
+	void AtomEngine::Run(GameApp& app, uint32_t maxFrames)
+	{
+		auto startupTime=std::chrono::steady_clock::now();
+        gContext.Initialize();
+        WriteLog(LogLevel::Info,"Startup","Platform initialization: "+std::to_string(std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-startupTime).count())+" ms");
+        { ScopedLogTimer timer("Startup","D3D12 initialization"); DX12Core::InitializeDx12(); }
+		gContext.windowManager->onResize = [](uint32_t width, uint32_t height) { DX12Core::OnResize(width, height); };
+		AssetManager::SetModelBuilder(BuildModelGpuResources);
+		AssetManager::Initialize(L"");
+		{ ScopedLogTimer timer("Startup","Renderer and shaders"); Renderer::Initialize(); }
+		mInitialized = true;
+		Log("Engine Start");
 		auto window = gContext.windowManager;
 
-		app.Initialize();
+		mRuntime=std::make_unique<SceneRuntime>();
+        { ScopedLogTimer timer("Startup","Application and scene"); app.Initialize(); }
+        WriteLog(LogLevel::Info,"Startup","Ready in "+std::to_string(std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-startupTime).count())+" ms");
+        FlushLog();
+		mLastTickTime = std::chrono::steady_clock::now();
 
+		uint32_t frameCount = 0;
+        bool firstFrame=true;
 		while (!window->ShouldClose() && !app.Exit())
 		{
 			const float deltaTime = CalculateDeltaTime();
 			Tick(app,deltaTime);
+            if(firstFrame) {
+                firstFrame=false;
+                WriteLog(LogLevel::Info,"Startup","First frame presented in "+std::to_string(std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-startupTime).count())+" ms");
+                FlushLog();
+            }
+			if (maxFrames && ++frameCount >= maxFrames) break;
 		}
 
 		DX12Core::gCommandManager.IdleGPU();
-		app.Shutdown();
+		mRuntime->Reset();
+        mRuntime.reset();
+        app.Shutdown();
 
 		mIsQuit = true;
 	}
 
 	bool AtomEngine::Shutdown()
 	{
+		if (!mInitialized) return mIsQuit;
+		mInitialized = false;
+		DX12Core::gCommandManager.IdleGPU();
+		Renderer::Shutdown();
+		AssetManager::Shutdown();
 		gContext.Shutdown();
-		Log("[INFO]:Shutdown System\n");
-
 		DX12Core::ShutdownDx12();
+		gContext.windowManager->Shutdown();
 		Log("[INFO]:Shutdown Engine\n");
+		CloseLog();
 		return mIsQuit;
 	}
 
@@ -55,15 +89,16 @@ namespace Engine
 
 		app.Update(deltaTime);
 
-		Renderer::Update(app.GetWorld(), deltaTime);
+		if(app.HasScene()){auto pointer=app.RuntimePointerPosition();mRuntime->Update(app.GetWorld(),app.RuntimeDeltaTime(deltaTime),app.IsPlaying(),app.AllowsRuntimeUiInput(),&pointer,app.IsPaused());app.OnRuntimeError(mRuntime->ScriptError());if(app.IsPlaying())ApplySceneCamera(app.GetWorld(),app.GetCamera());Renderer::Update(app.GetWorld(),app.IsPlaying() && !app.IsPaused()?app.RuntimeDeltaTime(deltaTime):0);}
+        else mRuntime->Reset();
 	}
 
 	void AtomEngine::RenderTick(GameApp& app,float deltaTime)
 	{
 
 		app.Render();
-		
-		Renderer::Render(app.GetWorld(),app.GetCamera(), deltaTime);
+
+		if (app.HasScene()) Renderer::Render(app.GetWorld(),app.GetCamera(), deltaTime);
 
 		DX12Core::Present();
 	}
@@ -99,7 +134,7 @@ namespace Engine
 	}
 	void AtomEngine::Tick(GameApp& app, float deltaTime)
 	{
-		gContext.imgui->Begin();
+		app.BeginFrame();
 
 		LogicalTick(app,deltaTime);
 		CalculateFPS(deltaTime);

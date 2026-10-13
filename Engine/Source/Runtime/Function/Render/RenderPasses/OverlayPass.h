@@ -7,6 +7,8 @@ namespace AtomEngine
 	{
 	public:
 
+		void Initialize()override;
+        void Shutdown()override;
 		void Render(GraphicsContext& gfxContext) override;
 	};
 }

@@ -4,18 +4,19 @@
 namespace AtomEngine
 {
     GameObject::GameObject(Entity handle, World* world)
-        : mHandle(handle), mWorld(world)
+        : mHandle(handle), mWorldLifetime(world ? world->GetLifetime() : std::weak_ptr<void>{}), mWorld(world)
     {
     }
 
     bool GameObject::IsValid() const
     {
-        return mHandle != entt::null && mWorld != nullptr;
+        return !mWorldLifetime.expired() && mWorld != nullptr && mWorld->IsValid(mHandle);
     }
 
     void GameObject::Destroy()
     {
         if (IsValid()) mWorld->DestroyGameObject(mHandle);
+        mHandle = entt::null;
     }
 
     std::string GameObject::GetName()

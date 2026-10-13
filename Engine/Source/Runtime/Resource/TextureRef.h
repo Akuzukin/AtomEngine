@@ -21,7 +21,7 @@ namespace AtomEngine
 	private:
 		ManagedTexture(const std::wstring& FileName);
 
-		void WaitForLoad(void) const;
+
 		void CreateFromMemory(std::shared_ptr<std::vector<byte>> memory, eDefaultTexture fallback, bool sRGB);
 
 		bool IsValid(void) const { return mIsValid; }
@@ -29,12 +29,13 @@ namespace AtomEngine
 
 		const void CopyGPU(ID3D12DescriptorHeap* heap,DescriptorHandle handle) const;
 
-		friend ManagedTexture* FindOrLoadTexture(const std::wstring& fileName, eDefaultTexture fallback, bool forceSRGB);
+		friend std::shared_ptr<ManagedTexture> FindOrLoadTexture(const std::wstring& fileName, eDefaultTexture fallback, bool forceSRGB);
 
+		std::wstring mSourcePath;
 		std::wstring mMapKey;		// 後でマップから削除するため
 		bool mIsValid;
 		bool mIsLoading;
-		size_t mReferenceCount;
+
 	};
 
 	// ManagedTexture へのハンドル。コンストラクタとデストラクタは参照カウントを変更します。
@@ -44,11 +45,12 @@ namespace AtomEngine
 	public:
 
 		TextureRef(const TextureRef& ref);
-		TextureRef(ManagedTexture* tex = nullptr);
+		TextureRef(std::shared_ptr<ManagedTexture> tex = nullptr);
+		TextureRef(TextureRef&&) noexcept = default;
 		~TextureRef();
 
-		void operator= (std::nullptr_t);
-		void operator= (TextureRef& rhs);
+		TextureRef& operator=(std::nullptr_t) { mRef.reset(); return *this; }
+
 		TextureRef& operator=(const TextureRef& rhs);
 		TextureRef& operator=(TextureRef&& rhs) noexcept;
 
@@ -65,10 +67,11 @@ namespace AtomEngine
 
 		const Texture* operator->(void) const;
 
+		std::wstring SourcePath() const { return mRef ? mRef->mSourcePath : L""; }
 		uint32_t Width() const {return mRef->GetWidth();}
         uint32_t Height() const {return mRef->GetHeight();}
 	private:
-		ManagedTexture* mRef;
+		std::shared_ptr<ManagedTexture> mRef;
 	};
 }
 

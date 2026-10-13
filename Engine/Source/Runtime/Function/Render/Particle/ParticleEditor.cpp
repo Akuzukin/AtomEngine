@@ -50,7 +50,7 @@ namespace AtomEngine
 
 	void ParticleEditor::Render()
 	{
-		if (!mOpen) return;
+		if (!mOpen||!ImGui::GetCurrentContext()) return;
 
 		ImGui::Begin("Particle Editor", &mOpen);
 

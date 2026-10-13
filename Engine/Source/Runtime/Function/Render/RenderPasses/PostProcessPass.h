@@ -9,6 +9,7 @@ namespace AtomEngine
 	{
 	public:
 		void Initialize() override;
+		void Shutdown() override;
 		void Update(GraphicsContext& Context, float deltaTime) override;
 		void Render(GraphicsContext& gfxContext) override;
 

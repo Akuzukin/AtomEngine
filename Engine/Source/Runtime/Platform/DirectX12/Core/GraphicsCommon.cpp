@@ -177,8 +177,10 @@ namespace AtomEngine
 
         RasterizerShadow = RasterizerDefault;
         //RasterizerShadow.CullMode = D3D12_CULL_FRONT;  // Hacked here rather than fixing the content
-        RasterizerShadow.SlopeScaledDepthBias = -1.5f;
-        RasterizerShadow.DepthBias = -100;
+        // Reverse-Z moves casters away from the light. Cover the diagonal PCF taps
+        // without the old large constant bias that erased small-object shadows.
+        RasterizerShadow.SlopeScaledDepthBias = -2.5f;
+        RasterizerShadow.DepthBias = -8;
 
         RasterizerShadowTwoSided = RasterizerShadow;
         RasterizerShadowTwoSided.CullMode = D3D12_CULL_MODE_NONE;

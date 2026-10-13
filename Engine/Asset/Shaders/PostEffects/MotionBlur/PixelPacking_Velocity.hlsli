@@ -4,7 +4,7 @@
 #if 1
 // This is a custom packing that devotes 10 bits each to X and Y velocity but 12 bits to Z velocity.  Floats
 // are used instead of SNORM to increase precision around small deltas, which are the majority of deltas.
-// With TAA and Motion Blur, velocities are clamped, giving little reason to express them precisely in terms
+// With Motion Blur, velocities are clamped, giving little reason to express them precisely in terms
 // of the size of the screen.
 #define packed_velocity_t uint
 

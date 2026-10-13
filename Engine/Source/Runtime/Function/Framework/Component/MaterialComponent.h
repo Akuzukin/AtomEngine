@@ -8,17 +8,7 @@ namespace AtomEngine
 		MaterialComponent(const std::shared_ptr<Model>model = nullptr);
 
 
-		struct Material
-		{
-			Color mBaseColor = Color::White;
-			Vector3 mEmissive = { 0,0,0 };
-			float mMetallic = 0.0f;
-			float mRoughness = 1.0f;
-			float mNormalScale = 1.0f;
-			Vector3 mFresnelF0 = { 0.04f,0.04f,0.04f };
-			Transform uvTransform;
-			uint32_t useLight = 1;
-		};
+        using Material = MaterialInstance;
 		std::vector<Material> mMaterials;
 	};
 }

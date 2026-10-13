@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Editor startupScene="Asset/Scenes/MaterialTest.scene">
+    <Camera x="17" y="20" z="-26" targetX="0" targetY="1" targetZ="0" />
+</Editor>

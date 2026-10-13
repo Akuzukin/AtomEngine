@@ -1,5 +1,7 @@
 #include "RenderSystem.h"
-#include "Primitive.h"
+#include "SelectionRenderer.h"
+#include "Runtime/Resource/Shader.h"
+#include "DebugDraw.h"
 #include "SpriteRenderer.h"
 
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
@@ -12,9 +14,7 @@
 #include "Runtime/Function/Framework/Component/MeshComponent.h"
 #include "Runtime/Function/Render/RenderPasses/RenderPassManager.h"
 #include "Runtime/Function/Render/RenderPasses/RenderPassesInclude.h"
-#include "Runtime/Function/Render/MeshRenderer.h"
 #include "Runtime/Function/Render/PostEffect/SSAO.h"
-#include "Runtime/Function/Render/PostEffect/TemporalAA.h"
 #include "Runtime/Function/Render/PostEffect/MotionBlur.h"
 
 namespace AtomEngine
@@ -53,6 +53,50 @@ namespace AtomEngine
 		mRootSig[kSkinMatrices].InitAsBufferSRV(20, D3D12_SHADER_VISIBILITY_VERTEX);
 		mRootSig.Finalize(L"RootSig", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
+        RebuildPipelines();
+		gTextureHeap.Create(L"Scene Texture Descriptors", D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 4096);
+
+		//lightSystem初期化
+		LightManager::Initialize();
+
+		uint32_t DestCount = 9;
+		std::vector<uint32_t>SourceCounts(DestCount, 1);
+
+		//// 共通テクスチャの記述子テーブルを割り当てる
+		gCommonTextures = gTextureHeap.Alloc(9);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE SourceTextures[] =
+		{
+			GetDefaultTexture(kBlackCubeMap),
+			GetDefaultTexture(kBlackCubeMap),
+			GetDefaultTexture(kDefaultBRDFLUT),
+			gSSAOFullScreen.GetSRV(),
+			gShadowBuffer.GetSRV(),
+			LightManager::GetLightSrv(),
+			LightManager::GetLightShadowSrv(),
+			LightManager::GetLightGridSrv(),
+			LightManager::GetLightGridBitMaskSrv()
+		};
+
+		DX12Core::gDevice->CopyDescriptors(1, &gCommonTextures,
+			&DestCount, DestCount, SourceTextures, SourceCounts.data(),
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		SSAOFullScreenID = gSSAOFullScreen.GetVersionID();
+		ShadowBufferID = gShadowBuffer.GetVersionID();
+		DebugDraw::Initialize();
+		SpriteRenderer::Initialize();
+		SSAO::Initialize();
+		MotionBlur::Initialize();
+
+		InitializeRenderPasses();
+        SelectionRenderer::Initialize();
+	}
+
+    void Renderer::RebuildPipelines()
+    {
+        auto old=std::move(gPSOs);
+        try {
 		DXGI_FORMAT ColorFormat = gSceneColorBuffer.GetFormat();
 		DXGI_FORMAT DepthFormat = gSceneDepthBuffer.GetFormat();
 
@@ -186,57 +230,21 @@ namespace AtomEngine
 
 		//shadow PSO
 		GraphicsPSO shadowPSO = depthOnlyPSO;
-		shadowPSO.SetRasterizerState(RasterizerShadow);
+		shadowPSO.SetRasterizerState(RasterizerShadowCW);
 		shadowPSO.SetRenderTargetFormats(0,nullptr, gShadowBuffer.GetFormat());
 		shadowPSO.Finalize();
 		gPSOs.push_back(shadowPSO);
 
 		//Shadow Skin PSO
 		GraphicsPSO shadowSkinPSO = SkinDepthOnlyPSO;
-		shadowSkinPSO.SetRasterizerState(RasterizerShadow);
+		shadowSkinPSO.SetRasterizerState(RasterizerShadowCW);
 		shadowSkinPSO.SetRenderTargetFormats(0, nullptr, gShadowBuffer.GetFormat());
 		shadowSkinPSO.Finalize();
 		gPSOs.push_back(shadowSkinPSO);
 
-		gTextureHeap.Create(L"Scene Texture Descriptors", D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 4096);
 
-		//lightSystem初期化
-		LightManager::Initialize();
-
-		uint32_t DestCount = 9;
-		std::vector<uint32_t>SourceCounts(DestCount, 1);
-
-		//// 共通テクスチャの記述子テーブルを割り当てる
-		gCommonTextures = gTextureHeap.Alloc(9);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE SourceTextures[] =
-		{
-			GetDefaultTexture(kBlackCubeMap),
-			GetDefaultTexture(kBlackCubeMap),
-			GetDefaultTexture(kDefaultBRDFLUT),
-			gSSAOFullScreen.GetSRV(),
-			gShadowBuffer.GetSRV(),
-			LightManager::GetLightSrv(),
-			LightManager::GetLightShadowSrv(),
-			LightManager::GetLightGridSrv(),
-			LightManager::GetLightGridBitMaskSrv()
-		};
-
-		DX12Core::gDevice->CopyDescriptors(1, &gCommonTextures,
-			&DestCount, DestCount, SourceTextures, SourceCounts.data(),
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-		SSAOFullScreenID = gSSAOFullScreen.GetVersionID();
-		ShadowBufferID = gShadowBuffer.GetVersionID();
-		Primitive::Initialize();
-		SpriteRenderer::Initialize();
-		MeshRenderer::Initialize();
-		SSAO::Initialize();
-		MotionBlur::Initialize();
-		TemporalAA::Initialize();
-
-		InitializeRenderPasses();
-	}
+        } catch(...) { gPSOs=std::move(old); throw; }
+    }
 
 	void Renderer::InitializeRenderPasses()
 	{
@@ -250,6 +258,7 @@ namespace AtomEngine
 
 	void Renderer::Update(World& world,float deltaTime)
 	{
+		if(ShaderLibrary::PollChanges())DX12Core::gCommandManager.IdleGPU();
 		GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Update");
 		//ワールドからメッシュコンポーネントとトランスフォームコンポーネントを取得
 		auto view = world.View<MeshComponent,TransformComponent,MaterialComponent>();
@@ -258,7 +267,7 @@ namespace AtomEngine
 		{
 			//メッシュコンポーネントを更新
 			auto& mesh = view.get<MeshComponent>(entity);
-			if (!mesh.IsRender())continue;
+
 
 			auto& material = view.get<MaterialComponent>(entity);
 			auto& transform = view.get<TransformComponent>(entity);
@@ -269,8 +278,9 @@ namespace AtomEngine
 
 		gfxContext.Finish();
 
-		TemporalAA::GetJitterOffset(mViewport.TopLeftX, mViewport.TopLeftY);
 
+		mViewport.TopLeftX = 0.0f;
+		mViewport.TopLeftY = 0.0f;
 		mViewport.Width = (float)gSceneColorBuffer.GetWidth();
 		mViewport.Height = (float)gSceneColorBuffer.GetHeight();
 		mViewport.MinDepth = 0.0f;
@@ -303,7 +313,7 @@ namespace AtomEngine
 			gShadowBuffer.GetSRV(),
 		};
 
-		DescriptorHandle dest = gCommonTextures + 2 * gTextureHeap.GetDescriptorSize();
+		DescriptorHandle dest = gCommonTextures + AmbientOcclusion * gTextureHeap.GetDescriptorSize();
 
 		DX12Core::gDevice->CopyDescriptors(1, &dest, &DestCount, DestCount, SourceTextures, SourceCounts, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
@@ -313,28 +323,33 @@ namespace AtomEngine
 
 	void Renderer::Render(World& world, Camera& camera,float deltaTime)
 	{
-		GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Render");
+		Render(RenderView{world, camera, gSceneColorBuffer, gSceneDepthBuffer, mViewport, mScissor});
+	}
 
-		mRenderPassManager->SetWorld(world);
-		mRenderPassManager->SetCamera(&camera);
-		mRenderPassManager->SetRenderTarget(&gSceneColorBuffer, &gSceneDepthBuffer);
-		mRenderPassManager->SetViewportAndScissor(mViewport, mScissor);
+	void Renderer::Render(const RenderView& view)
+	{
+		GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Render");
+		mRenderPassManager->SetWorld(view.world);
+		mRenderPassManager->SetCamera(&view.camera);
+		mRenderPassManager->SetRenderTarget(&view.color, &view.depth);
+		mRenderPassManager->SetViewportAndScissor(view.viewport, view.scissor);
 		mRenderPassManager->RenderAll(gfxContext);
-		Primitive::Render(gfxContext);
+		DebugDraw::Render(gfxContext);
 		gfxContext.Finish();
 	}
 
 	void Renderer::Shutdown()
 	{
-		gTextureHeap.Destroy();
+		SelectionRenderer::Shutdown();
 		mRenderPassManager->Shutdown();
+		gTextureHeap.Destroy();
+		gPSOs.clear();
+        ShaderLibrary::Clear();
 		LightManager::Shutdown();
-		Primitive::Shutdown();
+		DebugDraw::Shutdown();
 		SpriteRenderer::Shutdown();
-		MeshRenderer::Shutdown();
 		SSAO::Shutdown();
 		MotionBlur::Shutdown();
-		TemporalAA::Shutdown();
 	}
 
 	const GraphicsPSO& Renderer::GetPSO(uint16_t psoFlags)

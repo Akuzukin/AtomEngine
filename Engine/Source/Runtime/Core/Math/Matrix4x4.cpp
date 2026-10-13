@@ -55,17 +55,17 @@ namespace AtomEngine
 		Matrix4x4 rot(orientation);
 
 		mat[0][0] = scale.x * rot.mat[0][0];
-		mat[0][1] = scale.y * rot.mat[0][1];
-		mat[0][2] = scale.z * rot.mat[0][2];
+		mat[0][1] = scale.x * rot.mat[0][1];
+		mat[0][2] = scale.x * rot.mat[0][2];
 		mat[0][3] = 0.0f;
 
-		mat[1][0] = scale.x * rot.mat[1][0];
+		mat[1][0] = scale.y * rot.mat[1][0];
 		mat[1][1] = scale.y * rot.mat[1][1];
-		mat[1][2] = scale.z * rot.mat[1][2];
+		mat[1][2] = scale.y * rot.mat[1][2];
 		mat[1][3] = 0.0f;
 
-		mat[2][0] = scale.x * rot.mat[2][0];
-		mat[2][1] = scale.y * rot.mat[2][1];
+		mat[2][0] = scale.z * rot.mat[2][0];
+		mat[2][1] = scale.z * rot.mat[2][1];
 		mat[2][2] = scale.z * rot.mat[2][2];
 		mat[2][3] = 0.0f;
 
@@ -80,17 +80,17 @@ namespace AtomEngine
 		Matrix4x4 rot = MakeRotateMatrix(orientation);
 
 		mat[0][0] = scale.x * rot.mat[0][0];
-		mat[0][1] = scale.y * rot.mat[0][1];
-		mat[0][2] = scale.z * rot.mat[0][2];
+		mat[0][1] = scale.x * rot.mat[0][1];
+		mat[0][2] = scale.x * rot.mat[0][2];
 		mat[0][3] = 0.0f;
 
-		mat[1][0] = scale.x * rot.mat[1][0];
+		mat[1][0] = scale.y * rot.mat[1][0];
 		mat[1][1] = scale.y * rot.mat[1][1];
-		mat[1][2] = scale.z * rot.mat[1][2];
+		mat[1][2] = scale.y * rot.mat[1][2];
 		mat[1][3] = 0.0f;
 
-		mat[2][0] = scale.x * rot.mat[2][0];
-		mat[2][1] = scale.y * rot.mat[2][1];
+		mat[2][0] = scale.z * rot.mat[2][0];
+		mat[2][1] = scale.z * rot.mat[2][1];
 		mat[2][2] = scale.z * rot.mat[2][2];
 		mat[2][3] = 0.0f;
 

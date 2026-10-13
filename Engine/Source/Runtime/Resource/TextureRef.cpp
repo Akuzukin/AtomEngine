@@ -12,14 +12,15 @@ namespace AtomEngine
 {
 
 	ManagedTexture::ManagedTexture(const std::wstring& FileName)
-		: mMapKey(FileName), mIsValid(false), mIsLoading(true), mReferenceCount(0)
+		: mMapKey(FileName), mIsValid(false), mIsLoading(true)
 	{
 		mCpuDescriptorHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
 	}
 
 	void ManagedTexture::CreateFromMemory(std::shared_ptr<std::vector<byte>> ba, eDefaultTexture fallback, bool forceSRGB)
 	{
-		if (ba->empty())
+		mIsLoading = false; // Loading is serialized by AssetManager. Every failure is terminal.
+		if (!ba || ba->empty())
 		{
 			mCpuDescriptorHandle = GetDefaultTexture(fallback);
 			mIsLoading = false;
@@ -122,11 +123,6 @@ namespace AtomEngine
 		mIsLoading = false;
 	}
 
-	void ManagedTexture::WaitForLoad(void) const
-	{
-		while ((volatile bool&)mIsLoading)
-			std::this_thread::yield();
-	}
 
 	void ManagedTexture::Unload()
 	{
@@ -138,85 +134,11 @@ namespace AtomEngine
 		DX12Core::gDevice->CopyDescriptorsSimple(1, handle, GetSRV(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
-	TextureRef::TextureRef(const TextureRef& ref) : mRef(ref.mRef)
-	{
-		if (mRef != nullptr)
-			++mRef->mReferenceCount;
-	}
-
-	TextureRef::TextureRef(ManagedTexture* tex) : mRef(tex)
-	{
-		if (mRef != nullptr)
-			++mRef->mReferenceCount;
-	}
-
-	TextureRef::~TextureRef()
-	{
-		if (mRef != nullptr)
-		{
-			if (--mRef->mReferenceCount == 0)
-			{
-				mRef->Unload();
-			}
-			mRef = nullptr;
-		}
-	}
-
-	void TextureRef::operator= (std::nullptr_t)
-	{
-		if (mRef != nullptr)
-			--mRef->mReferenceCount;
-
-		mRef = nullptr;
-	}
-
-	void TextureRef::operator= (TextureRef& rhs)
-	{
-		if (mRef != nullptr)
-			--mRef->mReferenceCount;
-
-		mRef = rhs.mRef;
-
-		if (mRef != nullptr)
-			++mRef->mReferenceCount;
-	}
-	TextureRef& TextureRef::operator=(const TextureRef& rhs)
-	{
-		if (this == &rhs)
-			return *this;
-
-		if (mRef != nullptr)
-		{
-			--mRef->mReferenceCount;
-			if (mRef->mReferenceCount == 0)
-				mRef->Unload();
-		}
-
-		mRef = rhs.mRef;
-
-		if (mRef != nullptr)
-			++mRef->mReferenceCount;
-
-		return *this;
-	}
-
-	TextureRef& TextureRef::operator=(TextureRef&& rhs) noexcept
-	{
-		if (this == &rhs)
-			return *this;
-
-		if (mRef != nullptr)
-		{
-			--mRef->mReferenceCount;
-			if (mRef->mReferenceCount == 0)
-				mRef->Unload();
-		}
-
-		mRef = rhs.mRef;
-		rhs.mRef = nullptr;
-
-		return *this;
-	}
+	TextureRef::TextureRef(const TextureRef&) = default;
+	TextureRef::TextureRef(std::shared_ptr<ManagedTexture> tex) : mRef(std::move(tex)) {}
+	TextureRef::~TextureRef() = default;
+	TextureRef& TextureRef::operator=(const TextureRef&) = default;
+	TextureRef& TextureRef::operator=(TextureRef&&) noexcept = default;
 
 	bool TextureRef::IsValid() const
 	{
@@ -225,13 +147,13 @@ namespace AtomEngine
 
 	const Texture* TextureRef::Get(void) const
 	{
-		return mRef;
+		return mRef.get();
 	}
 
 	const Texture* TextureRef::operator->(void) const
 	{
 		ASSERT(mRef != nullptr);
-		return mRef;
+		return mRef.get();
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE TextureRef::GetSRV() const

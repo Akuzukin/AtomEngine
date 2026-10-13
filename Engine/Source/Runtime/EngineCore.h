@@ -1,5 +1,8 @@
 #pragma once
 #include <chrono>
+#include <cstdint>
+#include <memory>
+namespace AtomEngine { class SceneRuntime; }
 
 class GameApp;
 
@@ -9,9 +12,9 @@ namespace Engine
 	{
 	public:
 		AtomEngine();
-		virtual ~AtomEngine() = default;
+		virtual ~AtomEngine();
 
-		void Run(GameApp& app);
+		void Run(GameApp& app, uint32_t maxFrames = 0);
 		bool Shutdown();
 
 		float FPS() const { return mFps; }
@@ -26,7 +29,9 @@ namespace Engine
 		void CalculateFPS(float deltaTime);
 
 	protected:
+		std::unique_ptr<::AtomEngine::SceneRuntime> mRuntime;
 		bool mIsQuit = false;
+		bool mInitialized = false;
 		std::chrono::steady_clock::time_point mLastTickTime{ std::chrono::steady_clock::now() };
 
 		float mAverageDuration = 0.f;

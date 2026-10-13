@@ -27,7 +27,7 @@ namespace AtomEngine
 		auto skyPS = ShaderCompiler::CompileBlob(L"SkyboxPS.hlsl", L"ps_6_2");
 
 		mSkyboxPSO.SetRootSignature(mSkyboxRootSig);
-		mSkyboxPSO.SetRasterizerState(RasterizerDefault);
+		mSkyboxPSO.SetRasterizerState(RasterizerTwoSided);
 		mSkyboxPSO.SetBlendState(BlendDisable);
 		mSkyboxPSO.SetDepthStencilState(DepthStateReadOnly);
 		mSkyboxPSO.SetInputLayout(0, nullptr);
@@ -118,7 +118,7 @@ namespace AtomEngine
 		{
 			float TextureLevel;
 		} skyPSCB;
-		skyPSCB.TextureLevel = mSpecularIBLBias;
+		skyPSCB.TextureLevel = mEnvironmentMap.IsValid() ? 0.f : mSpecularIBLBias;
 
 		auto& textureHeap = Renderer::GetTextureHeap();
 		auto& commonTextures = Renderer::GetCommonTextures();
@@ -135,7 +135,8 @@ namespace AtomEngine
 		context.SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, textureHeap.GetHeapPointer());
 		context.SetDynamicConstantBufferView(kMeshConstants, sizeof(SkyboxVSCB), &skyVSCB);
 		context.SetDynamicConstantBufferView(kMaterialConstants, sizeof(SkyboxPSCB), &skyPSCB);
-		context.SetDynamicDescriptor(2, 0, mRadianceCubeMap.GetSRV());
+		context.SetDynamicDescriptor(2, 0, mEnvironmentMap.IsValid() ? mEnvironmentMap.GetSRV() :
+            mRadianceCubeMap.IsValid() ? mRadianceCubeMap.GetSRV() : GetDefaultTexture(kBlackCubeMap));
 
 		context.Draw(3);
 

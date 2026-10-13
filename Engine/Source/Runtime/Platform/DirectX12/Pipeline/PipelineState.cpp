@@ -96,95 +96,40 @@ namespace AtomEngine
 		{
 			D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
 			memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
-			mInputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
+			mInputLayouts=std::shared_ptr<const D3D12_INPUT_ELEMENT_DESC>(NewElements,[](const D3D12_INPUT_ELEMENT_DESC*p){free(const_cast<D3D12_INPUT_ELEMENT_DESC*>(p));});
 		}
 		else
 			mInputLayouts = nullptr;
 	}
 
-	void GraphicsPSO::Finalize()
-	{
-		// ルートシグネチャーが確定していることを確認
-		mPSODesc.pRootSignature = mRootSignature->GetSignature();
-		ASSERT(mPSODesc.pRootSignature != nullptr);
-
-		mPSODesc.InputLayout.pInputElementDescs = nullptr;
-
-		size_t HashCode = HashState(&mPSODesc);
-		HashCode = HashState(mInputLayouts.get(), mPSODesc.InputLayout.NumElements, HashCode);
-		mPSODesc.InputLayout.pInputElementDescs = mInputLayouts.get();
-
-		ID3D12PipelineState** PSORef = nullptr;
-		bool firstCompile = false;
-		{
-			static std::mutex s_HashMapMutex;
-			std::lock_guard<std::mutex> CS(s_HashMapMutex);
-			auto iter = sGraphicsPSOHashMap.find(HashCode);
-
-			// 次回の問い合わせで誰かが先にここに到着したことがわかるように、スペースを予約しておいく。
-			if (iter == sGraphicsPSOHashMap.end())
-			{
-				firstCompile = true;
-				PSORef = sGraphicsPSOHashMap[HashCode].GetAddressOf();
-			}
-			else
-				PSORef = iter->second.GetAddressOf();
-		}
-
-		if (firstCompile)
-		{
-			ASSERT(mPSODesc.DepthStencilState.DepthEnable != (mPSODesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
-			ThrowIfFailed(gDevice->CreateGraphicsPipelineState(&mPSODesc, IID_PPV_ARGS(&mPSO)));
-			sGraphicsPSOHashMap[HashCode].Attach(mPSO);
-			mPSO->SetName(mName);
-		}
-		else
-		{
-			while (*PSORef == nullptr)
-				std::this_thread::yield();
-			mPSO = *PSORef;
-		}
-	}
-
-	void ComputePSO::Finalize()
-	{
-		// ルートシグネチャーが確定していることを確認
-		mPSODesc.pRootSignature = mRootSignature->GetSignature();
-		ASSERT(mPSODesc.pRootSignature != nullptr);
-
-		size_t HashCode = HashState(&mPSODesc);
-
-		ID3D12PipelineState** PSORef = nullptr;
-		bool firstCompile = false;
-		{
-			static std::mutex s_HashMapMutex;
-			std::lock_guard<std::mutex> CS(s_HashMapMutex);
-			auto iter = sComputePSOHashMap.find(HashCode);
-
-			// 次回の問い合わせで誰かが先にここに到着したことがわかるように、スペースを予約しておいく。
-			if (iter == sComputePSOHashMap.end())
-			{
-				firstCompile = true;
-				PSORef = sComputePSOHashMap[HashCode].GetAddressOf();
-			}
-			else
-				PSORef = iter->second.GetAddressOf();
-		}
-
-		if (firstCompile)
-		{
-			ThrowIfFailed(gDevice->CreateComputePipelineState(&mPSODesc, IID_PPV_ARGS(&mPSO)));
-			sComputePSOHashMap[HashCode].Attach(mPSO);
-			mPSO->SetName(mName);
-		}
-		else
-		{
-			while (*PSORef == nullptr)
-				std::this_thread::yield();
-			mPSO = *PSORef;
-		}
-	}
-
+    void GraphicsPSO::Finalize(){
+        mPSODesc.pRootSignature=mRootSignature->GetSignature();
+        mPSODesc.InputLayout.pInputElementDescs=nullptr;
+        size_t hash=HashState(&mPSODesc);hash=HashState(mInputLayouts.get(),mPSODesc.InputLayout.NumElements,hash);
+        hash=HashState(static_cast<const uint32_t*>(mPSODesc.VS.pShaderBytecode),mPSODesc.VS.BytecodeLength/4,hash);
+        hash=HashState(static_cast<const uint32_t*>(mPSODesc.PS.pShaderBytecode),mPSODesc.PS.BytecodeLength/4,hash);
+        mPSODesc.InputLayout.pInputElementDescs=mInputLayouts.get();
+        static std::mutex mutex;std::lock_guard<std::mutex>lock(mutex);
+        auto found=sGraphicsPSOHashMap.find(hash);if(found!=sGraphicsPSOHashMap.end()){mPSO=found->second.Get();return;}
+        ComPtr<ID3D12PipelineState>state;ThrowIfFailed(gDevice->CreateGraphicsPipelineState(&mPSODesc,IID_PPV_ARGS(&state)));state->SetName(mName);mPSO=state.Get();sGraphicsPSOHashMap.emplace(hash,std::move(state));
+    }
+    void ComputePSO::Finalize(){
+        mPSODesc.pRootSignature=mRootSignature->GetSignature();size_t hash=HashState(&mPSODesc);hash=HashState(static_cast<const uint32_t*>(mPSODesc.CS.pShaderBytecode),mPSODesc.CS.BytecodeLength/4,hash);
+        static std::mutex mutex;std::lock_guard<std::mutex>lock(mutex);auto found=sComputePSOHashMap.find(hash);if(found!=sComputePSOHashMap.end()){mPSO=found->second.Get();return;}
+        ComPtr<ID3D12PipelineState>state;ThrowIfFailed(gDevice->CreateComputePipelineState(&mPSODesc,IID_PPV_ARGS(&state)));state->SetName(mName);mPSO=state.Get();sComputePSOHashMap.emplace(hash,std::move(state));
+    }
+    void GraphicsPSO::RefreshShaders(){
+        auto v=mVertex?mVertex->Revision():0,p=mPixel?mPixel->Revision():0;if(v==mVertexRevision&&p==mPixelRevision)return;
+        mVertexRevision=v;mPixelRevision=p;auto candidate=*this;
+        if(mVertex){candidate.mVertexBlob=mVertex->Bytecode();candidate.mPSODesc.VS={candidate.mVertexBlob->GetBufferPointer(),candidate.mVertexBlob->GetBufferSize()};}
+        if(mPixel){candidate.mPixelBlob=mPixel->Bytecode();candidate.mPSODesc.PS={candidate.mPixelBlob->GetBufferPointer(),candidate.mPixelBlob->GetBufferSize()};}
+        try{candidate.Finalize();*this=std::move(candidate);}catch(const std::exception&e){ShaderLibrary::ReportError(std::string("Graphics pipeline reload failed: ")+e.what());}
+    }
+    void ComputePSO::RefreshShaders(){
+        auto revision=mCompute?mCompute->Revision():0;if(revision==mRevision)return;mRevision=revision;auto candidate=*this;
+        candidate.mComputeBlob=mCompute->Bytecode();candidate.mPSODesc.CS={candidate.mComputeBlob->GetBufferPointer(),candidate.mComputeBlob->GetBufferSize()};
+        try{candidate.Finalize();*this=std::move(candidate);}catch(const std::exception&e){ShaderLibrary::ReportError(std::string("Compute pipeline reload failed: ")+e.what());}
+    }
 	ComputePSO::ComputePSO(const wchar_t* Name)
 		: PSO(Name)
 	{

@@ -1,0 +1,7 @@
+<MaterialPreset version="1" name="RedPlastic">
+  <Material metallic="0" roughness="0.35" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="true">
+    <BaseColor x="0.65" y="0.025" z="0.018" alpha="1" />
+    <Emissive x="0" y="0" z="0" />
+    <Fresnel x="0.04" y="0.04" z="0.04" />
+  </Material>
+</MaterialPreset>

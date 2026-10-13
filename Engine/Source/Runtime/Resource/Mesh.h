@@ -1,6 +1,7 @@
 #pragma once
 #include "Runtime/Core/Math/MathInclude.h"
 #include "Runtime/Core/Math/BoundingBox.h"
+#include "Skeleton.h"
 
 namespace AtomEngine
 {
@@ -12,6 +13,8 @@ namespace AtomEngine
 		Vector3 tangent;
 		Vector3 bitangent;
 	};
+
+	struct MeshGeometry { std::vector<Vertex> vertices; std::vector<uint32_t> indices; std::vector<JointVertex> skin; };
 
 	enum PSOFlags : uint16_t
 	{

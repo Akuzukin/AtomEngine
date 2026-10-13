@@ -19,8 +19,7 @@ namespace AtomEngine
 		windowCreateInfo.title = L"AtomEngine";
 		windowManager->Initialize(windowCreateInfo);
 
-		imgui = std::make_unique<ImGuiCommon>();
-		imgui->Initialize(windowManager->GetWindowHandle());
+
 
 		input = Input::GetInstance();
 		input->Initialize();
@@ -33,10 +32,10 @@ namespace AtomEngine
 
 	void GlobalContext::Shutdown()
 	{
-		imgui->Shutdown();
-		input->Shutdown();
-
-		CloseLog();
+		renderOverlay = {};
+		renderPlatformWindows = {};
+		if (audio) audio->Finalize();
+		if (input) input->Shutdown();
 	}
 }
 

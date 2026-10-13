@@ -52,7 +52,7 @@ namespace AtomEngine
 		{
 			key.passID = kTransparent;
 			key.psoIdx = mesh.pso;
-			key.key = ~dist.u;
+			key.key = static_cast<uint32_t>(~dist.u);
 			mSortKeys.push_back(key.value);
 			mTypeCounts[kTransparent]++;
 		}
@@ -112,7 +112,7 @@ namespace AtomEngine
 
 		globals.ViewProjMatrix = mCamera->GetViewProjMatrix();
 		globals.CameraPos = mCamera->GetPosition();
-		
+
 		context.SetDynamicConstantBufferView(kCommonCBV, sizeof(GlobalConstants), &globals);
 
 		if (mBatchType == kShadows)
@@ -176,7 +176,7 @@ namespace AtomEngine
 					context.SetRenderTarget(gSceneColorBuffer.GetRTV(), mDSV->GetDSV_DepthReadOnly());
 					break;
 				case kTransparent:
-					context.TransitionResource(*mDSV, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+					context.TransitionResource(*mDSV, D3D12_RESOURCE_STATE_DEPTH_READ);
                     context.TransitionResource(gSceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
                     context.SetRenderTarget(gSceneColorBuffer.GetRTV(), mDSV->GetDSV_DepthReadOnly());
 					break;
@@ -210,7 +210,7 @@ namespace AtomEngine
 				context.SetVertexBuffer(0, object.vbv);
 				context.SetIndexBuffer(object.ibv);
 				context.DrawIndexedInstanced(subMesh.indexCount, 1, subMesh.indexOffset, subMesh.vertexOffset, 0);
-				
+
 				++mCurrentDraw;
 			}
 		}

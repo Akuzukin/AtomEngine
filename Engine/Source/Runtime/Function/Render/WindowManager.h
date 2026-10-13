@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <string>
+#include <functional>
 
 namespace AtomEngine
 {
@@ -23,6 +24,9 @@ namespace AtomEngine
 		void* GetWindow();
 		void Initialize(WindowCreateInfo info);
 		void CloseWindow();
+		void Shutdown();
+		std::function<void(uint32_t, uint32_t)> onResize;
+		std::function<bool(HWND, UINT, WPARAM, LPARAM)> messageHandler;
 		bool ShouldClose();
 		LRESULT WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		const HWND GetWindowHandle() const { return mHwnd; }

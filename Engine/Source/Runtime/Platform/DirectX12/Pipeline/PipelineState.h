@@ -1,6 +1,7 @@
 #pragma once
 #include"RootSignature.h"
 #include<dxcapi.h>
+#include "Runtime/Resource/Shader.h"
 
 namespace AtomEngine
 {
@@ -23,7 +24,9 @@ namespace AtomEngine
 			return *mRootSignature;
 		}
 
-		ID3D12PipelineState* GetPipelineStateObject(void) const { return mPSO; }
+		virtual ~PSO()=default;
+        virtual void RefreshShaders() {}
+        ID3D12PipelineState* GetPipelineStateObject(void) const { const_cast<PSO*>(this)->RefreshShaders();return mPSO; }
 
 	protected:
 
@@ -66,13 +69,17 @@ namespace AtomEngine
 		void SetHullShader(const D3D12_SHADER_BYTECODE& Binary) { mPSODesc.HS = Binary; }
 		void SetDomainShader(const D3D12_SHADER_BYTECODE& Binary) { mPSODesc.DS = Binary; }
 
-		void SetVertexShader(IDxcBlob* blob) { mPSODesc.VS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
-		void SetPixelShader(IDxcBlob* blob) { mPSODesc.PS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
+		void SetVertexShader(IDxcBlob* blob) { mVertex=ShaderLibrary::FindBytecode(blob);mVertexBlob=blob;mVertexRevision=mVertex?mVertex->Revision():0;mPSODesc.VS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
+		void SetPixelShader(IDxcBlob* blob) { mPixel=ShaderLibrary::FindBytecode(blob);mPixelBlob=blob;mPixelRevision=mPixel?mPixel->Revision():0;mPSODesc.PS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
 		// パイプラインを生成
 		void Finalize();
 
 	private:
 
+		void RefreshShaders()override;
+        std::shared_ptr<Shader>mVertex,mPixel;
+        Microsoft::WRL::ComPtr<IDxcBlob>mVertexBlob,mPixelBlob;
+        uint64_t mVertexRevision=0,mPixelRevision=0;
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC mPSODesc;
 		std::shared_ptr<const D3D12_INPUT_ELEMENT_DESC> mInputLayouts;
 	};
@@ -85,12 +92,16 @@ namespace AtomEngine
 
 		void SetComputeShader(const void* Binary, size_t Size) { mPSODesc.CS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
 		void SetComputeShader(const D3D12_SHADER_BYTECODE& Binary) { mPSODesc.CS = Binary; }
-		void SetComputeShader(IDxcBlob* blob) { mPSODesc.CS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
+		void SetComputeShader(IDxcBlob* blob) { mCompute=ShaderLibrary::FindBytecode(blob);mComputeBlob=blob;mRevision=mCompute?mCompute->Revision():0;mPSODesc.CS = { blob->GetBufferPointer(),blob->GetBufferSize() }; }
 
 		void Finalize();
 
 	private:
 
+		void RefreshShaders()override;
+        std::shared_ptr<Shader>mCompute;
+        Microsoft::WRL::ComPtr<IDxcBlob>mComputeBlob;
+        uint64_t mRevision=0;
 		D3D12_COMPUTE_PIPELINE_STATE_DESC mPSODesc;
 	};
 
