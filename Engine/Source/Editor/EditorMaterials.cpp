@@ -1,4 +1,7 @@
 #include "EditorLayer.h"
+#include "ImGuiCommon.h"
+#include "EditorTheme.h"
+#include "EditorLocalization.h"
 #include "Runtime/Function/Framework/Component/MaterialComponent.h"
 #include "Runtime/Function/Framework/Component/MeshComponent.h"
 #include "imgui.h"
@@ -38,23 +41,27 @@ void EditorLayer::RenderMaterialPreview(Scene &scene)
 }
 void EditorLayer::Materials(Scene &scene)
 {
-    ImGui::Begin("Materials", &mShowMaterials);
+    ImGui::Begin(EditorLocalization::Label("Materials"), &mShowMaterials);
     if (!mMaterialPreview)
         Run([&] {
             auto preview = std::make_unique<MaterialPreviewRenderer>();
             preview->Initialize();
             mMaterialPreview = std::move(preview);
         });
-    ImGui::Checkbox("Preview selected object", &mPreviewFromSelection);
+    ImGui::TextDisabled(EditorLocalization::Text("MATERIAL PREVIEW"));
+    ImGui::Checkbox(EditorLocalization::Label("Preview selected object"), &mPreviewFromSelection);
+    ImGui::Separator();
     auto component = scene.GetWorld().TryGet<MaterialComponent>(mSelected);
     if (mPreviewFromSelection && component && component->mMaterials.size() > 1)
     {
-        ImGui::SliderInt("Slot", &mPreviewSlot, 0, int(component->mMaterials.size()) - 1);
+        ImGui::SliderInt(EditorLocalization::Label("Slot"), &mPreviewSlot, 0, int(component->mMaterials.size()) - 1);
     }
     if (mMaterialPreview)
     {
         auto width = std::min(256.f, ImGui::GetContentRegionAvail().x);
-        ImGui::Image((ImTextureID)mMaterialPreview->Texture(), ImVec2(width, width));
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - width) * .5f);
+        ImGuiCommon::ImageDisplayEncoded((ImTextureID)mMaterialPreview->Texture(), ImVec2(width, width));
+        EditorTheme::Tooltip(EditorLocalization::Text("Drag to orbit. Drop a .mat asset here to preview it."));
         if (ImGui::IsItemHovered() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
         {
             mPreviewYaw += ImGui::GetIO().MouseDelta.x * .01f;
@@ -71,21 +78,22 @@ void EditorLayer::Materials(Scene &scene)
             ImGui::EndDragDropTarget();
         }
     }
-    ImGui::TextWrapped("Drag preview to orbit. Drag .mat onto a mesh or a material slot.");
-    ImGui::TextUnformatted("Preset path");
+    ImGui::TextDisabled(EditorLocalization::Text("Drag to orbit | Drop .mat to preview"));
+    ImGui::Separator();
+    ImGui::TextUnformatted(EditorLocalization::Text("Preset path"));
     ImGui::SetNextItemWidth(-1);
     ImGui::InputText("##Material path", mMaterialPath, sizeof(mMaterialPath));
-    if (ImGui::Button("Load preset"))
+    if (ImGui::Button(EditorLocalization::Label("Load preset")))
         Run([&] { SelectMaterial(UTF8ToWString(mMaterialPath)); });
     ImGui::SameLine();
-    if (ImGui::Button("Browse presets"))
+    if (ImGui::Button(EditorLocalization::Label("Browse presets")))
     {
         mShowAssets = true;
         mAssetDirectory = "Asset/Materials";
         mRefreshAssets = true;
     }
     ImGui::BeginDisabled(mPlaying || !component || component->mMaterials.empty());
-    if (ImGui::Button("Save selected slot as preset"))
+    if (ImGui::Button(EditorLocalization::Label("Save selected slot as preset")))
         Run([&] {
             auto preset = MaterialPreset::FromObject(
                 scene.GetWorld(), mSelected, std::clamp(mPreviewSlot, 0, int(component->mMaterials.size()) - 1));
@@ -94,19 +102,19 @@ void EditorLayer::Materials(Scene &scene)
             SelectMaterial(UTF8ToWString(mMaterialPath));
             mRefreshAssets = true;
         });
-    if (ImGui::Button("Apply preset to selected slot"))
+    if (ImGui::Button(EditorLocalization::Label("Apply preset to selected slot")))
         Run([&] {
             mPreset.Apply(scene.GetWorld(), mSelected,
                           std::clamp(mPreviewSlot, 0, int(component->mMaterials.size()) - 1));
             mHistoryPending = true;
         });
-    if (ImGui::Button("Apply preset to all slots"))
+    if (ImGui::Button(EditorLocalization::Label("Apply preset to all slots")))
         Run([&] {
             mPreset.Apply(scene.GetWorld(), mSelected);
             mHistoryPending = true;
         });
     ImGui::EndDisabled();
-    ImGui::Text("Preset: %s", mPreset.name.c_str());
+    ImGui::TextDisabled(EditorLocalization::Text("Preset: %s"), mPreset.name.c_str());
     ImGui::End();
 }
 } // namespace AtomEngine

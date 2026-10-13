@@ -16,10 +16,12 @@ namespace AtomEngine
 ForwardRenderingPass::ForwardRenderingPass()
 {
     mSkybox.Initialize();
-    mSkybox.SetEnvironmentMap(L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KEnvHDR.dds");
-    mSkybox.SetBRDF_LUT(L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KBrdf.dds");
-    mSkybox.SetIBLTextures(L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KDiffuseHDR.dds",
-                           L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KSpecularHDR.dds");
+    SceneSettings defaults;
+    mSkybox.SetEnvironmentMap(UTF8ToWString(defaults.environment));
+    mSkybox.SetBRDF_LUT(UTF8ToWString(defaults.brdfLut));
+    mSkybox.SetIBLTextures(UTF8ToWString(defaults.diffuseIBL), UTF8ToWString(defaults.specularIBL));
+    mEnvironmentSignature =
+        defaults.environment + "|" + defaults.diffuseIBL + "|" + defaults.specularIBL + "|" + defaults.brdfLut;
     mShadowSrvGpuHandle = Renderer::GetTextureHeap().Alloc();
     DX12Core::gDevice->CopyDescriptorsSimple(1, mShadowSrvGpuHandle, gShadowBuffer.GetSRV(),
                                              D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -34,6 +36,27 @@ ForwardRenderingPass::~ForwardRenderingPass()
 void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
 {
     ASSERT(mWorld != nullptr);
+    if (mShadowPreviewVersion != gShadowBuffer.GetVersionID())
+    {
+        DX12Core::gDevice->CopyDescriptorsSimple(1, mShadowSrvGpuHandle, gShadowBuffer.GetSRV(),
+                                                 D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        mShadowPreviewVersion = gShadowBuffer.GetVersionID();
+    }
+    const auto &environment = mWorld->settings;
+    mIBLFactor = environment.iblIntensity;
+    mIBLBias = environment.iblBias;
+    mEnableIBL = environment.skyEnabled;
+    auto signature = environment.environment + "|" + environment.diffuseIBL + "|" + environment.specularIBL + "|" +
+                     environment.brdfLut;
+    if (signature != mEnvironmentSignature)
+    {
+        // Descriptor heaps are persistent; drain prior submissions before replacing their contents.
+        DX12Core::gCommandManager.IdleGPU();
+        mSkybox.SetEnvironmentMap(UTF8ToWString(environment.environment));
+        mSkybox.SetBRDF_LUT(UTF8ToWString(environment.brdfLut));
+        mSkybox.SetIBLTextures(UTF8ToWString(environment.diffuseIBL), UTF8ToWString(environment.specularIBL));
+        mEnvironmentSignature = signature;
+    }
 
     const D3D12_VIEWPORT &viewport = mViewport;
     const D3D12_RECT &scissor = mScissor;
@@ -180,6 +203,15 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
 
         queue.RenderMeshes(RenderQueue::kTransparent, gfxContext, globals);
     }
+}
+std::vector<GraphUse> ForwardRenderingPass::GraphResources() const
+{
+    return {{&gSceneColorBuffer, GraphAccess::Write, D3D12_RESOURCE_STATE_RENDER_TARGET},
+            {&gSceneDepthBuffer, GraphAccess::Write, D3D12_RESOURCE_STATE_DEPTH_WRITE},
+            {&gShadowBuffer, GraphAccess::Write, D3D12_RESOURCE_STATE_DEPTH_WRITE},
+            {&gSSAOFullScreen, GraphAccess::Write, D3D12_RESOURCE_STATE_UNORDERED_ACCESS},
+            {&gViewLightGrid, GraphAccess::Write, D3D12_RESOURCE_STATE_UNORDERED_ACCESS},
+            {&gViewLightGridBitMask, GraphAccess::Write, D3D12_RESOURCE_STATE_UNORDERED_ACCESS}};
 }
 
 void ForwardRenderingPass::RenderObjects(RenderQueue &queue)

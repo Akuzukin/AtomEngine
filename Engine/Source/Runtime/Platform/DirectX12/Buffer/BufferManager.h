@@ -4,55 +4,122 @@
 #include "ShadowBuffer.h"
 #include "GpuBuffer.h"
 #include "UploadBuffer.h"
-
+#include "Runtime/Core/Math/Matrix4x4.h"
 namespace AtomEngine
 {
-    extern DepthBuffer gSceneDepthBuffer;  // D32_FLOAT_S8_UINT
-    extern ColorBuffer gSceneColorBuffer;  // R11G11B10_FLOAT
-    extern ColorBuffer gSceneNormalBuffer; // R16G16B16A16_FLOAT
-    extern ColorBuffer gPostEffectsBuffer; // R32_UINT (to support Read-Modify-Write with a UAV)
-    extern ColorBuffer gOverlayBuffer;
-    extern ColorBuffer gVelocityBuffer;
+// All writable screen-space resources belong to one view. Pipelines remain shared.
+struct ViewBuffers
+{
+    DepthBuffer sceneDepthBuffer;
+    ColorBuffer sceneColorBuffer;
+    ColorBuffer sceneNormalBuffer;
+    ColorBuffer postEffectsBuffer;
+    ColorBuffer overlayBuffer;
+    ColorBuffer velocityBuffer;
+    ShadowBuffer shadowBuffer;
+    ShadowBuffer rayTracedShadowBuffer;
+    ColorBuffer sSAOFullScreen;
+    ColorBuffer linearDepth[2];
+    ColorBuffer depthDownsize1;
+    ColorBuffer depthDownsize2;
+    ColorBuffer depthDownsize3;
+    ColorBuffer depthDownsize4;
+    ColorBuffer depthTiled1;
+    ColorBuffer depthTiled2;
+    ColorBuffer depthTiled3;
+    ColorBuffer depthTiled4;
+    ColorBuffer aOMerged1;
+    ColorBuffer aOMerged2;
+    ColorBuffer aOMerged3;
+    ColorBuffer aOMerged4;
+    ColorBuffer aOSmooth1;
+    ColorBuffer aOSmooth2;
+    ColorBuffer aOSmooth3;
+    ColorBuffer aOHighQuality1;
+    ColorBuffer aOHighQuality2;
+    ColorBuffer aOHighQuality3;
+    ColorBuffer aOHighQuality4;
+    ColorBuffer motionPrepBuffer;
+    ColorBuffer lumaBuffer;
+    ColorBuffer bloomUAV1[2];
+    ColorBuffer bloomUAV2[2];
+    ColorBuffer bloomUAV3[2];
+    ColorBuffer bloomUAV4[2];
+    ColorBuffer bloomUAV5[2];
+    ColorBuffer lumaLR;
+    ByteAddressBuffer histogram;
+    ColorBuffer selectionMask;
+    ColorBuffer fxaaBuffer;
+    StructuredBuffer viewExposure;
+    ByteAddressBuffer viewLightGrid;
+    ByteAddressBuffer viewLightGridBitMask;
+    ColorBuffer viewLightShadowArray;
+    ShadowBuffer viewLightShadowTemp;
+    uint64_t frameIndex = 0;
+    Matrix4x4 previousViewProj, reprojection;
+    bool hasHistory = false;
+    void Create(uint32_t width, uint32_t height);
+    void Destroy();
+};
+ViewBuffers &GetViewBuffers();
+ViewBuffers &GetPrimaryViewBuffers();
+class ScopedViewBuffers
+{
+    ViewBuffers *previous;
 
-    extern ShadowBuffer gShadowBuffer;
-    extern ShadowBuffer gRayTracedShadowBuffer;
-
-    extern ColorBuffer gSSAOFullScreen;
-    extern ColorBuffer gLinearDepth[2];
-    extern ColorBuffer gDepthDownsize1;
-    extern ColorBuffer gDepthDownsize2;
-    extern ColorBuffer gDepthDownsize3;
-    extern ColorBuffer gDepthDownsize4;
-    extern ColorBuffer gDepthTiled1;
-    extern ColorBuffer gDepthTiled2;
-    extern ColorBuffer gDepthTiled3;
-    extern ColorBuffer gDepthTiled4;
-    extern ColorBuffer gAOMerged1;
-    extern ColorBuffer gAOMerged2;
-    extern ColorBuffer gAOMerged3;
-    extern ColorBuffer gAOMerged4;
-    extern ColorBuffer gAOSmooth1;
-    extern ColorBuffer gAOSmooth2;
-    extern ColorBuffer gAOSmooth3;
-    extern ColorBuffer gAOHighQuality1;
-    extern ColorBuffer gAOHighQuality2;
-    extern ColorBuffer gAOHighQuality3;
-    extern ColorBuffer gAOHighQuality4;
-
-    extern ColorBuffer gMotionPrepBuffer;
-    extern ColorBuffer gLumaBuffer;
-    extern ColorBuffer gBloomUAV1[2];	// 640x384 (1/3)
-    extern ColorBuffer gBloomUAV2[2];	// 320x192 (1/6) 
-    extern ColorBuffer gBloomUAV3[2];	// 160x96  (1/12)
-    extern ColorBuffer gBloomUAV4[2];	// 80x48   (1/24)
-    extern ColorBuffer gBloomUAV5[2];	// 40x24   (1/48)
-    extern ColorBuffer gLumaLR;
-
-    extern ByteAddressBuffer gHistogram;
-
-    void InitializeBuffers(uint32_t bufferWidth, uint32_t bufferHeight);
-    void DestroyBuffers();
-    void ResizeBuffers(uint32_t NativeWidth, uint32_t NativeHeight);
-}
-
-
+  public:
+    explicit ScopedViewBuffers(ViewBuffers &buffers);
+    ~ScopedViewBuffers();
+    ScopedViewBuffers(const ScopedViewBuffers &) = delete;
+    ScopedViewBuffers &operator=(const ScopedViewBuffers &) = delete;
+};
+void InitializeBuffers(uint32_t width, uint32_t height);
+void DestroyBuffers();
+void ResizeBuffers(uint32_t width, uint32_t height);
+} // namespace AtomEngine
+// Compatibility names route existing effects to the resources of the active view.
+#define gSceneDepthBuffer GetViewBuffers().sceneDepthBuffer
+#define gSceneColorBuffer GetViewBuffers().sceneColorBuffer
+#define gSceneNormalBuffer GetViewBuffers().sceneNormalBuffer
+#define gPostEffectsBuffer GetViewBuffers().postEffectsBuffer
+#define gOverlayBuffer GetViewBuffers().overlayBuffer
+#define gVelocityBuffer GetViewBuffers().velocityBuffer
+#define gShadowBuffer GetViewBuffers().shadowBuffer
+#define gRayTracedShadowBuffer GetViewBuffers().rayTracedShadowBuffer
+#define gSSAOFullScreen GetViewBuffers().sSAOFullScreen
+#define gLinearDepth GetViewBuffers().linearDepth
+#define gDepthDownsize1 GetViewBuffers().depthDownsize1
+#define gDepthDownsize2 GetViewBuffers().depthDownsize2
+#define gDepthDownsize3 GetViewBuffers().depthDownsize3
+#define gDepthDownsize4 GetViewBuffers().depthDownsize4
+#define gDepthTiled1 GetViewBuffers().depthTiled1
+#define gDepthTiled2 GetViewBuffers().depthTiled2
+#define gDepthTiled3 GetViewBuffers().depthTiled3
+#define gDepthTiled4 GetViewBuffers().depthTiled4
+#define gAOMerged1 GetViewBuffers().aOMerged1
+#define gAOMerged2 GetViewBuffers().aOMerged2
+#define gAOMerged3 GetViewBuffers().aOMerged3
+#define gAOMerged4 GetViewBuffers().aOMerged4
+#define gAOSmooth1 GetViewBuffers().aOSmooth1
+#define gAOSmooth2 GetViewBuffers().aOSmooth2
+#define gAOSmooth3 GetViewBuffers().aOSmooth3
+#define gAOHighQuality1 GetViewBuffers().aOHighQuality1
+#define gAOHighQuality2 GetViewBuffers().aOHighQuality2
+#define gAOHighQuality3 GetViewBuffers().aOHighQuality3
+#define gAOHighQuality4 GetViewBuffers().aOHighQuality4
+#define gMotionPrepBuffer GetViewBuffers().motionPrepBuffer
+#define gLumaBuffer GetViewBuffers().lumaBuffer
+#define gBloomUAV1 GetViewBuffers().bloomUAV1
+#define gBloomUAV2 GetViewBuffers().bloomUAV2
+#define gBloomUAV3 GetViewBuffers().bloomUAV3
+#define gBloomUAV4 GetViewBuffers().bloomUAV4
+#define gBloomUAV5 GetViewBuffers().bloomUAV5
+#define gLumaLR GetViewBuffers().lumaLR
+#define gHistogram GetViewBuffers().histogram
+#define gSelectionMask GetViewBuffers().selectionMask
+#define gFxaaBuffer GetViewBuffers().fxaaBuffer
+#define gViewExposure GetViewBuffers().viewExposure
+#define gViewLightGrid GetViewBuffers().viewLightGrid
+#define gViewLightGridBitMask GetViewBuffers().viewLightGridBitMask
+#define gViewLightShadowArray GetViewBuffers().viewLightShadowArray
+#define gViewLightShadowTemp GetViewBuffers().viewLightShadowTemp

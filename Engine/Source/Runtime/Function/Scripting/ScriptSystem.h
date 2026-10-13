@@ -1,6 +1,7 @@
 #pragma once
 #include "Runtime/Function/Framework/ECS/World.h"
 #include "Runtime/Function/Physics/PhysicsWorld.h"
+#include <filesystem>
 namespace AtomEngine
 {
 class ScriptSystem
@@ -14,6 +15,7 @@ class ScriptSystem
     void UiClick(World &world, Entity entity);
     void Collision(World &world, const PhysicsContact &contact);
     void Reset();
+    bool ReloadAssembly(const std::filesystem::path &path);
     const std::string &Error() const;
 
   private:

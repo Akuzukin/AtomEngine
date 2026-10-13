@@ -198,6 +198,8 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\PostEffect.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.h" />
     <ClInclude Include="Source\Editor\ImGuiCommon.h" />
+    <ClInclude Include="Source\Editor\EditorTheme.h" />
+    <ClInclude Include="Source\Editor\EditorLocalization.h" />
     <ClInclude Include="Source\Runtime\Function\Framework\Component\MaterialComponent.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\PostProcessPass.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\RenderPassesInclude.h" />
@@ -1093,6 +1095,7 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Editor\EditorLayer.cpp" />
     <ClCompile Include="Source\Editor\EditorDocument.cpp" />
     <ClCompile Include="Source\Editor\EditorWorkflow.cpp" />
+    <ClCompile Include="Source\Editor\EditorLocalization.cpp" />
     <ClCompile Include="Source\Runtime\Function\Input\GameInputBackend.cpp" />
     <ClCompile Include="Source\Runtime\Function\Input\XInputBackend.cpp" />
     <ClCompile Include="Source\Runtime\Function\Physics\PhysicsWorld.cpp" />
@@ -1136,8 +1139,8 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <Target Name="BuildEngineDependencies" BeforeTargets="PrepareForBuild">
     <Exec Command="cmake -S &quot;$(ProjectDir)External&quot; -B &quot;$(ProjectDir)..\generated\dependencies\build&quot; -G &quot;Visual Studio 18 2026&quot; -A x64" />
     <Exec Command="cmake --build &quot;$(ProjectDir)..\generated\dependencies\build&quot; --config $(AtomDependencyConfig) --target Jolt -j 8" />
-    <Exec Command="dotnet build &quot;$(ProjectDir)Managed\Atom.Managed\Atom.Managed.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
-    <Exec Command="dotnet build &quot;$(ProjectDir)Managed\GameScripts\GameScripts.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
+    <Exec Condition="'$(AtomSkipManagedBuild)'!='true'" Command="dotnet build &quot;$(ProjectDir)Managed\Atom.Managed\Atom.Managed.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
+    <Exec Condition="'$(AtomSkipManagedBuild)'!='true'" Command="dotnet build &quot;$(ProjectDir)Managed\GameScripts\GameScripts.csproj&quot; -c $(AtomDependencyConfig) -o &quot;$(AtomManagedOutput).&quot; --ignore-failed-sources --nologo" />
   </Target>
   <Target Name="CopyManagedRuntime" AfterTargets="Build">
     <ItemGroup>
@@ -1179,5 +1182,23 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shaders\ImGuiPresentPS.hlsl" />
+    <None Include="Asset\Localization\zh-CN.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\ColorSpaceSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Physics\CollisionGeometry.h" />
+    <ClInclude Include="Source\Editor\ScriptTools.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\RenderGraph.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\PostEffect\FXAA.h" />
+    <None Include="Asset\Shaders\PostEffects\FXAA.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\EnhancementSmokeChecks.h" />
+    <None Include="Tests\BuildReloadFixtures.ps1" />
   </ItemGroup>
 </Project>

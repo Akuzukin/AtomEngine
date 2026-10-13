@@ -41,12 +41,16 @@ struct MeshSourceComponent
 struct PrefabInstanceComponent
 {
     std::string source;
+    std::string sourceId, instanceId, baseline;
+    std::map<std::string, std::string> members;
 };
 enum class ColliderShape
 {
     Box,
     Sphere,
-    Capsule
+    Capsule,
+    Mesh,
+    ConvexHull
 };
 struct ColliderComponent
 {
@@ -70,9 +74,36 @@ struct RigidBodyComponent
     bool gravity = true;
     Vector3 linearVelocity = Vector3::ZERO;
 };
+enum class JointType
+{
+    Fixed,
+    Distance,
+    Hinge
+};
+struct JointComponent
+{
+    JointType type = JointType::Fixed;
+    std::string connectedBody;
+    Vector3 anchor = Vector3::ZERO, connectedAnchor = Vector3::ZERO, axis = Vector3::UP;
+    float minDistance = 0, maxDistance = 1, minAngle = -180, maxAngle = 180;
+    bool enabled = true;
+};
+struct SceneSettings
+{
+    std::string environment = "Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KEnvHDR.dds";
+    std::string diffuseIBL = "Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KDiffuseHDR.dds";
+    std::string specularIBL = "Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KSpecularHDR.dds";
+    std::string brdfLut = "Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KBrdf.dds";
+    float iblIntensity = 1, iblBias = 0, exposure = 1;
+    bool skyEnabled = true, fxaa = true, autoExposure = true;
+    Vector3 editorPosition = Vector3(10, 10, -15);
+    Quaternion editorRotation = Quaternion::IDENTITY;
+    float editorFov = 45, editorNear = .1f, editorFar = 1000;
+    bool hasEditorCamera = false;
+};
 struct ScriptAttachment
 {
-    std::string assembly = "Scripts/AtomScripts.dll", type = "Game.Rotate";
+    std::string assembly, type;
     bool enabled = true;
     std::map<std::string, std::string> fields;
 };

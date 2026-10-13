@@ -1,4 +1,5 @@
 #include "SelectionRenderer.h"
+#include "Runtime/Function/Physics/CollisionGeometry.h"
 #include "RenderSystem.h"
 #include "DebugDraw.h"
 #include "Runtime/Function/Framework/Component/MeshComponent.h"
@@ -11,7 +12,7 @@ namespace AtomEngine
 {
 namespace
 {
-ColorBuffer mask;
+
 RootSignature outlineRoot;
 GraphicsPSO maskPso, skinPso, outlinePso;
 std::weak_ptr<void> selectedWorld;
@@ -79,7 +80,7 @@ void SelectionRenderer::Initialize()
 }
 void SelectionRenderer::Shutdown()
 {
-    mask.Destroy();
+
     selectedWorld.reset();
     selected = entt::null;
 }
@@ -95,14 +96,15 @@ void SelectionRenderer::Render(GraphicsContext &ctx, World &w, const Camera &cam
     auto mesh = w.TryGet<MeshComponent>(selected);
     if (!mesh || !mesh->IsRender())
         return;
-    if (mask.GetWidth() != gSceneColorBuffer.GetWidth() || mask.GetHeight() != gSceneColorBuffer.GetHeight())
-        mask.Create(L"Selection Mask", gSceneColorBuffer.GetWidth(), gSceneColorBuffer.GetHeight(), 1,
-                    DXGI_FORMAT_R8_UNORM);
-    ctx.TransitionResource(mask, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    if (gSelectionMask.GetWidth() != gSceneColorBuffer.GetWidth() ||
+        gSelectionMask.GetHeight() != gSceneColorBuffer.GetHeight())
+        gSelectionMask.Create(L"Selection Mask", gSceneColorBuffer.GetWidth(), gSceneColorBuffer.GetHeight(), 1,
+                              DXGI_FORMAT_R8_UNORM);
+    ctx.TransitionResource(gSelectionMask, D3D12_RESOURCE_STATE_RENDER_TARGET);
     ctx.TransitionResource(gSceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_READ, true);
-    ctx.ClearColor(mask);
-    ctx.SetRenderTarget(mask.GetRTV(), gSceneDepthBuffer.GetDSV_DepthReadOnly());
-    ctx.SetViewportAndScissor(0, 0, mask.GetWidth(), mask.GetHeight());
+    ctx.ClearColor(gSelectionMask);
+    ctx.SetRenderTarget(gSelectionMask.GetRTV(), gSceneDepthBuffer.GetDSV_DepthReadOnly());
+    ctx.SetViewportAndScissor(0, 0, gSelectionMask.GetWidth(), gSelectionMask.GetHeight());
     ctx.SetRootSignature(Renderer::GetRootSignature());
     ctx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     ctx.SetPipelineState(mesh->GetModel()->mNumJoints ? skinPso : maskPso);
@@ -110,12 +112,12 @@ void SelectionRenderer::Render(GraphicsContext &ctx, World &w, const Camera &cam
     constants.ViewProjMatrix = camera.GetViewProjMatrix();
     ctx.SetDynamicConstantBufferView(kCommonCBV, sizeof(constants), &constants);
     mesh->DrawSelection(ctx);
-    ctx.TransitionResource(mask, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    ctx.TransitionResource(gSelectionMask, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     ctx.TransitionResource(gSceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
     ctx.SetRenderTarget(gSceneColorBuffer.GetRTV());
     ctx.SetRootSignature(outlineRoot);
     ctx.SetPipelineState(outlinePso);
-    ctx.SetDynamicDescriptor(0, 0, mask.GetSRV());
+    ctx.SetDynamicDescriptor(0, 0, gSelectionMask.GetSRV());
     ctx.Draw(3);
 }
 void SelectionRenderer::DrawColliders(World &w, const Camera &camera)
@@ -138,7 +140,16 @@ void SelectionRenderer::DrawColliders(World &w, const Camera &camera)
             DebugDraw::DrawLine(Math::TransformCoord(a, matrix), Math::TransformCoord(b, matrix), color,
                                 camera.GetViewProjMatrix());
         };
-        if (c.shape == ColliderShape::Box)
+        if (c.shape == ColliderShape::Mesh || c.shape == ColliderShape::ConvexHull)
+        {
+            if (auto mesh = w.TryGet<MeshComponent>(e))
+            {
+                auto vertices = CollisionWireEdges(*mesh, c.shape == ColliderShape::ConvexHull);
+                for (size_t j = 0; j + 1 < vertices.size(); j += 2)
+                    line(vertices[j] * scale, vertices[j + 1] * scale);
+            }
+        }
+        else if (c.shape == ColliderShape::Box)
         {
             Vector3 corners[8];
             for (int i = 0; i < 8; ++i)

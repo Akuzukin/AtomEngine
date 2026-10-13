@@ -392,6 +392,12 @@
     <ClInclude Include="Source\Editor\EditorApp.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\EditorLocalization.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\EditorTheme.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Editor\ImGuiCommon.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
@@ -999,5 +1005,22 @@
   <ItemGroup>
     <ClCompile Include="External\tinyxml2\tinyxml2.cpp" />
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl"><Filter>Source\Runtime\Function\Framework\ECS</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shaders\ImGuiPresentPS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\ColorSpaceSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Physics\CollisionGeometry.h" />
+    <ClInclude Include="Source\Editor\ScriptTools.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\RenderGraph.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\PostEffect\FXAA.h" />
+    <None Include="Asset\Shaders\PostEffects\FXAA.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\EnhancementSmokeChecks.h" />
+    <None Include="Tests\BuildReloadFixtures.ps1" />
   </ItemGroup>
 </Project>

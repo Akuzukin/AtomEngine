@@ -6,30 +6,30 @@ public sealed class Rotate : Behaviour
 {
     public float Speed = 0.5f;
 
-    public void OnCreate() 
+    public override void OnCreate() 
     { 
 
     }
 
-    public void OnUpdate(float dt) 
+    public override void OnUpdate(float dt) 
     {
         Object.Rotation = Quaternion.Normalize(Object.Rotation * Quaternion.CreateFromAxisAngle(Vector3.UnitY, Speed * dt));
     }
-    public void OnFixedUpdate(float dt) 
+    public override void OnFixedUpdate(float dt) 
     { 
 
     }
-    public void OnCollision(uint other, bool trigger)
-    { 
-
-    }
-
-    public void OnUiClick() 
+    public overridevoid OnCollision(uint other, bool trigger)
     { 
 
     }
 
-    public void OnDestroy() 
+    public override void OnUiClick() 
+    { 
+
+    }
+
+    public override void OnDestroy() 
     {
 
     }

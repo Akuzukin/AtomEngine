@@ -1,4 +1,8 @@
 #include "EditorLayer.h"
+#include "ScriptTools.h"
+#include "ImGuiCommon.h"
+#include "EditorTheme.h"
+#include "EditorLocalization.h"
 #include "Runtime/Function/Scene/SceneView.h"
 #include "External/tinyxml2/tinyxml2.h"
 #include "imgui.h"
@@ -13,12 +17,126 @@
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 #include "imgui_internal.h"
 #include <algorithm>
+#include <set>
 #include <commdlg.h>
 #include <shellapi.h>
 #pragma comment(lib, "comdlg32.lib")
 #pragma comment(lib, "shell32.lib")
 namespace AtomEngine
 {
+void EditorLayer::ScriptCreation(World &world)
+{
+    ImGui::BeginDisabled(mPlaying || mScriptBuild.valid());
+    if (ImGui::Button(EditorLocalization::Label("Create C# script")))
+        ImGui::OpenPopup(EditorLocalization::Label("New Behaviour"));
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    ImGui::BeginDisabled(mScriptBuild.valid());
+    if (ImGui::Button(EditorLocalization::Label("Build scripts")))
+        Run([&] { mScriptBuild = ScriptTools::Build(); });
+    ImGui::EndDisabled();
+    if (ImGui::BeginPopup(EditorLocalization::Label("New Behaviour")))
+    {
+        static char name[128] = "";
+        static bool callbacks = true, attach = true;
+        ImGui::InputText(EditorLocalization::Label("Class name"), name, sizeof(name));
+        ImGui::Checkbox(EditorLocalization::Label("Generate Behaviour overrides"), &callbacks);
+        ImGui::BeginDisabled(!world.IsValid(mSelected));
+        ImGui::Checkbox(EditorLocalization::Label("Attach to selected object"), &attach);
+        ImGui::EndDisabled();
+        if (ImGui::Button(EditorLocalization::Label("Generate")))
+            Run([&] {
+                auto file = ScriptTools::Generate(name, callbacks);
+                mAssetDirectory = file.parent_path();
+                if (attach && world.IsValid(mSelected))
+                {
+                    if (!world.HasComponent<ScriptComponent>(mSelected))
+                        world.AddComponent<ScriptComponent>(mSelected);
+                    ScriptAttachment script;
+                    script.assembly = "Scripts/AtomScripts.dll";
+                    script.type = std::string("Game.") + name;
+                    auto &scripts = world.GetComponent<ScriptComponent>(mSelected).scripts;
+                    if (!scripts.empty() && scripts.back().assembly.empty() && scripts.back().type.empty())
+                        scripts.back() = script;
+                    else
+                        scripts.push_back(script);
+                    mHistoryPending = true;
+                }
+                mRefreshAssets = true;
+                ImGui::CloseCurrentPopup();
+            });
+        ImGui::EndPopup();
+    }
+}
+void EditorLayer::PollBackgroundWork(Scene &scene)
+{
+    mPrefabWatchTimer += ImGui::GetIO().DeltaTime;
+    if (!mPlaying && !mGizmoActive && !ImGui::GetIO().WantTextInput && mPrefabWatchTimer >= 1)
+    {
+        mPrefabWatchTimer = 0;
+        std::set<std::filesystem::path> sources;
+        for (auto e : scene.GetWorld().View<PrefabInstanceComponent>())
+        {
+            const auto &p = scene.GetWorld().GetComponent<PrefabInstanceComponent>(e);
+            if (!p.source.empty() && !p.baseline.empty())
+                sources.insert(std::filesystem::absolute(p.source).lexically_normal());
+        }
+        for (const auto &source : sources)
+        {
+            std::error_code ec;
+            auto stamp = std::filesystem::last_write_time(source, ec);
+            if (ec)
+                continue;
+            auto [it, inserted] = mPrefabStamps.emplace(source, stamp);
+            if (!inserted && it->second != stamp)
+            {
+                it->second = stamp;
+                Run([&] {
+                    auto id = EditorActions::Id(scene.GetWorld(), mSelected);
+                    SceneSerializer::RefreshPrefabs(scene.GetWorld(), source);
+                    Select(scene.GetWorld(), EditorActions::Find(scene.GetWorld(), id));
+                    mHistoryPending = true;
+                });
+            }
+        }
+    }
+    if (mScriptBuild.valid() && mScriptBuild.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        int code = mScriptBuild.get();
+        WriteLog(code ? LogLevel::Error : LogLevel::Info, "Scripts",
+                 code ? "Script build failed; see Scripts/ScriptBuild.log. Running assembly retained."
+                      : "Scripts built. Active assemblies reload automatically while playing.");
+    }
+    if (!mScenePreload)
+        return;
+    auto report = mScenePreload->Step(1);
+    ImGui::Begin(EditorLocalization::Label("Loading scene"));
+    ImGui::Text(EditorLocalization::Text("Assets: %zu / %zu"), report.completed, report.total);
+    ImGui::ProgressBar(report.total ? float(report.completed) / report.total : 1);
+    ImGui::End();
+    if (!report.Ready())
+        return;
+    if (!report.Success())
+    {
+        mError = report.errors.front();
+        mScenePreload.reset();
+        return;
+    }
+    auto preload = std::move(mScenePreload);
+    if (SceneSerializer::ToXml(scene.GetWorld(), scene.GetName()) != mPreloadSnapshot)
+    {
+        mError = "Scene changed while loading. Save your changes and open the scene again; resources are now cached.";
+        return;
+    }
+    Run([&] {
+        scene.Load(mPreloadPath);
+        Select(scene.GetWorld(), entt::null);
+        strncpy_s(mScenePath, WStringToUTF8(mPreloadPath.wstring()).c_str(), _TRUNCATE);
+        Recent(mPreloadPath);
+        mDocument.Reset(scene.GetWorld(), scene.GetName());
+        mDocumentReady = true;
+    });
+}
 namespace
 {
 std::filesystem::path Preferences()
@@ -40,7 +158,8 @@ std::filesystem::path SceneDialog(bool save, const char *initial)
     dialog.lpstrFile = file;
     dialog.nMaxFile = DWORD(std::size(file));
     dialog.lpstrDefExt = L"scene";
-    dialog.lpstrTitle = save ? L"Save scene" : L"Open scene";
+    auto title = UTF8ToWString(EditorLocalization::Text(save ? "Save scene" : "Open scene"));
+    dialog.lpstrTitle = title.c_str();
     dialog.Flags =
         OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST);
     if (save ? GetSaveFileNameW(&dialog) : GetOpenFileNameW(&dialog))
@@ -77,26 +196,27 @@ void DockLayout(ImGuiID id)
     ImGui::DockBuilderAddNode(id, ImGuiDockNodeFlags_DockSpace);
     ImGui::DockBuilderSetNodeSize(id, viewport->WorkSize);
     auto middle = id;
-    auto left = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Left, .20f, nullptr, &middle);
-    auto right = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Right, .28f, nullptr, &middle);
-    auto bottom = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Down, .32f, nullptr, &middle);
-    ImGui::DockBuilderDockWindow("Hierarchy", left);
-    auto materials = ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, .43f, nullptr, &right);
-    ImGui::DockBuilderDockWindow("Materials", materials);
-    ImGui::DockBuilderDockWindow("Inspector", right);
+    auto left = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Left, .17f, nullptr, &middle);
+    auto right = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Right, .29f, nullptr, &middle);
+    auto bottom = ImGui::DockBuilderSplitNode(middle, ImGuiDir_Down, .28f, nullptr, &middle);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Hierarchy"), left);
+    auto materials = ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, .40f, nullptr, &right);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Materials"), materials);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Inspector"), right);
 
-    ImGui::DockBuilderDockWindow("Viewport", middle);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Viewport"), middle);
     auto info = ImGui::DockBuilderSplitNode(bottom, ImGuiDir_Right, .28f, nullptr, &bottom);
-    ImGui::DockBuilderDockWindow("Scene", info);
-    ImGui::DockBuilderDockWindow("Editor help", info);
-    ImGui::DockBuilderDockWindow("Assets", bottom);
-    ImGui::DockBuilderDockWindow("Console", info);
-    ImGui::DockBuilderDockWindow("Shaders", info);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Scene"), info);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Editor help"), info);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Assets"), bottom);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Console"), info);
+    ImGui::DockBuilderDockWindow(EditorLocalization::Label("Shaders"), info);
     ImGui::DockBuilderFinish(id);
 }
 } // namespace
 void EditorLayer::Initialize(const std::filesystem::path &path)
 {
+    EditorLocalization::Initialize();
     strncpy_s(mScenePath, PathText(path).c_str(), _TRUNCATE);
     LoadPreferences();
     Recent(path);
@@ -117,6 +237,9 @@ void EditorLayer::LoadPreferences()
         return;
     if (auto root = doc.FirstChildElement("Editor"))
     {
+        if (auto language = root->Attribute("language"))
+            if (!EditorLocalization::SetLanguage(language))
+                EditorLocalization::SetLanguage("en");
         mShowAssets = root->BoolAttribute("assets", true);
         mShowMaterials = root->BoolAttribute("materials", true);
         mShowCameraGizmos = root->BoolAttribute("cameraFrustums", true);
@@ -143,6 +266,7 @@ void EditorLayer::SavePreferences()
     auto root = doc.NewElement("Editor");
     doc.InsertEndChild(root);
     root->SetAttribute("assets", mShowAssets);
+    root->SetAttribute("language", EditorLocalization::CurrentLanguage().c_str());
     root->SetAttribute("materials", mShowMaterials);
     root->SetAttribute("cameraFrustums", mShowCameraGizmos);
     root->SetAttribute("layoutVersion", 2);
@@ -252,9 +376,10 @@ void EditorLayer::ExecutePending(Scene &s)
         }
         else if (operation == Pending::Open)
         {
-            s.Load(path);
-            strncpy_s(mScenePath, PathText(path).c_str(), _TRUNCATE);
-            Recent(path);
+            mPreloadPath = path;
+            mPreloadSnapshot = SceneSerializer::ToXml(s.GetWorld(), s.GetName());
+            mScenePreload = AssetManager::PreloadAsync(SceneSerializer::CollectResources(path));
+            return;
         }
         Select(s.GetWorld(), entt::null);
         mDocument.Reset(s.GetWorld(), s.GetName());
@@ -281,11 +406,11 @@ void EditorLayer::ConfirmPending(Scene &s)
         return;
     }
     mModal = true;
-    ImGui::OpenPopup("Unsaved scene");
-    if (ImGui::BeginPopupModal("Unsaved scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    ImGui::OpenPopup(EditorLocalization::Label("Unsaved scene"));
+    if (ImGui::BeginPopupModal(EditorLocalization::Label("Unsaved scene"), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::TextUnformatted("The scene has unsaved changes.");
-        if (ImGui::Button("Save", ImVec2(100, 0)))
+        ImGui::TextUnformatted(EditorLocalization::Text("The scene has unsaved changes."));
+        if (ImGui::Button(EditorLocalization::Label("Save"), ImVec2(100, 0)))
         {
             if (SaveDocument(s))
             {
@@ -294,13 +419,13 @@ void EditorLayer::ConfirmPending(Scene &s)
             }
         }
         ImGui::SameLine();
-        if (ImGui::Button("Discard", ImVec2(100, 0)))
+        if (ImGui::Button(EditorLocalization::Label("Discard"), ImVec2(100, 0)))
         {
             ImGui::CloseCurrentPopup();
             ExecutePending(s);
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(100, 0)))
+        if (ImGui::Button(EditorLocalization::Label("Cancel"), ImVec2(100, 0)))
         {
             mPending = Pending::None;
             mModal = false;
@@ -361,64 +486,108 @@ void EditorLayer::Workspace(Scene &s)
     Shortcuts(s);
     if (ImGui::BeginMainMenuBar())
     {
-        if (ImGui::BeginMenu("File"))
+        ImGui::TextColored(EditorTheme::Accent(), "ATOM");
+        ImGui::Separator();
+        if (ImGui::BeginMenu(EditorLocalization::Label("File")))
         {
-            if (ImGui::MenuItem("New scene", "Ctrl+N", false, !mPlaying))
+            if (ImGui::MenuItem(EditorLocalization::Label("New scene"), "Ctrl+N", false, !mPlaying))
                 mPending = Pending::New;
-            if (ImGui::MenuItem("Open scene...", "Ctrl+O", false, !mPlaying))
+            if (ImGui::MenuItem(EditorLocalization::Label("Open scene..."), "Ctrl+O", false, !mPlaying))
             {
                 auto path = SceneDialog(false, mScenePath);
                 if (!path.empty())
                     OpenScene(path);
             }
-            if (ImGui::BeginMenu("Recent scenes", !mPlaying))
+            if (ImGui::BeginMenu(EditorLocalization::Label("Recent scenes"), !mPlaying))
             {
                 for (auto &p : mRecentScenes)
                     if (ImGui::MenuItem(PathText(p).c_str()))
                         OpenScene(p);
                 ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Save", "Ctrl+S", false, !mPlaying))
+            if (ImGui::MenuItem(EditorLocalization::Label("Save"), "Ctrl+S", false, !mPlaying))
                 SaveDocument(s);
-            if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S", false, !mPlaying))
+            if (ImGui::MenuItem(EditorLocalization::Label("Save As..."), "Ctrl+Shift+S", false, !mPlaying))
                 SaveDocument(s, true);
             ImGui::Separator();
-            if (ImGui::MenuItem("Exit"))
+            if (ImGui::MenuItem(EditorLocalization::Label("Exit")))
                 RequestClose();
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Edit"))
+        if (ImGui::BeginMenu(EditorLocalization::Label("Edit")))
         {
-            if (ImGui::MenuItem("Undo", "Ctrl+Z", false, !mPlaying && mDocument.CanUndo()))
+            if (ImGui::MenuItem(EditorLocalization::Label("Undo"), "Ctrl+Z", false, !mPlaying && mDocument.CanUndo()))
                 Undo(s);
-            if (ImGui::MenuItem("Redo", "Ctrl+Y", false, !mPlaying && mDocument.CanRedo()))
+            if (ImGui::MenuItem(EditorLocalization::Label("Redo"), "Ctrl+Y", false, !mPlaying && mDocument.CanRedo()))
                 Undo(s, true);
-            if (ImGui::MenuItem("Duplicate subtree", "Ctrl+D", false, !mPlaying && s.GetWorld().IsValid(mSelected)))
+            if (ImGui::MenuItem(EditorLocalization::Label("Duplicate subtree"), "Ctrl+D", false,
+                                !mPlaying && s.GetWorld().IsValid(mSelected)))
                 Run([&] { Duplicate(s.GetWorld()); });
-            if (ImGui::MenuItem("Frame selected", "F", false, s.GetWorld().IsValid(mSelected)))
+            if (ImGui::MenuItem(EditorLocalization::Label("Frame selected"), "F", false,
+                                s.GetWorld().IsValid(mSelected)))
                 Focus(s);
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("View"))
+        if (ImGui::BeginMenu(EditorLocalization::Label("View")))
         {
-            ImGui::MenuItem("Assets", nullptr, &mShowAssets);
-            ImGui::MenuItem("Materials", nullptr, &mShowMaterials);
-            ImGui::MenuItem("Console", nullptr, &mShowConsole);
-            ImGui::MenuItem("Shaders", nullptr, &mShowShaders);
-            ImGui::MenuItem("Camera frustums", nullptr, &mShowCameraGizmos);
-            ImGui::MenuItem("Grid", nullptr, &gContext.showGrid);
-            ImGui::MenuItem("Colliders", nullptr, &gContext.showColliders);
-            ImGui::MenuItem("Render diagnostics", nullptr, &gContext.showRenderDiagnostics);
-            if (ImGui::MenuItem("Reset layout"))
+            ImGui::MenuItem(EditorLocalization::Label("Assets"), nullptr, &mShowAssets);
+            ImGui::MenuItem(EditorLocalization::Label("Materials"), nullptr, &mShowMaterials);
+            ImGui::MenuItem(EditorLocalization::Label("Console"), nullptr, &mShowConsole);
+            ImGui::MenuItem(EditorLocalization::Label("Shaders"), nullptr, &mShowShaders);
+            ImGui::MenuItem(EditorLocalization::Label("Camera frustums"), nullptr, &mShowCameraGizmos);
+            ImGui::MenuItem(EditorLocalization::Label("Grid"), nullptr, &gContext.showGrid);
+            ImGui::MenuItem(EditorLocalization::Label("Colliders"), nullptr, &gContext.showColliders);
+            ImGui::MenuItem(EditorLocalization::Label("Render diagnostics"), nullptr, &gContext.showRenderDiagnostics);
+            if (ImGui::MenuItem(EditorLocalization::Label("Reset layout")))
                 mResetLayout = true;
             ImGui::EndMenu();
         }
-        if (ImGui::MenuItem("Help"))
+        if (ImGui::MenuItem(EditorLocalization::Label("Help")))
             mShowHelp = !mShowHelp;
+        if (ImGui::BeginMenu(EditorLocalization::Label("Language")))
+        {
+            for (const auto &language : EditorLocalization::Languages())
+                if (ImGui::MenuItem(language.name.c_str(), nullptr,
+                                    language.id == EditorLocalization::CurrentLanguage()))
+                {
+                    EditorLocalization::SetLanguage(language.id);
+                    SavePreferences();
+                }
+            ImGui::EndMenu();
+        }
         ImGui::Separator();
-        ImGui::Text("%s%s", s.GetName().c_str(), mDocument.Dirty() ? " *" : "");
+        ImGui::TextDisabled("%s%s", s.GetName().c_str(), mDocument.Dirty() ? " *" : "");
         ImGui::EndMainMenuBar();
     }
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 3));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, EditorTheme::Gray(26));
+    if (ImGui::BeginViewportSideBar("##Editor status", ImGui::GetMainViewport(), ImGuiDir_Down, ImGui::GetFrameHeight(),
+                                    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar |
+                                        ImGuiWindowFlags_NoScrollWithMouse))
+    {
+        ImGui::TextColored(mPlaying ? (mPaused ? EditorTheme::Color(217, 172, 87) : EditorTheme::Color(112, 192, 138))
+                                    : EditorTheme::Accent(),
+                           "%s", EditorLocalization::Text(mPlaying ? (mPaused ? "PAUSED" : "PLAYING") : "EDITOR"));
+        ImGui::SameLine();
+        ImGui::TextDisabled(" | %s",
+                            EditorLocalization::Text(mDocument.Dirty() ? "Unsaved changes" : "All changes saved"));
+        if (ImGui::GetContentRegionAvail().x > 300)
+        {
+            ImGui::SameLine();
+            auto name = s.GetWorld().TryGet<NameComponent>(mSelected);
+            ImGui::TextDisabled(" | %s", name ? name->value.c_str() : EditorLocalization::Text("No selection"));
+        }
+        const float fpsWidth = ImGui::CalcTextSize("9999 FPS | 999.9 ms").x;
+        if (ImGui::GetContentRegionAvail().x > fpsWidth + 20)
+        {
+            ImGui::SameLine(ImGui::GetWindowWidth() - fpsWidth - 12);
+            auto fps = ImGui::GetIO().Framerate;
+            ImGui::TextDisabled("%.0f FPS | %.1f ms", fps, fps > 0 ? 1000.f / fps : 0.f);
+        }
+    }
+    ImGui::End();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
     ImGuiWindowClass docking;
     docking.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
     auto dock = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None, &docking);
@@ -431,7 +600,7 @@ void EditorLayer::Workspace(Scene &s)
 }
 void EditorLayer::Viewport(Scene &s)
 {
-    ImGui::Begin("Viewport");
+    ImGui::Begin(EditorLocalization::Label("Viewport"));
     s.GetCamera().SetAspectRatio(float(gSceneColorBuffer.GetHeight()) / std::max(1u, gSceneColorBuffer.GetWidth()));
     PlayToolbar(s);
     const char *names[] = {"Move [T]", "Rotate [R]", "Scale [S]"};
@@ -439,16 +608,21 @@ void EditorLayer::Viewport(Scene &s)
     {
         if (i)
             ImGui::SameLine();
-        if (ImGui::Selectable(names[i], mGizmoOperation == i + 1, 0, ImVec2(85, 0)))
+        if (EditorTheme::ToggleButton(EditorLocalization::Label(names[i]), mGizmoOperation == i + 1, ImVec2(94, 0)))
             mGizmoOperation = i + 1;
+        EditorTheme::Tooltip(EditorLocalization::Text(i == 0   ? "Translate selected object (T)"
+                                                      : i == 1 ? "Rotate selected object (R)"
+                                                               : "Scale selected object (S)"));
     }
-    ImGui::Checkbox("Local", &mLocal);
+    ImGui::Checkbox(EditorLocalization::Label("Local"), &mLocal);
     ImGui::SameLine();
-    ImGui::Checkbox("Snap", &mSnap);
+    ImGui::Checkbox(EditorLocalization::Label("Snap"), &mSnap);
     ImGui::SameLine();
     float *snapStep = mGizmoOperation == 2 ? &mRotateSnap : mGizmoOperation == 3 ? &mScaleSnap : &mMoveSnap;
     ImGui::SetNextItemWidth(70);
-    ImGui::DragFloat("Step", snapStep, .05f, .001f, 100, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+    ImGui::DragFloat(EditorLocalization::Label("Step##TransformSnapStep"), snapStep, .05f, .001f, 100, "%.2f",
+                     ImGuiSliderFlags_AlwaysClamp);
+    ImGui::Separator();
     auto available = ImGui::GetContentRegionAvail();
     float aspect = float(gSceneColorBuffer.GetWidth()) / std::max(1u, gSceneColorBuffer.GetHeight());
     ImVec2 size(available.x, available.x / aspect);
@@ -462,7 +636,7 @@ void EditorLayer::Viewport(Scene &s)
         cursor.x += (available.x - size.x) * .5f;
         cursor.y += (available.y - size.y) * .5f;
         ImGui::SetCursorScreenPos(cursor);
-        ImGui::Image((ImTextureID)(intptr_t)mViewportTexture, size);
+        ImGuiCommon::ImageDisplayEncoded((ImTextureID)mViewportTexture, size);
         mViewportHovered = ImGui::IsItemHovered();
         auto mouse = ImGui::GetMousePos();
         mRuntimePointer = Vector2((mouse.x - cursor.x) * gSceneColorBuffer.GetWidth() / size.x,
@@ -538,36 +712,50 @@ void EditorLayer::Viewport(Scene &s)
 }
 void EditorLayer::Assets(Scene &s)
 {
-    ImGui::Begin("Assets", &mShowAssets);
-    if (ImGui::Button("Assets"))
+    ImGui::Begin(EditorLocalization::Label("Assets"), &mShowAssets);
+    if (ImGui::Button(EditorLocalization::Label("Assets")))
     {
         mAssetDirectory = "Asset";
         mRefreshAssets = true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Materials"))
+    if (ImGui::Button(EditorLocalization::Label("Materials")))
     {
         mAssetDirectory = "Asset/Materials";
         mRefreshAssets = true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Scripts"))
+    if (ImGui::Button(EditorLocalization::Label("Scripts")))
     {
         mAssetDirectory = Preferences().parent_path() / "Scripts";
         mRefreshAssets = true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Up") && mAssetDirectory.has_parent_path())
+    if (ImGui::Button(EditorLocalization::Label("Up")) && mAssetDirectory.has_parent_path())
     {
         mAssetDirectory = mAssetDirectory.parent_path();
         mRefreshAssets = true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Refresh"))
+    if (ImGui::Button(EditorLocalization::Label("Refresh")))
         mRefreshAssets = true;
-    ImGui::TextWrapped("%s", PathText(mAssetDirectory).c_str());
+    if (ImGui::GetContentRegionAvail().x > 280)
+        ImGui::SameLine();
+    ScriptCreation(s.GetWorld());
+    ImGui::Spacing();
+    ImGui::TextDisabled("%s", PathText(mAssetDirectory).c_str());
     static ImGuiTextFilter search;
-    search.Draw("Search assets");
+    const bool wideSearch = ImGui::GetContentRegionAvail().x > 400;
+    ImGui::SetNextItemWidth(wideSearch ? ImGui::GetContentRegionAvail().x - 230 : -1);
+    if (ImGui::InputTextWithHint("##Search assets", EditorLocalization::Text("Search assets..."), search.InputBuf,
+                                 sizeof(search.InputBuf)))
+        search.Build();
+    EditorTheme::Tooltip(EditorLocalization::Text("Filter assets by name; use commas for multiple filters"));
+    if (wideSearch)
+        ImGui::SameLine();
+    ImGui::Checkbox(EditorLocalization::Label("Thumbnails"), &mThumbnailView);
+    ImGui::SameLine();
+    ImGui::TextDisabled(EditorLocalization::Text("%zu items"), mAssetEntries.size());
     if (mRefreshAssets)
     {
         ClearThumbnails();
@@ -588,8 +776,43 @@ void EditorLayer::Assets(Scene &s)
         if (error)
             WriteLog(LogLevel::Warning, "Editor", "Cannot browse assets: " + error.message());
     }
-    ImGui::Checkbox("Thumbnails", &mThumbnailView);
+    ImGui::Separator();
     int thumbnailBudget = 2;
+    size_t pendingThumbnails = 0;
+    for (auto &[key, thumbnail] : mThumbnails)
+        if (thumbnail.pending)
+        {
+            ++pendingThumbnails;
+            if (thumbnailBudget <= 0)
+                continue;
+            auto before = thumbnail.pending->Report().completed;
+            const auto &report = thumbnail.pending->Step(1);
+            if (report.completed != before)
+                --thumbnailBudget;
+            if (!report.Ready())
+                continue;
+            try
+            {
+                if (!report.Success())
+                    throw std::runtime_error("Thumbnail preload failed");
+                thumbnail.texture = AssetManager::LoadCovertTexture(thumbnail.path, kWhiteOpaque2D, true);
+                if (!thumbnail.texture.IsValid() ||
+                    const_cast<ID3D12Resource *>(thumbnail.texture->GetResource())->GetDesc().DepthOrArraySize != 1)
+                    thumbnail.failed = true;
+                else
+                {
+                    thumbnail.handle = Renderer::GetTextureHeap().Alloc();
+                    DX12Core::gDevice->CopyDescriptorsSimple(1, thumbnail.handle, thumbnail.texture.GetSRV(),
+                                                             D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+                }
+            }
+            catch (const std::exception &)
+            {
+                thumbnail.failed = true;
+            }
+            thumbnail.pending.reset();
+            --pendingThumbnails;
+        }
     ImGui::BeginChild("Asset list", ImVec2(mAssetSelection.empty() ? 0 : ImGui::GetContentRegionAvail().x * .65f, 0));
     bool grid =
         mThumbnailView && ImGui::BeginTable("Asset grid", std::max(1, int(ImGui::GetContentRegionAvail().x / 116.f)),
@@ -612,40 +835,33 @@ void EditorLayer::Assets(Scene &s)
             auto pos = ImGui::GetCursorScreenPos();
             clicked = ImGui::InvisibleButton("Asset tile", ImVec2(108, 100));
             auto draw = ImGui::GetWindowDrawList();
-            auto color = mAssetSelection == path  ? IM_COL32(48, 78, 110, 255)
-                         : ImGui::IsItemHovered() ? IM_COL32(34, 45, 60, 255)
-                                                  : IM_COL32(23, 28, 35, 255);
+            auto color = mAssetSelection == path  ? EditorTheme::U32(40, 70, 94)
+                         : ImGui::IsItemHovered() ? EditorTheme::U32(52, 52, 52)
+                                                  : EditorTheme::U32(29, 29, 29);
             draw->AddRectFilled(pos, ImVec2(pos.x + 108, pos.y + 100), color, 5);
             if (folder)
             {
                 draw->AddRectFilled(ImVec2(pos.x + 18, pos.y + 20), ImVec2(pos.x + 50, pos.y + 31),
-                                    IM_COL32(226, 175, 66, 255), 3);
+                                    EditorTheme::U32(226, 175, 66), 3);
                 draw->AddRectFilled(ImVec2(pos.x + 18, pos.y + 28), ImVec2(pos.x + 90, pos.y + 64),
-                                    IM_COL32(234, 187, 82, 255), 4);
+                                    EditorTheme::U32(234, 187, 82), 4);
             }
             else
             {
                 auto key = PathText(std::filesystem::absolute(entry));
                 auto found = mThumbnails.find(key);
                 if (TextureFile(entry) && found == mThumbnails.end() && thumbnailBudget > 0 &&
-                    mThumbnails.size() < 128 && ImGui::IsItemVisible())
+                    mThumbnails.size() < 128 && pendingThumbnails < 4 && ImGui::IsItemVisible())
                 {
                     --thumbnailBudget;
                     Thumbnail thumbnail;
                     try
                     {
-                        thumbnail.texture = AssetManager::LoadCovertTexture(path, kWhiteOpaque2D, true);
-                        auto desc = thumbnail.texture.IsValid()
-                                        ? const_cast<ID3D12Resource *>(thumbnail.texture->GetResource())->GetDesc()
-                                        : D3D12_RESOURCE_DESC{};
-                        if (!thumbnail.texture.IsValid() || desc.DepthOrArraySize != 1)
-                            thumbnail.failed = true;
-                        else
-                        {
-                            thumbnail.handle = Renderer::GetTextureHeap().Alloc();
-                            DX12Core::gDevice->CopyDescriptorsSimple(1, thumbnail.handle, thumbnail.texture.GetSRV(),
-                                                                     D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                        }
+                        thumbnail.path = path;
+                        thumbnail.pending = AssetManager::PreloadAsync(
+                            {{AssetKind::Texture, path, BuiltinMesh::None, kWhiteOpaque2D, true}});
+                        thumbnail.pending->Step(1);
+                        ++pendingThumbnails;
                     }
                     catch (const std::exception &)
                     {
@@ -653,7 +869,8 @@ void EditorLayer::Assets(Scene &s)
                     }
                     found = mThumbnails.emplace(key, std::move(thumbnail)).first;
                 }
-                if (found != mThumbnails.end() && !found->second.failed)
+                if (found != mThumbnails.end() && !found->second.failed && !found->second.pending &&
+                    found->second.texture.IsValid())
                 {
                     auto &thumbnail = found->second;
                     float aspect = float(thumbnail.texture.Width()) / std::max(1u, thumbnail.texture.Height());
@@ -665,9 +882,9 @@ void EditorLayer::Assets(Scene &s)
                 else
                 {
                     draw->AddRectFilled(ImVec2(pos.x + 27, pos.y + 12), ImVec2(pos.x + 81, pos.y + 77),
-                                        IM_COL32(63, 80, 102, 255), 3);
+                                        EditorTheme::U32(63, 63, 63), 3);
                     auto extension = Extension(entry);
-                    draw->AddText(ImVec2(pos.x + 32, pos.y + 36), IM_COL32(218, 229, 240, 255), extension.c_str());
+                    draw->AddText(ImVec2(pos.x + 32, pos.y + 36), EditorTheme::U32(218, 229, 240), extension.c_str());
                 }
             }
             std::string label = name;
@@ -678,7 +895,7 @@ void EditorLayer::Assets(Scene &s)
                     --last;
                 label.erase(last);
             }
-            draw->AddText(ImVec2(pos.x + 5, pos.y + 80), IM_COL32(226, 232, 240, 255), label.c_str());
+            draw->AddText(ImVec2(pos.x + 5, pos.y + 80), EditorTheme::U32(226, 232, 240), label.c_str());
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("%s", name.c_str());
         }
@@ -733,7 +950,7 @@ void EditorLayer::Assets(Scene &s)
         ImGui::SameLine();
         ImGui::BeginChild("Asset details");
         ImGui::TextWrapped("%s", mAssetSelection.c_str());
-        if (ImGui::Button("Copy path"))
+        if (ImGui::Button(EditorLocalization::Label("Copy path")))
             ImGui::SetClipboardText(mAssetSelection.c_str());
         if (mAssetPreview.IsValid())
         {
@@ -742,11 +959,11 @@ void EditorLayer::Assets(Scene &s)
                          ImVec2(width, width * float(mAssetPreview.Height()) / std::max(1u, mAssetPreview.Width())));
             auto materials = s.GetWorld().TryGet<MaterialComponent>(mSelected);
             ImGui::BeginDisabled(mPlaying || !materials || materials->mMaterials.empty());
-            if (ImGui::Button("Use as BaseColor"))
+            if (ImGui::Button(EditorLocalization::Label("Use as BaseColor")))
                 materials->mMaterials[0].texturePaths[0] = mAssetSelection;
             ImGui::EndDisabled();
         }
-        if (ImGui::Button("Open externally"))
+        if (ImGui::Button(EditorLocalization::Label("Open externally")))
         {
             auto path = std::filesystem::path(UTF8ToWString(mAssetSelection));
             if (mAssetSelection.starts_with("Scripts/"))

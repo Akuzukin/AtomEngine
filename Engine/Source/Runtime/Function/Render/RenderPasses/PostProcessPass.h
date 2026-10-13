@@ -5,20 +5,27 @@
 
 namespace AtomEngine
 {
-	class PostProcessPass : public RenderPass
-	{
-	public:
-		void Initialize() override;
-		void Shutdown() override;
-		void Update(GraphicsContext& Context, float deltaTime) override;
-		void Render(GraphicsContext& gfxContext) override;
+class PostProcessPass : public RenderPass
+{
+  public:
+    void Initialize() override;
+    void Shutdown() override;
+    void Update(GraphicsContext &Context, float deltaTime) override;
+    void Render(GraphicsContext &gfxContext) override;
+    RenderPassStage Stage() const override
+    {
+        return RenderPassStage::Postprocess;
+    }
+    const char *Name() const override
+    {
+        return "Postprocess";
+    }
+    std::vector<GraphUse> GraphResources() const override;
 
-	private:
-		//システム
-		std::unique_ptr<GridRenderer> mGridRenderer;
-		std::unique_ptr<PostEffect> mPostEffect;
-		bool mIsMotionBlurEnabled = false;
-	};
-}
-
-
+  private:
+    // システム
+    std::unique_ptr<GridRenderer> mGridRenderer;
+    std::unique_ptr<PostEffect> mPostEffect;
+    bool mIsMotionBlurEnabled = false;
+};
+} // namespace AtomEngine

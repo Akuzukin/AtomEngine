@@ -20,7 +20,7 @@ namespace AtomEngine
 		WindowManager* windowManager = nullptr;
 		Input* input = nullptr;
 		Audio* audio = nullptr;
-		std::function<void(GraphicsContext&)> renderOverlay;
+		std::function<void(GraphicsContext&,ColorBuffer&)> renderOverlay;
         std::function<void(GraphicsContext&, ColorBuffer&)> prepareEditorViewport;
         std::function<void(ColorBuffer&)> capturePresented;
         bool showRenderDiagnostics = false;

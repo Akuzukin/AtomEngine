@@ -1,4 +1,7 @@
 #include "EditorLayer.h"
+#include "EditorTheme.h"
+#include "EditorLocalization.h"
+#include "ScriptTools.h"
 #include "Runtime/Function/Scene/SceneView.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
@@ -24,7 +27,7 @@ bool Text(const char *label, std::string &s, float reserve = 0)
 {
     char buffer[1024]{};
     strncpy_s(buffer, s.c_str(), _TRUNCATE);
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1 - reserve);
     if (ImGui::InputText((std::string("##") + label).c_str(), buffer, sizeof(buffer)))
     {
@@ -56,33 +59,33 @@ bool AssetPath(const char *label, std::string &value, const char *extensions)
 bool Float(const char *label, float *value, float speed = 1.f, float minimum = 0.f, float maximum = 0.f,
            const char *format = "%.3f", ImGuiSliderFlags flags = 0)
 {
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1);
     return ImGui::DragFloat((std::string("##") + label).c_str(), value, speed, minimum, maximum, format, flags);
 }
 bool Float2(const char *label, float *value, float speed = 1.f, float minimum = 0.f, float maximum = 0.f,
             const char *format = "%.3f", ImGuiSliderFlags flags = 0)
 {
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1);
     return ImGui::DragFloat2((std::string("##") + label).c_str(), value, speed, minimum, maximum, format, flags);
 }
 bool Float3(const char *label, float *value, float speed = 1.f, float minimum = 0.f, float maximum = 0.f,
             const char *format = "%.3f", ImGuiSliderFlags flags = 0)
 {
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1);
     return ImGui::DragFloat3((std::string("##") + label).c_str(), value, speed, minimum, maximum, format, flags);
 }
 template <class... Args> bool Color3(const char *label, Args &&...args)
 {
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1);
     return ImGui::ColorEdit3((std::string("##") + label).c_str(), std::forward<Args>(args)...);
 }
 template <class... Args> bool Color4(const char *label, Args &&...args)
 {
-    ImGui::TextUnformatted(label);
+    ImGui::TextUnformatted(EditorLocalization::Text(label));
     ImGui::SetNextItemWidth(-1);
     return ImGui::ColorEdit4((std::string("##") + label).c_str(), std::forward<Args>(args)...);
 }
@@ -102,7 +105,7 @@ void TransformEditor(Transform &t)
 {
     Float3("Position", t.transition.ptr(), .05f);
     Rotation("Rotation (degrees)", t.rotation);
-    if (ImGui::SmallButton("Reset transform"))
+    if (ImGui::SmallButton(EditorLocalization::Label("Reset transform")))
     {
         t.transition = Vector3::ZERO;
         t.rotation = Quaternion::IDENTITY;
@@ -171,6 +174,7 @@ void EditorLayer::TogglePlay(Scene &s)
 }
 void EditorLayer::Update(Scene &s)
 {
+    PollBackgroundWork(s);
     mStep = false;
     if (!mDocumentReady)
     {
@@ -190,19 +194,19 @@ void EditorLayer::Update(Scene &s)
     }
     if (mShowConsole)
     {
-        ImGui::Begin("Console");
+        ImGui::Begin(EditorLocalization::Label("Console"));
         static int minimum = 2;
         static ImGuiTextFilter filter;
         ImGui::SetNextItemWidth(160);
-        ImGui::Combo("Level", &minimum, "Trace\0Debug\0Info\0Warning\0Error\0Critical\0");
-        if (ImGui::Button("Clear"))
+        EditorLocalization::Combo("Level", &minimum, "Trace\0Debug\0Info\0Warning\0Error\0Critical\0");
+        if (ImGui::Button(EditorLocalization::Label("Clear")))
             ClearLogHistory();
         ImGui::SameLine();
-        if (ImGui::Button("Flush file"))
+        if (ImGui::Button(EditorLocalization::Label("Flush file")))
             FlushLog();
         filter.Draw("Filter");
         static bool autoScroll = true;
-        ImGui::Checkbox("Auto scroll", &autoScroll);
+        ImGui::Checkbox(EditorLocalization::Label("Auto scroll"), &autoScroll);
         auto file = GetLogFile().string();
         ImGui::TextWrapped("%s", file.c_str());
         ImGui::BeginChild("Messages", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -212,9 +216,9 @@ void EditorLayer::Update(Scene &s)
             if (int(entry.level) < minimum || !filter.PassFilter(entry.formatted.c_str()))
                 continue;
             if (entry.level >= LogLevel::Error)
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, .35f, .35f, 1));
+                ImGui::PushStyleColor(ImGuiCol_Text, EditorTheme::Color(231, 111, 111));
             else if (entry.level == LogLevel::Warning)
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, .8f, .2f, 1));
+                ImGui::PushStyleColor(ImGuiCol_Text, EditorTheme::Color(221, 183, 100));
             ImGui::TextUnformatted(entry.formatted.c_str());
             if (entry.level >= LogLevel::Warning)
                 ImGui::PopStyleColor();
@@ -233,7 +237,7 @@ void EditorLayer::Update(Scene &s)
     Viewport(s);
     if (mShowShaders)
     {
-        ImGui::Begin("Shaders", &mShowShaders);
+        ImGui::Begin(EditorLocalization::Label("Shaders"), &mShowShaders);
         if (!ShaderLibrary::Error().empty())
             ImGui::TextWrapped("%s", ShaderLibrary::Error().c_str());
         for (auto &shader : ShaderLibrary::All())
@@ -242,11 +246,12 @@ void EditorLayer::Update(Scene &s)
             ImGui::PushID(shader.get());
             if (ImGui::TreeNode(name.c_str()))
             {
-                ImGui::Text("Revision: %llu", shader->Revision());
+                ImGui::Text(EditorLocalization::Text("Revision: %llu"), shader->Revision());
                 for (auto &binding : shader->Bindings())
-                    ImGui::Text("%s : register %u, space %u", binding.name.c_str(), binding.bindPoint, binding.space);
+                    ImGui::Text(EditorLocalization::Text("%s : register %u, space %u"), binding.name.c_str(),
+                                binding.bindPoint, binding.space);
                 ImGui::BeginDisabled(!shader->preview);
-                if (ImGui::Button("Preview"))
+                if (ImGui::Button(EditorLocalization::Label("Preview")))
                     shader->RequestPreview({});
                 ImGui::EndDisabled();
                 ImGui::TreePop();
@@ -257,40 +262,89 @@ void EditorLayer::Update(Scene &s)
     }
     if (mShowHelp)
     {
-        ImGui::Begin("Editor help", &mShowHelp);
-        ImGui::TextUnformatted(
+        ImGui::Begin(EditorLocalization::Label("Editor help"), &mShowHelp);
+        ImGui::TextUnformatted(EditorLocalization::Text(
             "Ctrl+S Save | Ctrl+Shift+S Save As | Ctrl+O Open | Ctrl+N New\nCtrl+Z Undo | Ctrl+Y / Ctrl+Shift+Z Redo | "
             "Ctrl+D Duplicate\nDelete Delete tree | F Frame selected | Escape Deselect\nT Move | R Rotate | "
             "S Scale (viewport)\nAlt+LMB Orbit | MMB Pan | RMB Zoom | Shift Fly\nDrag objects to change parent; drop "
             "on Scene root to detach.\nDrag assets to viewport or compatible Inspector fields.\nPlay uses an isolated "
-            "scene snapshot; Stop restores edit state.");
+            "scene snapshot; Stop restores edit state."));
         ImGui::End();
     }
-    ImGui::Begin("Scene");
+    ImGui::Begin(EditorLocalization::Label("Scene"));
     ImGui::Text("%s%s", s.GetName().c_str(), mDocument.Dirty() ? " *" : "");
     ImGui::Text("%s", mScenePath);
-    ImGui::Text("Controller: %s", Input::GetInstance()->GetGamepadBackendName());
-    ImGui::Text("%.1f FPS | %.2f ms | %zu history states", ImGui::GetIO().Framerate,
+    ImGui::Text(EditorLocalization::Text("Controller: %s"), Input::GetInstance()->GetGamepadBackendName());
+    ImGui::Text(EditorLocalization::Text("%.1f FPS | %.2f ms | %zu history states"), ImGui::GetIO().Framerate,
                 1000.f / std::max(1.f, ImGui::GetIO().Framerate), mDocument.Size());
     ImGui::BeginDisabled(mPlaying);
     std::string sceneName = s.GetName();
     if (Text("Scene name", sceneName) && !sceneName.empty())
         s.SetName(sceneName);
-    ImGui::TextUnformatted("Prefab path");
+    ImGui::TextUnformatted(EditorLocalization::Text("Prefab path"));
     ImGui::SetNextItemWidth(-1);
     ImGui::InputText("##Prefab path", mPrefabPath, sizeof(mPrefabPath));
-    if (ImGui::Button("Save selected prefab"))
+    if (ImGui::Button(EditorLocalization::Label("Save selected prefab")))
         Run([&] { SceneSerializer::SavePrefab(w, mSelected, UTF8ToWString(mPrefabPath)); });
     ImGui::SameLine();
-    if (ImGui::Button("Instantiate prefab"))
+    if (ImGui::Button(EditorLocalization::Label("Instantiate prefab")))
         Run([&] { Select(w, SceneSerializer::InstantiatePrefab(w, UTF8ToWString(mPrefabPath))); });
+    if (ImGui::Button(EditorLocalization::Label("Refresh prefab instances")))
+        Run([&] {
+            auto id = EditorActions::Id(w, mSelected);
+            SceneSerializer::RefreshPrefabs(w);
+            Select(w, EditorActions::Find(w, id));
+        });
+    if (w.IsValid(mSelected) && w.HasComponent<PrefabInstanceComponent>(mSelected))
+    {
+        auto overrides = SceneSerializer::PrefabOverrides(w, mSelected);
+        ImGui::Text(EditorLocalization::Text("Overrides on selected object: %zu"), overrides.size());
+        if (!overrides.empty() && ImGui::TreeNode(EditorLocalization::Label("Override differences")))
+        {
+            for (const auto &change : overrides)
+                ImGui::TextWrapped("%s", change.c_str());
+            ImGui::TreePop();
+        }
+        if (ImGui::Button(EditorLocalization::Label("Apply instance to prefab")))
+            Run([&] {
+                auto id = EditorActions::Id(w, mSelected);
+                SceneSerializer::ApplyPrefab(w, mSelected);
+                Select(w, EditorActions::Find(w, id));
+            });
+        ImGui::SameLine();
+        if (ImGui::Button(EditorLocalization::Label("Revert prefab instance")))
+            Run([&] {
+                auto id = EditorActions::Id(w, mSelected);
+                SceneSerializer::RevertPrefab(w, mSelected);
+                Select(w, EditorActions::Find(w, id));
+            });
+    }
+    if (ImGui::CollapsingHeader(EditorLocalization::Label("Environment")))
+    {
+        auto &settings = w.settings;
+        AssetPath("Sky texture", settings.environment, "|.dds|");
+        AssetPath("Diffuse IBL", settings.diffuseIBL, "|.dds|");
+        AssetPath("Specular IBL", settings.specularIBL, "|.dds|");
+        AssetPath("BRDF LUT", settings.brdfLut, "|.dds|");
+        ImGui::Checkbox(EditorLocalization::Label("Draw sky"), &settings.skyEnabled);
+        ImGui::DragFloat(EditorLocalization::Label("IBL intensity"), &settings.iblIntensity, .01f, 0, 20, "%.2f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        ImGui::DragFloat(EditorLocalization::Label("IBL mip bias"), &settings.iblBias, .05f, 0, 10, "%.2f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Checkbox(EditorLocalization::Label("Auto exposure"), &settings.autoExposure);
+        ImGui::BeginDisabled(settings.autoExposure);
+        ImGui::DragFloat(EditorLocalization::Label("Exposure"), &settings.exposure, .01f, .01f, 20, "%.2f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        ImGui::EndDisabled();
+        ImGui::Checkbox(EditorLocalization::Label("FXAA"), &settings.fxaa);
+    }
     ImGui::EndDisabled();
     if (!mRuntimeError.empty())
         ImGui::TextWrapped("%s", mRuntimeError.c_str());
     if (!mError.empty())
     {
-        ImGui::TextColored(ImVec4(1, .4f, .3f, 1), "%s", mError.c_str());
-        if (ImGui::SmallButton("Dismiss"))
+        ImGui::TextColored(EditorTheme::Color(231, 111, 111), "%s", mError.c_str());
+        if (ImGui::SmallButton(EditorLocalization::Label("Dismiss")))
             mError.clear();
     }
     ImGui::End();
@@ -308,17 +362,17 @@ void EditorLayer::Update(Scene &s)
 }
 void EditorLayer::Hierarchy(World &w)
 {
-    ImGui::Begin("Hierarchy");
+    ImGui::Begin(EditorLocalization::Label("Hierarchy"));
     ImGui::BeginDisabled(mPlaying);
-    if (ImGui::Button("Create"))
-        ImGui::OpenPopup("Create object");
-    if (ImGui::BeginPopup("Create object"))
+    if (ImGui::Button(EditorLocalization::Label("Create")))
+        ImGui::OpenPopup(EditorLocalization::Label("Create object"));
+    if (ImGui::BeginPopup(EditorLocalization::Label("Create object")))
     {
         const char *names[] = {"Empty", "Plane", "Cube", "Sphere", "Quad"};
         for (int i = 0; i < 5; ++i)
-            if (ImGui::MenuItem(names[i]))
+            if (ImGui::MenuItem(EditorLocalization::Label(names[i])))
                 Run([&] { Create(w, BuiltinMesh(i)); });
-        if (ImGui::MenuItem("Camera"))
+        if (ImGui::MenuItem(EditorLocalization::Label("Camera")))
             Run([&] {
                 Create(w, BuiltinMesh::None);
                 w.SetName(mSelected, "Camera");
@@ -326,7 +380,7 @@ void EditorLayer::Hierarchy(World &w)
                 c.primary = w.View<CameraComponent>().begin() == w.View<CameraComponent>().end();
                 w.AddComponent<CameraComponent>(mSelected, c);
             });
-        if (ImGui::MenuItem("Sun"))
+        if (ImGui::MenuItem(EditorLocalization::Label("Sun")))
             Run([&] {
                 auto lights = w.View<DirectionalLightComponent>();
                 if (lights.begin() != lights.end())
@@ -341,7 +395,7 @@ void EditorLayer::Hierarchy(World &w)
                     w.GetComponent<TransformComponent>(mSelected).rotation = basis.GetRotation();
                 }
             });
-        if (ImGui::MenuItem("UI Text"))
+        if (ImGui::MenuItem(EditorLocalization::Label("UI Text")))
             Run([&] {
                 Create(w, BuiltinMesh::None);
                 w.AddComponent<UiElementComponent>(mSelected);
@@ -349,18 +403,22 @@ void EditorLayer::Hierarchy(World &w)
         ImGui::EndPopup();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Duplicate"))
+    if (ImGui::Button(EditorLocalization::Label("Duplicate")))
         Run([&] { Duplicate(w); });
     ImGui::SameLine();
-    if (ImGui::Button("Delete"))
+    if (ImGui::Button(EditorLocalization::Label("Delete")))
         Run([&] {
             EditorActions::DeleteTree(w, mSelected);
             Select(w, entt::null);
         });
     ImGui::EndDisabled();
     static ImGuiTextFilter search;
-    ImGui::TextUnformatted("Search objects");
-    search.Draw("##Search objects", -1);
+    ImGui::Separator();
+    ImGui::TextDisabled(EditorLocalization::Text("WORLD OUTLINER"));
+    ImGui::SetNextItemWidth(-1);
+    if (ImGui::InputTextWithHint("##Search objects", EditorLocalization::Text("Search objects..."), search.InputBuf,
+                                 sizeof(search.InputBuf)))
+        search.Build();
     std::vector<Entity> roots;
     std::map<Entity, std::vector<Entity>> children;
     for (auto e : w.View<PersistentIdComponent>())
@@ -389,10 +447,12 @@ void EditorLayer::Hierarchy(World &w)
             return x == y ? EditorActions::Id(w, a) < EditorActions::Id(w, b) : x < y;
         });
     };
+    ImGui::TextDisabled(EditorLocalization::Text("%zu root objects"), roots.size());
+    ImGui::Spacing();
     sort(roots);
     for (auto &[parent, list] : children)
         sort(list);
-    ImGui::Selectable("Scene root (drop to detach)", false);
+    ImGui::Selectable(EditorLocalization::Label("Scene root (drop to detach)"), false);
     if (!mPlaying && ImGui::BeginDragDropTarget())
     {
         if (auto payload = ImGui::AcceptDragDropPayload("ATOM_ENTITY"))
@@ -450,9 +510,9 @@ void EditorLayer::Hierarchy(World &w)
         {
             Select(w, e);
             ImGui::BeginDisabled(mPlaying);
-            if (ImGui::MenuItem("Duplicate subtree"))
+            if (ImGui::MenuItem(EditorLocalization::Label("Duplicate subtree")))
                 Run([&] { Duplicate(w); });
-            if (ImGui::MenuItem("Delete subtree"))
+            if (ImGui::MenuItem(EditorLocalization::Label("Delete subtree")))
                 Run([&] {
                     EditorActions::DeleteTree(w, e);
                     Select(w, entt::null);
@@ -474,10 +534,14 @@ void EditorLayer::Hierarchy(World &w)
 void EditorLayer::Inspector(Scene &s)
 {
     auto &w = s.GetWorld();
-    ImGui::Begin("Inspector");
+    ImGui::Begin(EditorLocalization::Label("Inspector"));
     if (!w.IsValid(mSelected))
     {
-        ImGui::TextUnformatted("Select an object in the viewport or Hierarchy");
+        ImGui::Spacing();
+        ImGui::TextDisabled(EditorLocalization::Text("NO OBJECT SELECTED"));
+        ImGui::Separator();
+        ImGui::TextWrapped(
+            EditorLocalization::Text("Select an object in the viewport or Hierarchy to edit its properties."));
         ImGui::End();
         return;
     }
@@ -485,18 +549,27 @@ void EditorLayer::Inspector(Scene &s)
     ImGui::BeginDisabled(mPlaying);
     auto name = w.TryGet<NameComponent>(e);
     std::string objectName = name ? name->value : "Object";
+    ImGui::TextUnformatted(objectName.c_str());
+    ImGui::TextDisabled("%s",
+                        EditorLocalization::Text(w.HasComponent<CameraComponent>(e)             ? "CAMERA"
+                                                 : w.HasComponent<DirectionalLightComponent>(e) ? "DIRECTIONAL LIGHT"
+                                                                                                : "SCENE OBJECT"));
+    ImGui::Separator();
     if (Text("Name", objectName))
         w.SetName(e, objectName);
-    ImGui::Text("ID: %s", w.GetComponent<PersistentIdComponent>(e).value.c_str());
+    ImGui::TextDisabled(EditorLocalization::Text("Persistent ID"));
+    EditorTheme::Tooltip(w.GetComponent<PersistentIdComponent>(e).value.c_str());
+    ImGui::Spacing();
     if (auto t = w.TryGet<TransformComponent>(e);
-        t && ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+        t && ImGui::CollapsingHeader(EditorLocalization::Label("Transform"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         TransformEditor(*t);
         auto h = w.TryGet<HierarchyComponent>(e);
         std::string parent = h ? h->parentId : "";
-        if (ImGui::BeginCombo("Parent", parent.empty() ? "None" : parent.c_str()))
+        if (ImGui::BeginCombo(EditorLocalization::Label("Parent"),
+                              parent.empty() ? EditorLocalization::Text("None") : parent.c_str()))
         {
-            if (ImGui::Selectable("None", parent.empty()))
+            if (ImGui::Selectable(EditorLocalization::Label("None"), parent.empty()))
             {
                 Run([&] { EditorActions::Reparent(w, e, entt::null); });
             }
@@ -516,10 +589,11 @@ void EditorLayer::Inspector(Scene &s)
         }
     }
     SceneObjectInspector(s);
-    if (auto source = w.TryGet<MeshSourceComponent>(e); source && ImGui::CollapsingHeader("Mesh"))
+    if (auto source = w.TryGet<MeshSourceComponent>(e);
+        source && ImGui::CollapsingHeader(EditorLocalization::Label("Mesh")))
     {
         int type = int(source->primitive);
-        bool rebuild = ImGui::Combo("Primitive", &type, "Model asset\0Plane\0Cube\0Sphere\0Quad\0");
+        bool rebuild = EditorLocalization::Combo("Primitive", &type, "Model asset\0Plane\0Cube\0Sphere\0Quad\0");
         auto id = EditorActions::Id(w, e);
         if (mModelDraftId != id)
         {
@@ -527,7 +601,7 @@ void EditorLayer::Inspector(Scene &s)
             mModelDraftId = id;
         }
         AssetPath("Model path", mModelDraft, "|.obj|.fbx|.gltf|.glb|.dae|.ply|.stl|");
-        rebuild |= ImGui::Button("Apply mesh");
+        rebuild |= ImGui::Button(EditorLocalization::Label("Apply mesh"));
         if (rebuild)
             Run([&] {
                 auto previous = *source;
@@ -545,19 +619,19 @@ void EditorLayer::Inspector(Scene &s)
                     throw;
                 }
             });
-        if (ImGui::Checkbox("Visible", &source->visible))
+        if (ImGui::Checkbox(EditorLocalization::Label("Visible"), &source->visible))
         {
             if (auto mesh = w.TryGet<MeshComponent>(e))
                 mesh->SetIsRender(source->visible);
         }
     }
     if (auto materials = w.TryGet<MaterialComponent>(e);
-        materials && ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+        materials && ImGui::CollapsingHeader(EditorLocalization::Label("Material"), ImGuiTreeNodeFlags_DefaultOpen))
         for (size_t i = 0; i < materials->mMaterials.size(); ++i)
         {
             ImGui::PushID(int(i));
             auto &m = materials->mMaterials[i];
-            ImGui::Text("Material %zu", i);
+            ImGui::Text(EditorLocalization::Text("Material %zu"), i);
             if (!mPlaying && ImGui::BeginDragDropTarget())
             {
                 if (auto payload = ImGui::AcceptDragDropPayload("ATOM_ASSET"))
@@ -568,7 +642,7 @@ void EditorLayer::Inspector(Scene &s)
                 }
                 ImGui::EndDragDropTarget();
             }
-            if (ImGui::SmallButton("Preview this slot"))
+            if (ImGui::SmallButton(EditorLocalization::Label("Preview this slot")))
             {
                 mPreviewSlot = int(i);
                 mPreviewFromSelection = true;
@@ -577,7 +651,7 @@ void EditorLayer::Inspector(Scene &s)
             Color4("BaseColor", m.mBaseColor.ptr());
             Float("Metallic", &m.mMetallic, .01f, 0, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp);
             Float("Roughness", &m.mRoughness, .01f, .045f, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-            Float3("Specular F0", m.mFresnelF0.ptr(),0.01,0.0f,1.0f);
+            Float3("Specular F0", m.mFresnelF0.ptr(), 0.01, 0.0f, 1.0f);
             Color3("Emissive", m.mEmissive.ptr());
             Float("Normal strength", &m.mNormalScale, .01f, 0, 8);
             Float("AO", &m.mAO, .01f, 0, 1);
@@ -585,7 +659,7 @@ void EditorLayer::Inspector(Scene &s)
                                    "AO texture",        "Emissive texture", "Specular texture"};
             for (size_t slot = 0; slot < 7; ++slot)
                 AssetPath(slots[slot], m.texturePaths[slot], "|.dds|.png|.jpg|.jpeg|.bmp|.tga|.hdr|.exr|.tif|.tiff|");
-            if (ImGui::TreeNode("UV transform"))
+            if (ImGui::TreeNode(EditorLocalization::Label("UV transform")))
             {
                 TransformEditor(m.uvTransform);
                 ImGui::TreePop();
@@ -593,11 +667,19 @@ void EditorLayer::Inspector(Scene &s)
             ImGui::PopID();
         }
     if (auto c = w.TryGet<ColliderComponent>(e);
-        c && ImGui::CollapsingHeader("Collider", ImGuiTreeNodeFlags_DefaultOpen))
+        c && ImGui::CollapsingHeader(EditorLocalization::Label("Collider"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         int shape = int(c->shape);
-        ImGui::Combo("Shape", &shape, "Box\0Sphere\0Capsule\0");
+        EditorLocalization::Combo("Shape", &shape, "Box\0Sphere\0Capsule\0Triangle Mesh (static)\0Convex Hull\0");
         c->shape = ColliderShape(shape);
+        if (c->shape == ColliderShape::Mesh || c->shape == ColliderShape::ConvexHull)
+        {
+            ImGui::TextWrapped(EditorLocalization::Text(
+                "Uses the Mesh bind pose. Triangle Mesh requires a static body; Convex Hull supports moving bodies."));
+            if (c->shape == ColliderShape::Mesh)
+                if (auto body = w.TryGet<RigidBodyComponent>(e))
+                    body->motion = BodyMotion::Static;
+        }
         Float3("Collider center", c->center.ptr(), .01f);
         Rotation("Collider rotation", c->rotation);
         if (c->shape == ColliderShape::Box)
@@ -606,29 +688,79 @@ void EditorLayer::Inspector(Scene &s)
             Float("Radius", &c->radius, .01f, .001f, 1000, "%.3f", ImGuiSliderFlags_AlwaysClamp);
         if (c->shape == ColliderShape::Capsule)
             Float("Half height", &c->halfHeight, .01f, .001f, 1000, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-        ImGui::Checkbox("Trigger", &c->trigger);
-        ImGui::Checkbox("Visualize collider", &c->visible);
+        ImGui::Checkbox(EditorLocalization::Label("Trigger"), &c->trigger);
+        ImGui::Checkbox(EditorLocalization::Label("Visualize collider"), &c->visible);
     }
-    if (auto r = w.TryGet<RigidBodyComponent>(e); r && ImGui::CollapsingHeader("Rigid Body"))
+    if (auto r = w.TryGet<RigidBodyComponent>(e); r && ImGui::CollapsingHeader(EditorLocalization::Label("Rigid Body")))
     {
         int motion = int(r->motion);
-        ImGui::Combo("Motion", &motion, "Static\0Kinematic\0Dynamic\0");
-        r->motion = BodyMotion(motion);
+        auto collider = w.TryGet<ColliderComponent>(e);
+        bool staticMesh = collider && collider->shape == ColliderShape::Mesh;
+        ImGui::BeginDisabled(staticMesh);
+        EditorLocalization::Combo("Motion", &motion, "Static\0Kinematic\0Dynamic\0");
+        ImGui::EndDisabled();
+        r->motion = staticMesh ? BodyMotion::Static : BodyMotion(motion);
         Float("Mass", &r->mass, .1f, .001f, 10000, "%.3f", ImGuiSliderFlags_AlwaysClamp);
         Float("Friction", &r->friction, .01f, 0, 2);
         Float("Restitution", &r->restitution, .01f, 0, 1);
-        ImGui::Checkbox("Gravity", &r->gravity);
+        ImGui::Checkbox(EditorLocalization::Label("Gravity"), &r->gravity);
         Float3("Velocity", r->linearVelocity.ptr(), .05f);
     }
+    if (auto joint = w.TryGet<JointComponent>(e);
+        joint && ImGui::CollapsingHeader(EditorLocalization::Label("Joint"), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Checkbox(EditorLocalization::Label("Joint enabled"), &joint->enabled);
+        int type = int(joint->type);
+        EditorLocalization::Combo("Joint type", &type, "Fixed\0Distance\0Hinge\0");
+        joint->type = JointType(type);
+        Text("Connected body ID", joint->connectedBody);
+        if (ImGui::BeginCombo(EditorLocalization::Label("Connect to"), joint->connectedBody.c_str()))
+        {
+            for (auto target : w.View<ColliderComponent, PersistentIdComponent>())
+                if (target != e)
+                {
+                    auto name = w.TryGet<NameComponent>(target);
+                    auto id = w.GetComponent<PersistentIdComponent>(target).value;
+                    if (ImGui::Selectable((name ? name->value + "##" + id : id).c_str(), joint->connectedBody == id))
+                        joint->connectedBody = id;
+                }
+            ImGui::EndCombo();
+        }
+        if (joint->type != JointType::Fixed)
+        {
+            Float3("Anchor", joint->anchor.ptr(), .01f);
+            Float3("Connected anchor", joint->connectedAnchor.ptr(), .01f);
+        }
+        else
+            ImGui::TextWrapped(EditorLocalization::Text("Welds the bodies in their current relative pose."));
+        if (joint->type == JointType::Distance)
+        {
+            ImGui::DragFloat(EditorLocalization::Label("Min distance"), &joint->minDistance, .01f, 0,
+                             joint->maxDistance, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+            ImGui::DragFloat(EditorLocalization::Label("Max distance"), &joint->maxDistance, .01f, joint->minDistance,
+                             10000, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+        }
+        if (joint->type == JointType::Hinge)
+        {
+            Float3("Hinge axis", joint->axis.ptr(), .01f);
+            if (joint->axis.LengthSqr() < 1e-8f)
+                joint->axis = Vector3::UP;
+            joint->axis.Normalize();
+            ImGui::DragFloat(EditorLocalization::Label("Min angle"), &joint->minAngle, .5f, -180, 0, "%.1f",
+                             ImGuiSliderFlags_AlwaysClamp);
+            ImGui::DragFloat(EditorLocalization::Label("Max angle"), &joint->maxAngle, .5f, 0, 180, "%.1f",
+                             ImGuiSliderFlags_AlwaysClamp);
+        }
+    }
     if (auto scripts = w.TryGet<ScriptComponent>(e);
-        scripts && ImGui::CollapsingHeader("C# Scripts", ImGuiTreeNodeFlags_DefaultOpen))
+        scripts && ImGui::CollapsingHeader(EditorLocalization::Label("C# Scripts"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         size_t remove = size_t(-1);
         for (size_t i = 0; i < scripts->scripts.size(); ++i)
         {
             ImGui::PushID(int(i));
             auto &s = scripts->scripts[i];
-            ImGui::Checkbox("Enabled", &s.enabled);
+            ImGui::Checkbox(EditorLocalization::Label("Enabled"), &s.enabled);
             AssetPath("Assembly", s.assembly, "|.dll|");
             Text("Class", s.type);
             std::string deleteField;
@@ -643,24 +775,26 @@ void EditorLayer::Inspector(Scene &s)
             }
             if (!deleteField.empty())
                 s.fields.erase(deleteField);
-            static char field[128] = "Speed";
-            static char value[256] = "0.5";
-            ImGui::InputText("Field name", field, sizeof(field));
-            ImGui::InputText("Field value", value, sizeof(value));
-            if (ImGui::Button("Set field"))
+            static char field[128] = "";
+            static char value[256] = "";
+            ImGui::InputText(EditorLocalization::Label("Field name"), field, sizeof(field));
+            ImGui::InputText(EditorLocalization::Label("Field value"), value, sizeof(value));
+            if (ImGui::Button(EditorLocalization::Label("Set field")) && field[0])
                 s.fields[field] = value;
             ImGui::SameLine();
-            if (ImGui::Button("Remove script"))
+            if (ImGui::Button(EditorLocalization::Label("Remove script")))
                 remove = i;
             ImGui::Separator();
             ImGui::PopID();
         }
         if (remove != size_t(-1))
             scripts->scripts.erase(scripts->scripts.begin() + remove);
-        if (ImGui::Button("Attach script"))
+        if (ImGui::Button(EditorLocalization::Label("Attach script")))
             scripts->scripts.emplace_back();
+        ScriptCreation(w);
     }
-    if (auto ui = w.TryGet<UiElementComponent>(e); ui && ImGui::CollapsingHeader("UI", ImGuiTreeNodeFlags_DefaultOpen))
+    if (auto ui = w.TryGet<UiElementComponent>(e);
+        ui && ImGui::CollapsingHeader(EditorLocalization::Label("UI"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         Text("Text (UTF-8)", ui->text);
         AssetPath("Image", ui->texture, "|.dds|.png|.jpg|.jpeg|.bmp|.tga|");
@@ -668,52 +802,56 @@ void EditorLayer::Inspector(Scene &s)
         Float2("Size", &ui->size.x, 1, 1, 4096, "%.1f", ImGuiSliderFlags_AlwaysClamp);
         Float("Font size", &ui->fontSize, 1, 1, 256);
         Color4("UI color", ui->color.ptr());
-        ImGui::Checkbox("UI visible", &ui->visible);
-        ImGui::Checkbox("Clickable", &ui->interactable);
-        ImGui::InputInt("UI layer", &ui->layer);
+        ImGui::Checkbox(EditorLocalization::Label("UI visible"), &ui->visible);
+        ImGui::Checkbox(EditorLocalization::Label("Clickable"), &ui->interactable);
+        ImGui::InputInt(EditorLocalization::Label("UI layer"), &ui->layer);
         Color4("Background", ui->background.ptr());
     }
-    if (ImGui::Button("Add component"))
-        ImGui::OpenPopup("Components");
-    if (ImGui::BeginPopup("Components"))
+    if (ImGui::Button(EditorLocalization::Label("Add component")))
+        ImGui::OpenPopup(EditorLocalization::Label("Components"));
+    if (ImGui::BeginPopup(EditorLocalization::Label("Components")))
     {
-        if (!w.HasComponent<MeshSourceComponent>(e) && ImGui::MenuItem("Mesh"))
+        if (!w.HasComponent<MeshSourceComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Mesh")))
         {
             Run([&] {
                 w.AddComponent<MeshSourceComponent>(e, BuiltinMesh::Cube);
                 SceneSerializer::RebuildMesh(w, e);
             });
         }
-        if (!w.HasComponent<ColliderComponent>(e) && ImGui::MenuItem("Collider"))
+        if (!w.HasComponent<ColliderComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Collider")))
             w.AddComponent<ColliderComponent>(e);
-        if (!w.HasComponent<RigidBodyComponent>(e) && ImGui::MenuItem("Rigid Body"))
+        if (!w.HasComponent<RigidBodyComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Rigid Body")))
             w.AddComponent<RigidBodyComponent>(e);
-        if (!w.HasComponent<ScriptComponent>(e) && ImGui::MenuItem("C# Script"))
+        if (!w.HasComponent<JointComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Joint")))
+            w.AddComponent<JointComponent>(e);
+        if (!w.HasComponent<ScriptComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("C# Script")))
         {
             w.AddComponent<ScriptComponent>(e);
             w.GetComponent<ScriptComponent>(e).scripts.emplace_back();
         }
-        if (!w.HasComponent<UiElementComponent>(e) && ImGui::MenuItem("UI"))
+        if (!w.HasComponent<UiElementComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("UI")))
             w.AddComponent<UiElementComponent>(e);
         ImGui::EndPopup();
     }
-    if (ImGui::Button("Remove component"))
-        ImGui::OpenPopup("Remove component menu");
-    if (ImGui::BeginPopup("Remove component menu"))
+    if (ImGui::Button(EditorLocalization::Label("Remove component")))
+        ImGui::OpenPopup(EditorLocalization::Label("Remove component menu"));
+    if (ImGui::BeginPopup(EditorLocalization::Label("Remove component menu")))
     {
-        if (w.HasComponent<MeshSourceComponent>(e) && ImGui::MenuItem("Mesh + materials"))
+        if (w.HasComponent<MeshSourceComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Mesh + materials")))
         {
             w.RemoveComponent<MeshComponent>(e);
             w.RemoveComponent<MaterialComponent>(e);
             w.RemoveComponent<MeshSourceComponent>(e);
         }
-        if (w.HasComponent<ColliderComponent>(e) && ImGui::MenuItem("Collider"))
+        if (w.HasComponent<ColliderComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Collider")))
             w.RemoveComponent<ColliderComponent>(e);
-        if (w.HasComponent<RigidBodyComponent>(e) && ImGui::MenuItem("Rigid body"))
+        if (w.HasComponent<RigidBodyComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Rigid body")))
             w.RemoveComponent<RigidBodyComponent>(e);
-        if (w.HasComponent<ScriptComponent>(e) && ImGui::MenuItem("Scripts"))
+        if (w.HasComponent<ScriptComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Scripts")))
             w.RemoveComponent<ScriptComponent>(e);
-        if (w.HasComponent<UiElementComponent>(e) && ImGui::MenuItem("UI"))
+        if (w.HasComponent<JointComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Joint")))
+            w.RemoveComponent<JointComponent>(e);
+        if (w.HasComponent<UiElementComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("UI")))
             w.RemoveComponent<UiElementComponent>(e);
         ImGui::EndPopup();
     }

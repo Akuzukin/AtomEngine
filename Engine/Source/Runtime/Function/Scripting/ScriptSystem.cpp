@@ -48,8 +48,16 @@ struct ScriptSystem::Impl
         uint64_t id;
         std::string signature;
         bool failed = false;
+        std::filesystem::path assembly;
+        bool created = true;
     };
     std::map<std::pair<Entity, size_t>, Instance> instances;
+    struct WatchedAssembly
+    {
+        std::filesystem::file_time_type loaded{}, pending{};
+    };
+    std::map<std::filesystem::path, WatchedAssembly> assemblies;
+    float reloadTimer = 0;
     std::weak_ptr<void> lifetime;
     static inline std::atomic<uint64_t> nextId = 0;
     float accumulator = 0;
@@ -257,6 +265,30 @@ void ScriptSystem::Reset()
     i.accumulator = 0;
     i.context.error.clear();
 }
+bool ScriptSystem::ReloadAssembly(const std::filesystem::path &file)
+{
+    auto &i = *mImpl;
+    auto path = std::filesystem::absolute(file).lexically_normal();
+    if (!Initialize() || !i.Call({{"op", "reload"}, {"assembly", path.generic_string()}}))
+        return false;
+    std::error_code ec;
+    auto stamp = std::filesystem::last_write_time(path, ec);
+    if (!ec)
+        i.assemblies[path] = {stamp, stamp};
+    for (auto it = i.instances.begin(); it != i.instances.end();)
+    {
+        if (it->second.assembly == path && !it->second.created)
+            it = i.instances.erase(it);
+        else
+        {
+            if (it->second.assembly == path)
+                it->second.failed = false;
+            ++it;
+        }
+    }
+    i.context.error.clear();
+    return true;
+}
 void ScriptSystem::Update(World &w, float dt)
 {
     auto &i = *mImpl;
@@ -267,6 +299,29 @@ void ScriptSystem::Update(World &w, float dt)
         i.lifetime = life;
     }
     i.context.world = &w;
+    i.reloadTimer += (std::max)(0.f, dt);
+    if (i.reloadTimer >= .5f)
+    {
+        i.reloadTimer = 0;
+        for (auto &[path, watched] : i.assemblies)
+        {
+            if (!std::any_of(i.instances.begin(), i.instances.end(),
+                             [&](const auto &item) { return item.second.assembly == path; }))
+                continue;
+            std::error_code ec;
+            auto stamp = std::filesystem::last_write_time(path, ec);
+            if (ec || stamp == watched.loaded)
+                continue;
+            if (stamp != watched.pending)
+            {
+                watched.pending = stamp;
+                continue;
+            }
+            // Two stable polls avoid reading the output while the compiler is still replacing it.
+            if (!ReloadAssembly(path))
+                watched.loaded = stamp;
+        }
+    }
     std::set<std::pair<Entity, size_t>> active;
     for (auto e : w.View<ScriptComponent>())
     {
@@ -274,7 +329,7 @@ void ScriptSystem::Update(World &w, float dt)
         for (size_t index = 0; index < scripts.size(); ++index)
         {
             auto &s = scripts[index];
-            if (!s.enabled)
+            if (!s.enabled || s.assembly.empty() || s.type.empty())
                 continue;
             auto key = std::make_pair(e, index);
             active.insert(key);
@@ -296,13 +351,20 @@ void ScriptSystem::Update(World &w, float dt)
                 auto path = std::filesystem::path(s.assembly);
                 if (path.is_relative())
                     path = std::filesystem::path(exe).parent_path() / path;
+                path = std::filesystem::absolute(path).lexically_normal();
+                if (!i.assemblies.contains(path))
+                {
+                    std::error_code ec;
+                    auto stamp = std::filesystem::last_write_time(path, ec);
+                    i.assemblies[path] = {stamp, stamp};
+                }
                 auto id = ++i.nextId;
                 definition["op"] = "create";
                 definition["id"] = id;
                 definition["entity"] = uint32_t(e);
                 definition["assembly"] = path.generic_string();
                 bool ok = i.Call(definition);
-                it = i.instances.emplace(key, Impl::Instance{id, signature, !ok}).first;
+                it = i.instances.emplace(key, Impl::Instance{id, signature, !ok, path, ok}).first;
             }
             if (!it->second.failed && !i.Call({{"op", "update"}, {"id", it->second.id}, {"dt", dt}}))
                 it->second.failed = true;

@@ -149,3 +149,56 @@ SceneViewSmokeChecks 覆盖相机位姿和投影应用、太阳光 XML、撤销/
 
 
 编辑视口默认显示场景相机的视锥线条：近/远裁剪面与四条侧边跟随 FOV、裁剪距离、视口宽高比和世界位姿更新；不受相机自身缩放影响，与运行时取景保持一致。相机位置附带小型线框、向上标记和朝向线，避免远裁剪面很远时难以定位相机。普通相机为青色，选中为黄色，禁用相机为灰色。View → Camera frustums 可以切换显示，偏好会保存；Play 时隐藏这些编辑辅助线。SceneViewSmokeChecks 同时验证视锥八个角点与实际投影矩阵的对应关系和 GPU 线条像素。
+
+
+### ImGui / overlay 颜色空间
+
+UI 颜色与着色器输出按线性 RGB 处理。ImGui 主窗口改为在独立 R8G8B8A8_UNORM_SRGB 目标中混合，硬件在混合时解码目标值、写入时执行 sRGB 编码；最终呈现到 R10G10B10A2_UNORM 主交换链。字体覆盖率和 Alpha 不参与 gamma 转换。分离的 ImGui 窗口使用 UNORM 交换链与显式 SRGB RTV，保持相同颜色与混合规则。平台格式转换依据 Microsoft 的 [颜色空间说明](https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/converting-data-color-space)。
+
+资源图片使用 sRGB SRV 解码后参与线性混合；视口和材质球预览已经是显示编码数据，必须使用 ImGuiCommon::ImageDisplayEncoded（或 AddImageDisplayEncoded）标记，在绘制时解码，防止重复 gamma。普通线性纹理使用常规 ImGui::Image。ImGui 目标为 8-bit sRGB，主交换链保持原来的 10-bit 格式；嵌入图片会经过该 UI 目标量化。
+
+运行时 gOverlayBuffer 保存预乘线性颜色，CompositePS / ScaleAndCompositePS 在线性空间计算 overlay.rgb + scene.rgb * (1 - overlay.a)，最后执行一次 sRGB 转换。移除了之前计算合成后又被 Present/Sharpen/BlendUI 覆盖的重复路径，缩放时同样使用线性滤波。
+
+--ui-color-smoke-test 运行独立颜色回归，检查透明/半透明/不透明 overlay、原尺寸/缩放呈现，以及 ImGui 灰阶、半透明混合、线性图片、已编码预览图与回调状态恢复，并创建分离窗口验证 SRGB RTV。GPU 原始像素位于输出目录 Smoke，运行日志位于 generated/ui-color-*。
+
+脚本编辑期间可使用 MSBuild 参数 /p:AtomSkipManagedBuild=true 仅验证原生构建，继续使用已有托管程序集；默认完整构建仍会编译 C#。颜色专用回归不执行脚本行为断言。当前脚本由用户编辑，完整托管构建及脚本行为回归需在编辑完成后验证；本轮未修改脚本源文件。
+
+### 物理、预制体、脚本与多视图扩展
+
+Collider 新增 Triangle Mesh 与 Convex Hull，使用模型的 CPU 几何、节点变换及绑定姿态。Triangle Mesh 仅用于静态刚体；移动物体应选择 Convex Hull。碰撞体中心、旋转和物体缩放参与形状创建；修改形状或删除物体时先移除关联约束。碰撞体可视化显示三角网格边或凸包外壳，不跟随蒙皮动画变形。
+
+Inspector 的 Add component → Joint 支持 Fixed、Distance、Hinge，连接对象采用持久 ID；可选择目标物体、启用/禁用，配置距离范围或铰链轴、角度限制。Fixed 焊接当前相对姿态，Distance/Hinge 使用两个对象的局部锚点。连接 ID 在复制与预制体实例化时重映射，关节设置保存到 XML。
+
+新实例化的预制体记录源对象 ID、实例组 ID、上次源数据基线和子物体映射。属性/组件覆盖根据当前实例与基线计算，刷新时采用三方合并：未修改值接收源更新，覆盖值保留；新增源子物体生成实例，本地删除子物体保持删除覆盖。Scene 面板提供 Refresh prefab instances、Apply instance to prefab、Revert prefab instance，显示选中对象的字段覆盖数量，可展开 Override differences 查看属性路径与基线/实例值。Apply 会把当前实例树写回源文件并更新场景中的其他实例；Revert 恢复源数据和被删除的源子物体。编辑器每秒检查源文件变化，场景加载时刷新链接；不在 Play、文本输入或 gizmo 操作期间自动传播。刷新通过暂存 World 提交，源文件损坏不会覆盖当前场景。旧版本只有 source 路径的数据快照继续可读；重新实例化可建立完整链接，未推断旧快照的子物体对应关系。嵌套预制体和冲突交互界面尚未提供。
+
+.scene 新增可选 Environment 与 EditorCamera，保存天空/漫反射 IBL/镜面 IBL/BRDF LUT 路径、IBL 强度/mip bias、自动/手动曝光、FXAA 开关及编辑视角位置/旋转/FOV/裁剪面。相机和太阳光组件仍通过各自 Camera/DirectionalLight 节点保存。旧文件保留自动曝光并默认启用 FXAA；场景的已保存编辑视角优先于 Editor.xml 的启动默认视角。Scene → Environment 可编辑环境与 FXAA。
+
+Assets 与脚本 Inspector 提供 Create C# script，可生成 Game 命名空间下的 Behaviour 类，勾选生成六个 override 回调；可挂载到选中物体。新挂载项的程序集、类型和字段默认为空。生成文件采用 CREATE_NEW，不覆盖已有源码；源码位于 Managed/GameScripts，生成后 Assets 转到源码目录。Build scripts 在后台构建，并将成功的 AtomScripts 输出原子替换到运行目录 Scripts；构建失败保留运行程序集，日志为 Scripts/ScriptBuild.log。Play 工具栏也提供 Build scripts。
+
+脚本使用可卸载 AssemblyLoadContext，通过内存流加载程序集，避免锁定 DLL。运行中每隔 0.5 秒检查活跃程序集，连续两次稳定时间戳后重载；加载/类型/字段准备失败保留旧程序集。初次缺少 DLL 或类型的挂载项会在成功重载后重新创建。实例实体 ID 与兼容的公开字段值保留，旧实例 OnDestroy 后新实例 OnCreate，再继续 Update/FixedUpdate/碰撞/UI 回调。接口类型 Atom.Managed 保持在宿主上下文，不参与游戏程序集热重载。私有字段、属性、委托及跨程序集的自定义对象图不迁移；生命周期回调的用户副作用不提供事务回滚。
+
+AssetManager::PreloadAsync 将文件读取、模型 CPU 导入与纹理转换放到后台，Step 在引擎线程轮询结果并按资产预算提交 GPU 资源。编辑器打开场景与图片缩略图使用此路径；缩略图最多四项准备中，每帧最多两项 GPU 提交。GPU 上传不在工作线程执行，纹理转换通过互斥量避免重复写 DDS。场景加载期间若旧场景发生修改，保留旧场景并提示重新打开，防止覆盖未保存编辑。原有同步 API 保留，初次 GPU 构建、材质内部依赖、资源销毁等待和启动加载仍可能阻塞。
+
+默认启用 FXAA：对后处理后的场景在线性颜色缓冲中采样，以 sRGB 亮度判断边缘；完成后再合成 runtime UI 与 ImGui，不模糊编辑器文本。没有时间历史、运动重投影或 DLAA 依赖。RenderGraph 通过各 pass 声明的读/写资源构建依赖、检查未初始化读取、重复/无效资源和环，按序插入 D3D12 状态屏障；Forward、Postprocess、FXAA/resolve、Overlay 已接入。现有 Forward/后处理内部子阶段保留自己的细粒度屏障；图采用导入资源，不做显存 aliasing 或临时资源池。
+
+ViewRenderResources 负责每个视图的颜色/深度、法线、阴影、AO 中间缓冲、线性深度历史、速度、Bloom、亮度/直方图/曝光、选中遮罩、FXAA、Overlay 和光照网格/局部光阴影资源，以及各自的 pass 实例、公共描述符表和相机重投影历史。Resize 只重建自身资源并清除自身历史；主视图重建时刷新 AO/阴影/光照网格描述符及阴影预览，重置主视图历史。RenderView 必须使用其 resources 中的颜色/深度；省略 resources 使用主视图。共享的是只读管线、纹理/模型资源和世界粒子模拟数据。当前通过同一渲染线程串行提交视图，不支持并行录制多个视图的命令列表。兼容的 g* 缓冲名路由到当前 ScopedViewBuffers，逐步迁移旧 effect 接口。
+
+隔离回归：先执行 Tests/BuildReloadFixtures.ps1 -Configuration Debug（或 Release），再运行对应 AtomEngine.exe --enhancement-smoke-test。覆盖网格/凸包落地、三类关节及删除连接对象、预制体传播/覆盖/子物体增删/应用/还原、环境和编辑视角序列化、后台纹理与模型导入、自动/显式程序集替换及失败保留、字段保留、两视图输出/历史/resize 隔离、图非法读取与 FXAA 对角线/平坦区域像素，同时运行已有原生和 UI 颜色回归。
+
+
+编辑器多语言：默认提供简体中文和 English，通过主菜单“语言 / Language”即时切换，偏好写入输出目录 EditorPreferences.xml 的 language 属性。缺少词条时回退到英文；用户对象名、脚本字段名、资源路径和引擎日志不改写。控件使用译文加 ###原始键，保证中英文切换后停靠布局、焦点和控件 ID 一致，单帧执行和吸附步长仍使用不同 ID。
+
+扩展语言：在 Asset/Localization 中加入 UTF-8 XML 文件，启动时自动发现，无需修改菜单代码。格式示例：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Language id="fr" name="Français">
+  <Text key="File">Fichier</Text>
+  <Text key="Viewport">Vue</Text>
+  <Text key="%zu items">%zu éléments</Text>
+</Language>
+```
+
+EditorLocalization::Text(key) 返回显示文本或原英文；Label(key) 返回带稳定 ID 的 ImGui 标签；Combo 支持翻译英文选项列表。Initialize(directory)、RegisterCatalog(path)、Languages()、CurrentLanguage() 和 SetLanguage(id) 供未来扩展。词条键为源码中的英文文本，区分大小写；使用上下文不同的隐藏 ID 键可提供独立译文，例如 Step##TransformSnapStep。翻译必须保留 printf 占位符的类型、数量、顺序和格式，且不能包含 ImGui 保留的 ## 分隔符；非法词条记录警告并回退。XML 的引号和换行使用标准实体转义；新增语言需确保所用字体覆盖相应字符（当前使用微软雅黑中文字体）。词库在初始化时注册，重注册已有语言应在帧间进行。
+
+--ui-color-smoke-test 额外检查词库加载、缺失词条与未知语言、中英文切换、标签指针和窗口 ID 稳定性；运行过程中切换到英文再恢复中文，Smoke/editor-english.raw 与 editor-restored.raw 分别保留两种界面的像素输出。

@@ -96,6 +96,14 @@ class EditorLayer
     }
 
   private:
+    std::shared_ptr<AssetPreloadBatch> mScenePreload;
+    std::filesystem::path mPreloadPath;
+    std::future<int> mScriptBuild;
+    float mPrefabWatchTimer = 0;
+    std::map<std::filesystem::path, std::filesystem::file_time_type> mPrefabStamps;
+    std::string mPreloadSnapshot;
+    void ScriptCreation(World &world);
+    void PollBackgroundWork(Scene &scene);
     enum class Pending
     {
         None,
@@ -139,6 +147,8 @@ class EditorLayer
         TextureRef texture;
         DescriptorHandle handle;
         bool failed = false;
+        std::shared_ptr<AssetPreloadBatch> pending;
+        std::string path;
     };
     std::map<std::string, Thumbnail> mThumbnails;
     bool mThumbnailView = true;
@@ -162,7 +172,7 @@ class EditorLayer
     char mScenePath[1024] = "", mPrefabPath[1024] = "Asset/Prefabs/New.prefab";
     std::string mError, mRuntimeError;
     std::string mPlayXml, mPlaySelection;
-    bool mShowCameraGizmos=true;
+    bool mShowCameraGizmos = true;
     bool mShowMaterials = true, mPreviewFromSelection = true;
     int mPreviewSlot = 0;
     float mPreviewYaw = .4f, mPreviewPitch = .25f;

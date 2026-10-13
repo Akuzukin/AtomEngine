@@ -90,7 +90,19 @@ void WriteObject(World &w, Entity id, XMLElement *e)
     if (auto c = w.TryGet<HierarchyComponent>(id))
         e->SetAttribute("parent", c->parentId.c_str());
     if (auto c = w.TryGet<PrefabInstanceComponent>(id))
+    {
         e->SetAttribute("prefab", c->source.c_str());
+        auto link = Child(e, "PrefabLink");
+        link->SetAttribute("sourceId", c->sourceId.c_str());
+        link->SetAttribute("instanceId", c->instanceId.c_str());
+        Child(link, "Baseline")->SetText(c->baseline.c_str());
+        for (auto &[source, target] : c->members)
+        {
+            auto member = Child(link, "Member");
+            member->SetAttribute("source", source.c_str());
+            member->SetAttribute("target", target.c_str());
+        }
+    }
     if (auto c = w.TryGet<TransformComponent>(id))
         WriteTransform(Child(e, "Transform"), *c);
     if (auto c = w.TryGet<CameraComponent>(id))
@@ -164,6 +176,20 @@ void WriteObject(World &w, Entity id, XMLElement *e)
         n->SetAttribute("restitution", c->restitution);
         n->SetAttribute("gravity", c->gravity);
         Vec(Child(n, "Velocity"), c->linearVelocity);
+    }
+    if (auto c = w.TryGet<JointComponent>(id))
+    {
+        auto n = Child(e, "Joint");
+        n->SetAttribute("type", int(c->type));
+        n->SetAttribute("connectedBody", c->connectedBody.c_str());
+        n->SetAttribute("enabled", c->enabled);
+        Vec(Child(n, "Anchor"), c->anchor);
+        Vec(Child(n, "ConnectedAnchor"), c->connectedAnchor);
+        Vec(Child(n, "Axis"), c->axis);
+        n->SetAttribute("minDistance", c->minDistance);
+        n->SetAttribute("maxDistance", c->maxDistance);
+        n->SetAttribute("minAngle", c->minAngle);
+        n->SetAttribute("maxAngle", c->maxAngle);
     }
     if (auto c = w.TryGet<ScriptComponent>(id))
         for (auto &s : c->scripts)
@@ -296,7 +322,7 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
     {
         o->AddComponent<ColliderComponent>();
         auto &c = o->GetComponent<ColliderComponent>();
-        c.shape = ColliderShape(Enum(n, "shape", 0, 2));
+        c.shape = ColliderShape(Enum(n, "shape", 0, 4));
         c.center = Vec(n->FirstChildElement("Center"));
         c.rotation = Quat(n->FirstChildElement("Rotation"));
         c.halfExtents = Vec(n->FirstChildElement("HalfExtents"), Vector3(.5f, .5f, .5f));
@@ -334,6 +360,48 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
             o->GetComponent<ScriptComponent>().scripts.push_back(std::move(s));
         }
     }
+    if (auto n = e->FirstChildElement("PrefabLink"))
+    {
+        auto *c = w.TryGet<PrefabInstanceComponent>(id);
+        if (!c)
+        {
+            w.AddComponent<PrefabInstanceComponent>(id, Str(e, "prefab"));
+            c = w.TryGet<PrefabInstanceComponent>(id);
+        }
+        c->sourceId = Str(n, "sourceId");
+        c->instanceId = Str(n, "instanceId");
+        if (auto baseline = n->FirstChildElement("Baseline"); baseline && baseline->GetText())
+            c->baseline = baseline->GetText();
+        if (!c->baseline.empty())
+        {
+            tinyxml2::XMLDocument baseline;
+            if (baseline.Parse(c->baseline.c_str()) != XML_SUCCESS || !baseline.FirstChildElement("Object") ||
+                c->sourceId.empty() || c->instanceId.empty() ||
+                Str(baseline.FirstChildElement("Object"), "id") != c->sourceId)
+                throw std::runtime_error("Invalid prefab baseline/link");
+        }
+        for (auto member = n->FirstChildElement("Member"); member; member = member->NextSiblingElement("Member"))
+            c->members[Str(member, "source")] = Str(member, "target");
+    }
+    if (auto n = e->FirstChildElement("Joint"))
+    {
+        JointComponent c;
+        c.type = JointType(Enum(n, "type", 0, 2));
+        c.connectedBody = Str(n, "connectedBody");
+        c.enabled = n->BoolAttribute("enabled", true);
+        c.anchor = Vec(n->FirstChildElement("Anchor"));
+        c.connectedAnchor = Vec(n->FirstChildElement("ConnectedAnchor"));
+        c.axis = Vec(n->FirstChildElement("Axis"), Vector3::UP);
+        c.minDistance = Float(n, "minDistance", 0);
+        c.maxDistance = Float(n, "maxDistance", 1);
+        c.minAngle = Float(n, "minAngle", -180);
+        c.maxAngle = Float(n, "maxAngle", 180);
+        if (c.axis.LengthSqr() < 1e-8f || c.minDistance < 0 || c.maxDistance < c.minDistance || c.minAngle < -180 ||
+            c.minAngle > 0 || c.maxAngle < 0 || c.maxAngle > 180)
+            throw std::runtime_error("Invalid joint settings");
+        c.axis.Normalize();
+        w.AddComponent<JointComponent>(id, c);
+    }
     if (auto n = e->FirstChildElement("UI"))
     {
         o->AddComponent<UiElementComponent>();
@@ -361,6 +429,58 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
     guard.committed = true;
     return id;
 }
+void WriteSettings(XMLElement *root, const SceneSettings &s)
+{
+    auto n = Child(root, "Environment");
+    n->SetAttribute("sky", s.environment.c_str());
+    n->SetAttribute("diffuse", s.diffuseIBL.c_str());
+    n->SetAttribute("specular", s.specularIBL.c_str());
+    n->SetAttribute("brdf", s.brdfLut.c_str());
+    n->SetAttribute("intensity", s.iblIntensity);
+    n->SetAttribute("bias", s.iblBias);
+    n->SetAttribute("exposure", s.exposure);
+    n->SetAttribute("enabled", s.skyEnabled);
+    n->SetAttribute("fxaa", s.fxaa);
+    n->SetAttribute("autoExposure", s.autoExposure);
+    if (s.hasEditorCamera)
+    {
+        auto c = Child(root, "EditorCamera");
+        Vec(Child(c, "Position"), s.editorPosition);
+        Quat(Child(c, "Rotation"), s.editorRotation);
+        c->SetAttribute("fov", s.editorFov);
+        c->SetAttribute("near", s.editorNear);
+        c->SetAttribute("far", s.editorFar);
+    }
+}
+void ReadSettings(const XMLElement *root, SceneSettings &s)
+{
+    if (auto n = root->FirstChildElement("Environment"))
+    {
+        s.environment = Str(n, "sky", s.environment.c_str());
+        s.diffuseIBL = Str(n, "diffuse", s.diffuseIBL.c_str());
+        s.specularIBL = Str(n, "specular", s.specularIBL.c_str());
+        s.brdfLut = Str(n, "brdf", s.brdfLut.c_str());
+        s.iblIntensity = Float(n, "intensity", 1);
+        s.iblBias = Float(n, "bias", 0);
+        s.exposure = Float(n, "exposure", 1);
+        s.skyEnabled = n->BoolAttribute("enabled", true);
+        s.fxaa = n->BoolAttribute("fxaa", true);
+        s.autoExposure = n->BoolAttribute("autoExposure", true);
+        if (s.iblIntensity < 0 || s.iblBias < 0 || s.exposure <= 0)
+            throw std::runtime_error("Invalid environment settings");
+    }
+    if (auto c = root->FirstChildElement("EditorCamera"))
+    {
+        s.editorPosition = Vec(c->FirstChildElement("Position"));
+        s.editorRotation = Quat(c->FirstChildElement("Rotation"));
+        s.editorFov = Float(c, "fov", 45);
+        s.editorNear = Float(c, "near", .1f);
+        s.editorFar = Float(c, "far", 1000);
+        if (s.editorFov <= 0 || s.editorFov >= 180 || s.editorNear <= 0 || s.editorFar <= s.editorNear)
+            throw std::runtime_error("Invalid editor camera");
+        s.hasEditorCamera = true;
+    }
+}
 void SaveXml(tinyxml2::XMLDocument &doc, const std::filesystem::path &path)
 {
     if (!path.parent_path().empty())
@@ -383,6 +503,13 @@ std::vector<AssetRequest> SceneSerializer::CollectResources(const std::filesyste
     if (!root || root->IntAttribute("version") != 1)
         throw std::runtime_error("Unsupported scene/prefab format");
     std::vector<AssetRequest> assets;
+    if (auto environment = root->FirstChildElement("Environment"))
+        for (auto attribute : {"sky", "diffuse", "specular", "brdf"})
+        {
+            auto path = Str(environment, attribute);
+            if (!path.empty())
+                assets.push_back({AssetKind::Texture, path, BuiltinMesh::None, kBlackCubeMap, false});
+        }
     for (auto object = root->FirstChildElement("Object"); object; object = object->NextSiblingElement("Object"))
     {
         if (auto mesh = object->FirstChildElement("Mesh"))
@@ -431,6 +558,7 @@ std::string SceneSerializer::ToXml(World &w, const std::string &name)
     auto root = Child(&doc, "Scene");
     root->SetAttribute("version", 1);
     root->SetAttribute("name", name.c_str());
+    WriteSettings(root, w.settings);
     std::vector<Entity> objects;
     for (auto e : w.View<PersistentIdComponent>())
         objects.push_back(e);
@@ -452,6 +580,7 @@ std::string SceneSerializer::FromXml(World &w, std::string_view xml)
     if (!root || root->IntAttribute("version") != 1)
         throw std::runtime_error("Unsupported scene format");
     World staged;
+    ReadSettings(root, staged.settings);
     std::set<std::string> ids;
     for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
     {
@@ -499,6 +628,30 @@ Entity SceneSerializer::Duplicate(World &w, Entity source)
         for (auto e : created)
             if (auto h = w.TryGet<HierarchyComponent>(e); h && remap.contains(h->parentId))
                 h->parentId = remap.at(h->parentId);
+        for (auto e : created)
+        {
+            if (auto j = w.TryGet<JointComponent>(e); j && remap.contains(j->connectedBody))
+                j->connectedBody = remap.at(j->connectedBody);
+            if (auto p = w.TryGet<PrefabInstanceComponent>(e))
+            {
+                if (!p->instanceId.empty() && !remap.contains(p->instanceId))
+                {
+                    w.RemoveComponent<PrefabInstanceComponent>(e);
+                    continue;
+                }
+                if (remap.contains(p->instanceId))
+                    p->instanceId = remap.at(p->instanceId);
+                for (auto &[source, target] : p->members)
+                    if (remap.contains(target))
+                        target = remap.at(target);
+                    else
+                    {
+                        World temporary;
+                        auto object = temporary.CreateGameObject();
+                        target = object->GetComponent<PersistentIdComponent>().value;
+                    }
+            }
+        }
         auto name = w.TryGet<NameComponent>(source);
         std::string base = name ? name->value : "Object", copy = base + " (Copy)";
         for (int n = 2; w.IsValid(w.FindByName(copy)); ++n)
@@ -524,6 +677,7 @@ void SceneSerializer::Save(World &w, const std::filesystem::path &p, const std::
     auto root = Child(&d, "Scene");
     root->SetAttribute("version", 1);
     root->SetAttribute("name", name.c_str());
+    WriteSettings(root, w.settings);
     for (auto e : w.View<PersistentIdComponent>())
         WriteObject(w, e, Child(root, "Object"));
     SaveXml(d, p);
@@ -543,6 +697,7 @@ std::string SceneSerializer::Load(World &w, const std::filesystem::path &p)
     if (!preload->Report().Success())
         throw std::runtime_error("Scene preload failed: " + preload->Report().errors.front());
     World staged;
+    ReadSettings(root, staged.settings);
     std::set<std::string> ids;
     for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
     {
@@ -551,6 +706,7 @@ std::string SceneSerializer::Load(World &w, const std::filesystem::path &p)
         ReadObject(staged, n, false);
     }
     ResolveHierarchy(staged);
+    RefreshPrefabs(staged);
     w.ReplaceWith(staged);
     return Str(root, "name", "Scene");
 }
@@ -654,6 +810,29 @@ Entity SceneSerializer::InstantiatePrefab(World &w, const std::filesystem::path 
             instance->source = p.generic_string();
         else
             w.AddComponent<PrefabInstanceComponent>(result, p.generic_string());
+        auto instanceId = w.GetComponent<PersistentIdComponent>(result).value;
+        for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        {
+            auto old = Str(n, "id");
+            Entity e = entt::null;
+            for (auto candidate : created)
+                if (w.GetComponent<PersistentIdComponent>(candidate).value == ids.at(old))
+                    e = candidate;
+            if (!w.HasComponent<PrefabInstanceComponent>(e))
+                w.AddComponent<PrefabInstanceComponent>(e);
+            auto &link = w.GetComponent<PrefabInstanceComponent>(e);
+            link.source = p.generic_string();
+            link.sourceId = old;
+            link.instanceId = instanceId;
+            tinyxml2::XMLPrinter printer;
+            n->Accept(&printer);
+            link.baseline = printer.CStr();
+            if (e == result)
+                link.members = ids;
+        }
+        for (auto e : created)
+            if (auto j = w.TryGet<JointComponent>(e); j && ids.contains(j->connectedBody))
+                j->connectedBody = ids.at(j->connectedBody);
         ResolveHierarchy(w);
         return result;
     }
@@ -663,5 +842,365 @@ Entity SceneSerializer::InstantiatePrefab(World &w, const std::filesystem::path 
             w.DestroyGameObject(e);
         throw;
     }
+}
+namespace
+{
+std::string XmlText(const XMLNode *node)
+{
+    XMLPrinter p;
+    node->Accept(&p);
+    return p.CStr();
+}
+std::string ElementKey(const XMLElement *e, size_t index)
+{
+    std::string key = e->Name();
+    if (key == "Field" || key == "Texture")
+        return key + ":" + Str(e, key == "Field" ? "name" : "slot");
+    return key + ":" + std::to_string(index);
+}
+std::map<std::string, const XMLElement *> Children(const XMLElement *node)
+{
+    std::map<std::string, size_t> counts;
+    std::map<std::string, const XMLElement *> out;
+    for (auto e = node->FirstChildElement(); e; e = e->NextSiblingElement())
+        out[ElementKey(e, counts[e->Name()]++)] = e;
+    return out;
+}
+// Three-way merge: source changes propagate only where instance values still equal its previous baseline.
+void MergeOverrides(const XMLElement *old, const XMLElement *live, XMLElement *next)
+{
+    for (auto a = old->FirstAttribute(); a; a = a->Next())
+        if (!live->Attribute(a->Name()))
+            next->DeleteAttribute(a->Name());
+    for (auto a = live->FirstAttribute(); a; a = a->Next())
+        if (Str(old, a->Name()) != a->Value())
+            next->SetAttribute(a->Name(), a->Value());
+    auto previous = Children(old), current = Children(live), updated = Children(next);
+    for (auto &[key, before] : previous)
+        if (!current.contains(key) && updated.contains(key))
+            next->DeleteChild(const_cast<XMLElement *>(updated.at(key)));
+    for (auto &[key, value] : current)
+    {
+        if (!previous.contains(key))
+        {
+            if (updated.contains(key))
+                next->DeleteChild(const_cast<XMLElement *>(updated.at(key)));
+            next->InsertEndChild(value->DeepClone(next->GetDocument()));
+        }
+        else if (updated.contains(key))
+            MergeOverrides(previous.at(key), value, const_cast<XMLElement *>(updated.at(key)));
+        else if (XmlText(previous.at(key)) != XmlText(value))
+            next->InsertEndChild(value->DeepClone(next->GetDocument()));
+    }
+}
+void StripLink(XMLElement *object)
+{
+    object->DeleteAttribute("prefab");
+    if (auto link = object->FirstChildElement("PrefabLink"))
+        object->DeleteChild(link);
+}
+void RemapObject(XMLElement *object, const std::map<std::string, std::string> &ids)
+{
+    if (auto parent = object->Attribute("parent"); parent && ids.contains(parent))
+        object->SetAttribute("parent", ids.at(parent).c_str());
+    if (auto joint = object->FirstChildElement("Joint"))
+        if (auto target = joint->Attribute("connectedBody"); target && ids.contains(target))
+            joint->SetAttribute("connectedBody", ids.at(target).c_str());
+}
+} // namespace
+size_t SceneSerializer::PrefabOverrideCount(World &w, Entity e)
+{
+    return PrefabOverrides(w, e).size();
+}
+std::vector<std::string> SceneSerializer::PrefabOverrides(World &w, Entity e)
+{
+    auto link = w.TryGet<PrefabInstanceComponent>(e);
+    if (!link || link->baseline.empty())
+        return {};
+    tinyxml2::XMLDocument old, live;
+    if (old.Parse(link->baseline.c_str()) != XML_SUCCESS)
+        throw std::runtime_error("Invalid prefab baseline");
+    auto object = Child(&live, "Object");
+    WriteObject(w, e, object);
+    StripLink(object);
+    object->SetAttribute("id", link->sourceId.c_str());
+    std::map<std::string, std::string> ids;
+    for (auto item : w.View<PrefabInstanceComponent, PersistentIdComponent>())
+    {
+        auto &c = w.GetComponent<PrefabInstanceComponent>(item);
+        if (c.instanceId == link->instanceId)
+            ids[w.GetComponent<PersistentIdComponent>(item).value] = c.sourceId;
+    }
+    RemapObject(object, ids);
+    std::vector<std::string> changes;
+    auto before = old.FirstChildElement("Object");
+    std::function<void(const XMLElement *, const XMLElement *, const std::string &)> diff;
+    diff = [&](const XMLElement *base, const XMLElement *current, const std::string &path) {
+        for (auto a = current->FirstAttribute(); a; a = a->Next())
+            if (!base->Attribute(a->Name()) || Str(base, a->Name()) != a->Value())
+                changes.push_back(path + "/@" + a->Name() + ": " + Str(base, a->Name(), "<unset>") + " -> " +
+                                  a->Value());
+        for (auto a = base->FirstAttribute(); a; a = a->Next())
+            if (!current->Attribute(a->Name()))
+                changes.push_back(path + "/@" + a->Name() + " (removed)");
+        auto previous = Children(base), live = Children(current);
+        for (auto &[key, value] : live)
+            if (!previous.contains(key))
+                changes.push_back(path + "/" + key + " (added)");
+            else
+                diff(previous.at(key), value, path + "/" + key);
+        for (auto &[key, value] : previous)
+            if (!live.contains(key))
+                changes.push_back(path + "/" + key + " (removed)");
+    };
+    diff(before, object, "Object");
+    return changes;
+}
+void SceneSerializer::RefreshPrefabs(World &w, const std::filesystem::path &filter)
+{
+    bool linked = false;
+    for (auto e : w.View<PrefabInstanceComponent>())
+        linked |= !w.GetComponent<PrefabInstanceComponent>(e).members.empty();
+    if (!linked)
+        return;
+    tinyxml2::XMLDocument scene;
+    scene.Parse(ToXml(w, "Prefab refresh").c_str());
+    auto root = scene.FirstChildElement("Scene");
+    std::map<std::string, XMLElement *> objects;
+    for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        objects[Str(n, "id")] = n;
+    for (auto e : w.View<PrefabInstanceComponent>())
+    {
+        const auto &instance = w.GetComponent<PrefabInstanceComponent>(e);
+        if (instance.members.empty() || instance.baseline.empty())
+            continue;
+        if (!filter.empty() && std::filesystem::absolute(instance.source).lexically_normal() !=
+                                   std::filesystem::absolute(filter).lexically_normal())
+            continue;
+        tinyxml2::XMLDocument prefab;
+        if (prefab.LoadFile(instance.source.c_str()) != XML_SUCCESS)
+            throw std::runtime_error("Cannot refresh prefab: " + instance.source);
+        auto source = prefab.FirstChildElement("Prefab");
+        if (!source || source->IntAttribute("version") != 1)
+            throw std::runtime_error("Invalid prefab source");
+        auto ids = instance.members;
+        std::set<std::string> sourceIds;
+        for (auto n = source->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        {
+            auto id = Str(n, "id");
+            if (!sourceIds.insert(id).second)
+                throw std::runtime_error("Duplicate prefab source ID");
+            if (!ids.contains(id))
+            {
+                World temporary;
+                auto obj = temporary.CreateGameObject();
+                ids[id] = obj->GetComponent<PersistentIdComponent>().value;
+            }
+        }
+        if (!sourceIds.contains(Str(source, "root")))
+            throw std::runtime_error("Prefab source has no root object");
+        std::map<std::string, std::string> reverse;
+        for (auto &[a, b] : ids)
+            reverse[b] = a;
+        for (auto &[id, target] : instance.members)
+            if (!sourceIds.contains(id) && objects.contains(target))
+            {
+                root->DeleteChild(objects.at(target));
+                objects.erase(target);
+            }
+        std::erase_if(ids, [&](const auto &entry) { return !sourceIds.contains(entry.first); });
+        for (auto n = source->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        {
+            auto id = Str(n, "id"), target = ids.at(id);
+            // Missing previously known scene objects are instance deletion overrides.
+            if (instance.members.contains(id) && !objects.contains(target))
+                continue;
+            auto merged = n->DeepClone(&scene)->ToElement();
+            StripLink(merged);
+            auto baseline = XmlText(merged);
+            if (objects.contains(target))
+            {
+                auto current = objects.at(target);
+                auto link = current->FirstChildElement("PrefabLink");
+                tinyxml2::XMLDocument old, live;
+                auto text = link ? link->FirstChildElement("Baseline") : nullptr;
+                if (text && text->GetText() && old.Parse(text->GetText()) == XML_SUCCESS)
+                {
+                    auto normalized = current->DeepClone(&live)->ToElement();
+                    live.InsertEndChild(normalized);
+                    StripLink(normalized);
+                    normalized->SetAttribute("id", id.c_str());
+                    RemapObject(normalized, reverse);
+                    MergeOverrides(old.FirstChildElement("Object"), normalized, merged);
+                }
+                root->DeleteChild(current);
+            }
+            merged->SetAttribute("id", target.c_str());
+            RemapObject(merged, ids);
+            merged->SetAttribute("prefab", instance.source.c_str());
+            auto link = Child(merged, "PrefabLink");
+            link->SetAttribute("sourceId", id.c_str());
+            link->SetAttribute("instanceId", instance.instanceId.c_str());
+            Child(link, "Baseline")->SetText(baseline.c_str());
+            if (id == Str(source, "root"))
+                for (auto &[a, b] : ids)
+                {
+                    auto member = Child(link, "Member");
+                    member->SetAttribute("source", a.c_str());
+                    member->SetAttribute("target", b.c_str());
+                }
+            root->InsertEndChild(merged);
+            objects[target] = merged;
+        }
+    }
+    FromXml(w, XmlText(&scene));
+}
+void SceneSerializer::RevertPrefab(World &w, Entity e)
+{
+    const auto *selected = w.TryGet<PrefabInstanceComponent>(e);
+    if (!selected)
+        throw std::runtime_error("Select a prefab instance");
+    auto group = selected->instanceId;
+    std::set<std::string> subtree{group};
+    bool more = true;
+    while (more)
+    {
+        more = false;
+        for (auto item : w.View<HierarchyComponent, PersistentIdComponent>())
+            if (subtree.contains(w.GetComponent<HierarchyComponent>(item).parentId))
+                more |= subtree.insert(w.GetComponent<PersistentIdComponent>(item).value).second;
+    }
+    PrefabInstanceComponent rootLink;
+    for (auto item : w.View<PrefabInstanceComponent>())
+        if (w.GetComponent<PrefabInstanceComponent>(item).instanceId == group &&
+            !w.GetComponent<PrefabInstanceComponent>(item).members.empty())
+            rootLink = w.GetComponent<PrefabInstanceComponent>(item);
+    tinyxml2::XMLDocument scene;
+    scene.Parse(ToXml(w, "Prefab revert").c_str());
+    auto root = scene.FirstChildElement("Scene");
+    std::vector<XMLElement *> originals;
+    for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        originals.push_back(n);
+    for (auto n : originals)
+    {
+        auto link = n->FirstChildElement("PrefabLink");
+        if (subtree.contains(Str(n, "id")) && (!link || Str(link, "instanceId") != group))
+        {
+            root->DeleteChild(n);
+            continue;
+        }
+        if (link && Str(link, "instanceId") == group)
+        {
+            tinyxml2::XMLDocument baseline;
+            auto b = link->FirstChildElement("Baseline");
+            if (!b || !b->GetText() || baseline.Parse(b->GetText()) != XML_SUCCESS)
+                throw std::runtime_error("Invalid prefab baseline");
+            auto replacement = baseline.FirstChildElement("Object")->DeepClone(&scene)->ToElement();
+            replacement->SetAttribute("id", Str(n, "id").c_str());
+            replacement->SetAttribute("prefab", Str(n, "prefab").c_str());
+            std::map<std::string, std::string> ids;
+            for (auto item : w.View<PrefabInstanceComponent, PersistentIdComponent>())
+            {
+                auto &c = w.GetComponent<PrefabInstanceComponent>(item);
+                if (c.instanceId == group)
+                    ids[c.sourceId] = w.GetComponent<PersistentIdComponent>(item).value;
+            }
+            RemapObject(replacement, ids);
+            replacement->InsertEndChild(link->DeepClone(&scene));
+            root->InsertEndChild(replacement);
+            root->DeleteChild(n);
+        }
+    }
+    tinyxml2::XMLDocument source;
+    if (source.LoadFile(rootLink.source.c_str()) != XML_SUCCESS || !source.FirstChildElement("Prefab"))
+        throw std::runtime_error("Cannot revert prefab source");
+    std::set<std::string> present;
+    for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
+        present.insert(Str(n, "id"));
+    for (auto n = source.FirstChildElement("Prefab")->FirstChildElement("Object"); n;
+         n = n->NextSiblingElement("Object"))
+    {
+        auto id = Str(n, "id");
+        if (!rootLink.members.contains(id) || present.contains(rootLink.members.at(id)))
+            continue;
+        auto replacement = n->DeepClone(&scene)->ToElement();
+        StripLink(replacement);
+        auto baseline = XmlText(replacement);
+        replacement->SetAttribute("id", rootLink.members.at(id).c_str());
+        RemapObject(replacement, rootLink.members);
+        replacement->SetAttribute("prefab", rootLink.source.c_str());
+        auto link = Child(replacement, "PrefabLink");
+        link->SetAttribute("sourceId", id.c_str());
+        link->SetAttribute("instanceId", group.c_str());
+        Child(link, "Baseline")->SetText(baseline.c_str());
+        root->InsertEndChild(replacement);
+    }
+    FromXml(w, XmlText(&scene));
+    RefreshPrefabs(w, rootLink.source);
+}
+void SceneSerializer::ApplyPrefab(World &w, Entity e)
+{
+    auto *selected = w.TryGet<PrefabInstanceComponent>(e);
+    if (!selected || selected->instanceId.empty())
+        throw std::runtime_error("Select a linked prefab instance");
+    auto group = selected->instanceId, path = selected->source;
+    tinyxml2::XMLDocument prefab;
+    auto root = Child(&prefab, "Prefab");
+    root->SetAttribute("version", 1);
+    std::map<std::string, std::string> ids;
+    for (auto item : w.View<PrefabInstanceComponent, PersistentIdComponent>())
+    {
+        auto &c = w.GetComponent<PrefabInstanceComponent>(item);
+        if (c.instanceId == group)
+            ids[w.GetComponent<PersistentIdComponent>(item).value] = c.sourceId;
+    }
+    if (!ids.contains(group))
+        throw std::runtime_error("Prefab root missing");
+    std::set<std::string> subtree{group};
+    bool more = true;
+    while (more)
+    {
+        more = false;
+        for (auto item : w.View<HierarchyComponent, PersistentIdComponent>())
+            if (subtree.contains(w.GetComponent<HierarchyComponent>(item).parentId))
+                more |= subtree.insert(w.GetComponent<PersistentIdComponent>(item).value).second;
+    }
+    for (const auto &id : subtree)
+        if (!ids.contains(id))
+            ids[id] = id;
+    root->SetAttribute("root", ids.at(group).c_str());
+    for (auto item : w.View<PersistentIdComponent>())
+        if (subtree.contains(w.GetComponent<PersistentIdComponent>(item).value))
+        {
+            auto n = Child(root, "Object");
+            WriteObject(w, item, n);
+            StripLink(n);
+            auto instanceId = Str(n, "id");
+            n->SetAttribute("id", ids.at(instanceId).c_str());
+            RemapObject(n, ids);
+            if (instanceId == group)
+                n->DeleteAttribute("parent");
+        }
+    SaveXml(prefab, std::filesystem::path(path));
+    std::map<std::string, std::string> members;
+    for (const auto &[target, source] : ids)
+        members[source] = target;
+    for (auto item : w.View<PersistentIdComponent>())
+    {
+        auto target = w.GetComponent<PersistentIdComponent>(item).value;
+        if (!subtree.contains(target))
+            continue;
+        if (!w.HasComponent<PrefabInstanceComponent>(item))
+        {
+            PrefabInstanceComponent link;
+            link.source = path;
+            link.instanceId = group;
+            link.sourceId = ids.at(target);
+            w.AddComponent<PrefabInstanceComponent>(item, link);
+        }
+        if (target == group)
+            w.GetComponent<PrefabInstanceComponent>(item).members = members;
+    }
+    RefreshPrefabs(w, std::filesystem::path(path));
 }
 } // namespace AtomEngine

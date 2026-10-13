@@ -9,6 +9,13 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Constraints/FixedConstraint.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Constraints/HingeConstraint.h>
+#include <Jolt/Geometry/ConvexHullBuilder.h>
+#include "CollisionGeometry.h"
 #include "PhysicsWorld.h"
 #include "Runtime/Function/Framework/Component/SceneComponents.h"
 #include "Runtime/Function/Framework/Component/TransformComponent.h"
@@ -67,6 +74,41 @@ std::string Signature(const ColliderComponent &c, const RigidBodyComponent &b, c
     return out.str();
 }
 } // namespace
+std::vector<Vector3> CollisionWireEdges(MeshComponent &mesh, bool convex)
+{
+    auto triangles = CollisionTriangles(mesh);
+    std::vector<Vector3> edges;
+    if (!convex)
+        for (size_t i = 0; i < triangles.size(); i += 3)
+            for (int j = 0; j < 3; ++j)
+            {
+                edges.push_back(triangles[i + j]);
+                edges.push_back(triangles[i + (j + 1) % 3]);
+            }
+    else
+    {
+        JPH::ConvexHullBuilder::Positions points;
+        for (auto v : triangles)
+            points.push_back(V(v));
+        JPH::ConvexHullBuilder hull(points);
+        const char *error = nullptr;
+        auto result = hull.Initialize(256, .001f, error);
+        if (result != JPH::ConvexHullBuilder::EResult::Success &&
+            result != JPH::ConvexHullBuilder::EResult::MaxVerticesReached)
+            return {};
+        for (auto face : hull.GetFaces())
+        {
+            auto edge = face->mFirstEdge;
+            do
+            {
+                edges.push_back(triangles.at(edge->mStartIdx));
+                edges.push_back(triangles.at(edge->mNextEdge->mStartIdx));
+                edge = edge->mNextEdge;
+            } while (edge != face->mFirstEdge);
+        }
+    }
+    return edges;
+}
 struct PhysicsWorld::Impl : public JPH::ContactListener
 {
     Layers layers;
@@ -83,6 +125,18 @@ struct PhysicsWorld::Impl : public JPH::ContactListener
         Quaternion rotation;
     };
     std::map<Entity, Body> bodies;
+    struct Joint
+    {
+        std::string signature;
+        JPH::Ref<JPH::TwoBodyConstraint> constraint;
+    };
+    std::map<Entity, Joint> joints;
+    void ClearJoints()
+    {
+        for (auto &[e, joint] : joints)
+            system.RemoveConstraint(joint.constraint);
+        joints.clear();
+    }
     std::weak_ptr<void> lifetime;
     std::vector<PhysicsContact> contacts;
     float accumulator = 0;
@@ -100,6 +154,7 @@ struct PhysicsWorld::Impl : public JPH::ContactListener
     }
     void Clear()
     {
+        ClearJoints();
         auto &bi = system.GetBodyInterface();
         for (auto &[e, b] : bodies)
         {
@@ -168,10 +223,20 @@ void PhysicsWorld::Update(World &w, float dt)
         Vector3 scale = matrix.GetScale(), pos = matrix.GetTrans();
         Quaternion rotation = matrix.GetRotation();
         auto signature = Signature(c, r, scale);
+        auto *mesh = w.TryGet<MeshComponent>(e);
+        if (c.shape == ColliderShape::Mesh || c.shape == ColliderShape::ConvexHull)
+        {
+            if (!mesh)
+                throw std::runtime_error("Mesh collider requires a Mesh component");
+            if (c.shape == ColliderShape::Mesh && r.motion != BodyMotion::Static)
+                throw std::runtime_error("Triangle mesh collider must be static; use Convex Hull for moving bodies");
+            signature += std::to_string(reinterpret_cast<uintptr_t>(mesh->GetModel().get()));
+        }
         alive.insert(e);
         auto it = i.bodies.find(e);
         if (it != i.bodies.end() && it->second.signature != signature)
         {
+            i.ClearJoints();
             bi.RemoveBody(it->second.id);
             bi.DestroyBody(it->second.id);
             i.bodies.erase(it);
@@ -188,9 +253,32 @@ void PhysicsWorld::Update(World &w, float dt)
                     0.001f);
             else if (c.shape == ColliderShape::Sphere)
                 shape = new JPH::SphereShape(std::max(.001f, c.radius * maxScale));
-            else
+            else if (c.shape == ColliderShape::Capsule)
                 shape = new JPH::CapsuleShape(std::max(.001f, c.halfHeight * scale.y),
                                               std::max(.001f, c.radius * std::max(scale.x, scale.z)));
+            else
+            {
+                auto triangles = CollisionTriangles(*mesh);
+                JPH::ShapeSettings::ShapeResult result;
+                if (c.shape == ColliderShape::Mesh)
+                {
+                    JPH::TriangleList list;
+                    for (size_t j = 0; j < triangles.size(); j += 3)
+                        list.emplace_back(V(triangles[j] * scale), V(triangles[j + 1] * scale),
+                                          V(triangles[j + 2] * scale));
+                    result = JPH::MeshShapeSettings(list).Create();
+                }
+                else
+                {
+                    JPH::Array<JPH::Vec3> points;
+                    for (auto v : triangles)
+                        points.push_back(V(v * scale));
+                    result = JPH::ConvexHullShapeSettings(points).Create();
+                }
+                if (result.HasError())
+                    throw std::runtime_error(result.GetError().c_str());
+                shape = result.Get();
+            }
             shape = new JPH::RotatedTranslatedShape(V(c.center * scale), Q(c.rotation), shape);
             auto motion = r.motion == BodyMotion::Static      ? JPH::EMotionType::Static
                           : r.motion == BodyMotion::Kinematic ? JPH::EMotionType::Kinematic
@@ -224,9 +312,82 @@ void PhysicsWorld::Update(World &w, float dt)
     for (auto it = i.bodies.begin(); it != i.bodies.end();)
         if (!alive.contains(it->first))
         {
+            i.ClearJoints();
             bi.RemoveBody(it->second.id);
             bi.DestroyBody(it->second.id);
             it = i.bodies.erase(it);
+        }
+        else
+            ++it;
+    std::map<std::string, Entity> ids;
+    for (auto e : w.View<PersistentIdComponent>())
+        ids[w.GetComponent<PersistentIdComponent>(e).value] = e;
+    std::set<Entity> activeJoints;
+    for (auto e : w.View<JointComponent>())
+    {
+        const auto &j = w.GetComponent<JointComponent>(e);
+        if (!j.enabled || !i.bodies.contains(e) || !ids.contains(j.connectedBody))
+            continue;
+        auto other = ids.at(j.connectedBody);
+        if (other == e || !i.bodies.contains(other))
+            continue;
+        if (bi.GetMotionType(i.bodies.at(e).id) == JPH::EMotionType::Static &&
+            bi.GetMotionType(i.bodies.at(other).id) == JPH::EMotionType::Static)
+            continue;
+        std::ostringstream sig;
+        sig << int(j.type) << ',' << j.connectedBody << ',';
+        for (auto v : {j.anchor, j.connectedAnchor, j.axis})
+            sig << v.x << ',' << v.y << ',' << v.z << ',';
+        sig << j.minDistance << ',' << j.maxDistance << ',' << j.minAngle << ',' << j.maxAngle;
+        auto signature = sig.str();
+        activeJoints.insert(e);
+        if (auto old = i.joints.find(e); old != i.joints.end() && old->second.signature != signature)
+        {
+            i.system.RemoveConstraint(old->second.constraint);
+            i.joints.erase(old);
+        }
+        if (i.joints.contains(e))
+            continue;
+        auto a = Math::TransformCoord(j.anchor, w.GetComponent<TransformComponent>(e).GetMatrix());
+        auto b = Math::TransformCoord(j.connectedAnchor, w.GetComponent<TransformComponent>(other).GetMatrix());
+        JPH::Ref<JPH::TwoBodyConstraintSettings> settings;
+        if (j.type == JointType::Distance)
+        {
+            auto s = new JPH::DistanceConstraintSettings;
+            s->mPoint1 = V(a);
+            s->mPoint2 = V(b);
+            s->mMinDistance = j.minDistance;
+            s->mMaxDistance = j.maxDistance;
+            settings = s;
+        }
+        else if (j.type == JointType::Hinge)
+        {
+            auto s = new JPH::HingeConstraintSettings;
+            auto axis = V(w.GetComponent<TransformComponent>(e).GetMatrix().GetRotation() * j.axis).Normalized();
+            auto normal = axis.GetNormalizedPerpendicular();
+            s->mPoint1 = V(a);
+            s->mPoint2 = V(b);
+            s->mHingeAxis1 = s->mHingeAxis2 = axis;
+            s->mNormalAxis1 = s->mNormalAxis2 = normal;
+            s->mLimitsMin = j.minAngle * JPH::JPH_PI / 180;
+            s->mLimitsMax = j.maxAngle * JPH::JPH_PI / 180;
+            settings = s;
+        }
+        else
+        {
+            auto s = new JPH::FixedConstraintSettings;
+            s->mAutoDetectPoint = true;
+            settings = s;
+        }
+        auto constraint = bi.CreateConstraint(settings, i.bodies.at(e).id, i.bodies.at(other).id);
+        i.system.AddConstraint(constraint);
+        i.joints.emplace(e, Impl::Joint{signature, constraint});
+    }
+    for (auto it = i.joints.begin(); it != i.joints.end();)
+        if (!activeJoints.contains(it->first))
+        {
+            i.system.RemoveConstraint(it->second.constraint);
+            it = i.joints.erase(it);
         }
         else
             ++it;

@@ -30,11 +30,11 @@ float3 ScaleBuffer(float2 uv)
 float4 main(float4 position : SV_Position, float2 uv : TexCoord0) : SV_Target0
 {
 #ifdef ScaledComposite
-    float3 MainColor = ApplySRGBCurve(ScaleBuffer(uv));   
+    float3 MainColor = ScaleBuffer(uv);
 #else
-    float3 MainColor = ApplySRGBCurve(MainBuffer[(int2) position.xy]);
+    float3 MainColor = MainBuffer[(int2) position.xy];
 #endif
     float4 OverlayColor = OverlayBuffer[(int2) position.xy];
     float3 output = OverlayColor.rgb + MainColor.rgb * (1.0 - OverlayColor.a);
-    return float4(output, OverlayColor.a);
+    return float4(ApplySRGBCurve(max(output,0)), 1.0);
 }

@@ -13,6 +13,15 @@ class ForwardRenderingPass : public RenderPass
     ~ForwardRenderingPass();
 
     void Render(GraphicsContext &gfxContext) override;
+    RenderPassStage Stage() const override
+    {
+        return RenderPassStage::Forward;
+    }
+    const char *Name() const override
+    {
+        return "Forward";
+    }
+    std::vector<GraphUse> GraphResources() const override;
 
   private:
     SkyboxRenderer mSkybox;
@@ -29,6 +38,8 @@ class ForwardRenderingPass : public RenderPass
     bool mAutoFitShadow = true;
     bool mShadowsEnabled = true;
     DescriptorHandle mShadowSrvGpuHandle;
+    uint32_t mShadowPreviewVersion = 0;
+    std::string mEnvironmentSignature;
 
   private:
     void RenderObjects(RenderQueue &queue);

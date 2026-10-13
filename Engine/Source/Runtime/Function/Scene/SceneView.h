@@ -53,4 +53,15 @@ inline void EnsureSceneViewObjects(World &world, const Camera &camera)
         object->AddComponent<DirectionalLightComponent>();
     }
 }
+inline void RestoreEditorCamera(World &world, Camera &camera)
+{
+    const auto &s = world.settings;
+    if (!s.hasEditorCamera)
+        return;
+    camera.SetPosition(s.editorPosition);
+    camera.SetRotation(s.editorRotation);
+    camera.SetFOV(s.editorFov * Math::PI / 180);
+    camera.SetZRange(s.editorNear, s.editorFar);
+    camera.Update();
+}
 } // namespace AtomEngine

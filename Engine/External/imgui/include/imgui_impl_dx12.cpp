@@ -222,6 +222,12 @@ void ImGui_ImplDX12_SetupSamplerLinear(ID3D12GraphicsCommandList* command_list);
 void ImGui_ImplDX12_SetupSamplerNearest(ID3D12GraphicsCommandList* command_list);
 
 // Functions
+void ImGui_ImplDX12_SetTextureSRGBEncoded(const ImDrawList*,const ImDrawCmd*)
+{
+    auto* state=(ImGui_ImplDX12_RenderState*)ImGui::GetPlatformIO().Renderer_RenderState;
+    if(state)state->CommandList->SetGraphicsRoot32BitConstant(2,1,0);
+}
+
 void ImGui_ImplDX12_SetupSamplerLinear(ID3D12GraphicsCommandList* command_list)
 {
     ImGui_ImplDX12_Data* bd = ImGui_ImplDX12_GetBackendData();
@@ -281,6 +287,7 @@ static void ImGui_ImplDX12_SetupRenderState(ImDrawData* draw_data, ID3D12Graphic
     command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     ImGui_ImplDX12_SetupSamplerLinear(command_list);
     command_list->SetGraphicsRoot32BitConstants(0, 16, &vertex_constant_buffer, 0);
+    command_list->SetGraphicsRoot32BitConstant(2, 0, 0);
 
     // Setup blend factor
     const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -667,7 +674,7 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         descRange.RegisterSpace = 0;
         descRange.OffsetInDescriptorsFromTableStart = 0;
 
-        D3D12_ROOT_PARAMETER param[2] = {};
+        D3D12_ROOT_PARAMETER param[3] = {};
 
         param[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
         param[0].Constants.ShaderRegister = 0;
@@ -679,6 +686,11 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         param[1].DescriptorTable.NumDescriptorRanges = 1;
         param[1].DescriptorTable.pDescriptorRanges = &descRange;
         param[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+        param[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        param[2].Constants.ShaderRegister = 1;
+        param[2].Constants.Num32BitValues = 1;
+        param[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
         // Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling.
         D3D12_STATIC_SAMPLER_DESC staticSampler[1] = {};
@@ -822,12 +834,15 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
               float4 col : COLOR0;\
               float2 uv  : TEXCOORD0;\
             };\
+            cbuffer TextureColorSpace : register(b1) { uint TextureSRGBEncoded; };\
             SamplerState sampler0 : register(s0);\
             Texture2D texture0 : register(t0);\
             \
             float4 main(PS_INPUT input) : SV_Target\
             {\
-              float4 out_col = input.col * texture0.Sample(sampler0, input.uv); \
+              float4 sampled = texture0.Sample(sampler0, input.uv); \
+              if (TextureSRGBEncoded != 0) sampled.rgb = float3(sampled.r <= 0.04045 ? sampled.r / 12.92 : pow((sampled.r + 0.055) / 1.055, 2.4), sampled.g <= 0.04045 ? sampled.g / 12.92 : pow((sampled.g + 0.055) / 1.055, 2.4), sampled.b <= 0.04045 ? sampled.b / 12.92 : pow((sampled.b + 0.055) / 1.055, 2.4)); \
+              float4 out_col = input.col * sampled; \
               return out_col; \
             }";
 
@@ -1131,6 +1146,9 @@ static void ImGui_ImplDX12_CreateWindow(ImGuiViewport* viewport)
     sd1.Width = (UINT)viewport->Size.x;
     sd1.Height = (UINT)viewport->Size.y;
     sd1.Format = bd->RTVFormat;
+    // Flip-model buffers use UNORM, with an explicit SRGB RTV for linear blending.
+    if (sd1.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) sd1.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    if (sd1.Format == DXGI_FORMAT_B8G8R8A8_UNORM_SRGB) sd1.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     sd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd1.SampleDesc.Count = 1;
     sd1.SampleDesc.Quality = 0;
@@ -1179,7 +1197,8 @@ static void ImGui_ImplDX12_CreateWindow(ImGuiViewport* viewport)
         {
             IM_ASSERT(vd->FrameCtx[i].RenderTarget == nullptr);
             vd->SwapChain->GetBuffer(i, IID_PPV_ARGS(&back_buffer));
-            bd->pd3dDevice->CreateRenderTargetView(back_buffer, nullptr, vd->FrameCtx[i].RenderTargetCpuDescriptors);
+            D3D12_RENDER_TARGET_VIEW_DESC view = {};view.Format = bd->RTVFormat;view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+            bd->pd3dDevice->CreateRenderTargetView(back_buffer, &view, vd->FrameCtx[i].RenderTargetCpuDescriptors);
             vd->FrameCtx[i].RenderTarget = back_buffer;
         }
 
@@ -1266,7 +1285,8 @@ static void ImGui_ImplDX12_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
         for (UINT i = 0; i < bd->numFramesInFlight; i++)
         {
             vd->SwapChain->GetBuffer(i, IID_PPV_ARGS(&back_buffer));
-            bd->pd3dDevice->CreateRenderTargetView(back_buffer, nullptr, vd->FrameCtx[i].RenderTargetCpuDescriptors);
+            D3D12_RENDER_TARGET_VIEW_DESC view = {};view.Format = bd->RTVFormat;view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+            bd->pd3dDevice->CreateRenderTargetView(back_buffer, &view, vd->FrameCtx[i].RenderTargetCpuDescriptors);
             vd->FrameCtx[i].RenderTarget = back_buffer;
         }
     }

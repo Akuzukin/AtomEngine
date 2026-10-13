@@ -20,7 +20,8 @@ class FileScene final : public Scene
     bool Initialize() override
     {
         mName = SceneSerializer::Load(mWorld, file);
-        EnsureSceneViewObjects(mWorld,camera);
+        RestoreEditorCamera(mWorld, camera);
+        EnsureSceneViewObjects(mWorld, camera);
         return Scene::Initialize();
     }
     void Update(float) override
@@ -31,12 +32,20 @@ class FileScene final : public Scene
 } // namespace
 void Scene::Save(const std::filesystem::path &p)
 {
+    auto &s = mWorld.settings;
+    s.editorPosition = mCamera->GetPosition();
+    s.editorRotation = mCamera->GetRotation();
+    s.editorFov = mCamera->GetFOV() * 180 / Math::PI;
+    s.editorNear = mCamera->GetNearClip();
+    s.editorFar = mCamera->GetFarClip();
+    s.hasEditorCamera = true;
     SceneSerializer::Save(mWorld, p, mName);
 }
 void Scene::Load(const std::filesystem::path &p)
 {
     mName = SceneSerializer::Load(mWorld, p);
-    EnsureSceneViewObjects(mWorld,*mCamera);
+    RestoreEditorCamera(mWorld, *mCamera);
+    EnsureSceneViewObjects(mWorld, *mCamera);
 }
 void SceneManager::LoadScene(const std::filesystem::path &p)
 {
