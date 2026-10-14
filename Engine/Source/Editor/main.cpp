@@ -3,6 +3,9 @@
 #include "EditorApp.h"
 #include "Runtime/Function/Global/GlobalContext.h"
 #include <string_view>
+#include "Runtime/Function/Scene/GameProject.h"
+#include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
 #include <fstream>
 #include <filesystem>
 #include "Tests/RuntimeSmokeChecks.h"
@@ -14,6 +17,8 @@
 #include "Tests/ColorSpaceSmokeChecks.h"
 #include "imgui_internal.h"
 #include "Tests/LocalizationSmokeChecks.h"
+#include "Tests/PlayWorkflowSmokeChecks.h"
+#include "Tests/ProjectWorkflowSmokeChecks.h"
 
 static void CaptureFeatureFrame()
 {
@@ -114,6 +119,7 @@ class SmokeEditorApp final : public AtomEngine::EditorApp
     }
     void Update(float dt) override
     {
+        if (frames == 78) mEditor.ShowProjectSettings();
         if (frames == 22)
             AtomEngine::EditorLocalization::SetLanguage("en");
         if (frames == 78)
@@ -244,13 +250,19 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     Engine::AtomEngine engine;
 
+    const bool projectWorkflow = std::string_view(lpCmdLine).find("--project-workflow-smoke-test") != std::string_view::npos;
+    const bool playWorkflow = std::string_view(lpCmdLine).find("--play-workflow-smoke-test") != std::string_view::npos;
     const bool runtimeSmoke = std::string_view(lpCmdLine).find("--runtime-smoke-test") != std::string_view::npos;
     const bool colorSmoke = std::string_view(lpCmdLine).find("--ui-color-smoke-test") != std::string_view::npos;
     const bool enhancements = std::string_view(lpCmdLine).find("--enhancement-smoke-test") != std::string_view::npos;
-    const bool smoke = enhancements || colorSmoke || runtimeSmoke ||
+    const bool smoke = projectWorkflow || playWorkflow || enhancements || colorSmoke || runtimeSmoke ||
                        std::string_view(lpCmdLine).find("--smoke-test") != std::string_view::npos;
     std::unique_ptr<GameApp> app;
-    if (runtimeSmoke)
+    if (projectWorkflow)
+        app = std::make_unique<ProjectWorkflowSmokeApp>();
+    else if (playWorkflow)
+        app = std::make_unique<PlayWorkflowSmokeApp>();
+    else if (runtimeSmoke)
         app = std::make_unique<SmokeRuntimeApp>();
     else if (smoke)
         app = std::make_unique<SmokeEditorApp>(colorSmoke || enhancements, enhancements);
@@ -259,6 +271,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     try
     {
+        if (!smoke) {
+            int count = 0; auto args = CommandLineToArgvW(GetCommandLineW(), &count);
+            std::filesystem::path project;
+            for (int i = 1; i < count; ++i) {
+                if (std::wstring_view(args[i]) == L"--project" && i + 1 < count) project = args[++i];
+                else if (std::filesystem::path(args[i]).extension() == L".atproj") project = args[i];
+            }
+            LocalFree(args);
+            if (!project.empty()) { AtomEngine::ActiveProject.project = AtomEngine::GameProject::Load(project); auto& p = *AtomEngine::ActiveProject.project; std::filesystem::current_path(p.Root()); AtomEngine::ProjectSceneDefaults = p.settings.defaults; AtomEngine::ActiveProject.currentScene = p.settings.startupScene; }
+        }
         engine.Run(*app, smoke ? 120 : 0);
     }
     catch (const std::exception &e)

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup><AtomGameBuild>true</AtomGameBuild></PropertyGroup>
+  <Import Project="AtomEngine.vcxproj" />
+  <PropertyGroup>
+    <ProjectGuid>{44DF75D0-ACF0-4C82-964F-75DDF5213219}</ProjectGuid>
+    <ProjectName>AtomGame</ProjectName><TargetName>AtomGame</TargetName>
+    <IntDir>$(ProjectDir)..\generated\obj\Game\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\generated\game\$(Platform)\$(Configuration)\</OutDir>
+    <TargetDir>$(OutDir)</TargetDir><TargetFileName>$(TargetName)$(TargetExt)</TargetFileName><TargetPath>$(TargetDir)$(TargetFileName)</TargetPath>
+    <TLogLocation>$(IntDir)AtomGame.tlog\</TLogLocation>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><PreprocessorDefinitions>ATOM_GAME_RUNTIME;%(PreprocessorDefinitions)</PreprocessorDefinitions><TrackerLogDirectory>$(TLogLocation)</TrackerLogDirectory><ProgramDataBaseFileName>$(IntDir)AtomGameCompiler.pdb</ProgramDataBaseFileName></ClCompile>
+    <Link><TrackerLogDirectory>$(TLogLocation)</TrackerLogDirectory><ProgramDatabaseFile>$(OutDir)AtomGame.pdb</ProgramDatabaseFile><LinkTimeCodeGenerationObjectFile>$(IntDir)AtomGame.iobj</LinkTimeCodeGenerationObjectFile><ImportLibrary>$(OutDir)AtomGame.lib</ImportLibrary></Link>
+    <PostBuildEvent><Command></Command></PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Remove="Source\Editor\**\*.cpp;External\imgui\**\*.cpp;Source\Runtime\Function\Render\Particle\ParticleEditor.cpp" />
+    <ClCompile Include="Source\Runtime\Application\GameMain.cpp" />
+    <ClInclude Remove="Source\Editor\**\*.h;Tests\**\*.h;External\imgui\**\*.h;Source\Runtime\Function\Render\Particle\ParticleEditor.h" />
+    <ClCompile Remove="Source\Runtime\Function\Render\SelectionRenderer.cpp;Source\Runtime\Function\Render\GridRenderer.cpp" />
+  </ItemGroup>
+  <Target Name="CopyGameNativeRuntime" AfterTargets="Build">
+    <Copy SourceFiles="$(ProjectDir)assimp-vc143-mt.dll;$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll;$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

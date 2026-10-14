@@ -94,7 +94,7 @@ void SelectionRenderer::Render(GraphicsContext &ctx, World &w, const Camera &cam
     if (selectedWorld.lock() != w.GetLifetime().lock() || !w.IsValid(selected))
         return;
     auto mesh = w.TryGet<MeshComponent>(selected);
-    if (!mesh || !mesh->IsRender())
+    if (!w.IsEnabled(selected,ComponentKind::Mesh) || !mesh || !mesh->IsRender())
         return;
     if (gSelectionMask.GetWidth() != gSceneColorBuffer.GetWidth() ||
         gSelectionMask.GetHeight() != gSceneColorBuffer.GetHeight())
@@ -125,7 +125,7 @@ void SelectionRenderer::DrawColliders(World &w, const Camera &camera)
     for (auto e : w.View<ColliderComponent, TransformComponent>())
     {
         auto &c = w.GetComponent<ColliderComponent>(e);
-        if (!c.visible)
+        if (!w.IsEnabled(e,ComponentKind::Collider) || !c.visible)
             continue;
         auto &t = w.GetComponent<TransformComponent>(e);
         Color color = c.trigger ? Color(1, .7f, .1f) : Color(.1f, 1, .3f);
@@ -208,7 +208,7 @@ Entity SelectionRenderer::Pick(World &w, const Camera &camera, float x, float y,
     for (auto e : w.View<MeshComponent, TransformComponent>())
     {
         auto &mesh = w.GetComponent<MeshComponent>(e);
-        if (!mesh.IsRender() || !mesh.GetModel()->mGeometry)
+        if (!w.IsEnabled(e,ComponentKind::Mesh) || !mesh.IsRender() || !mesh.GetModel()->mGeometry)
             continue;
         auto &g = *mesh.GetModel()->mGeometry;
         for (auto &m : mesh.GetModel()->mMeshData)

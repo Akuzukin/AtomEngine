@@ -41,9 +41,9 @@ void Scene::Save(const std::filesystem::path &p)
     s.hasEditorCamera = true;
     SceneSerializer::Save(mWorld, p, mName);
 }
-void Scene::Load(const std::filesystem::path &p)
+void Scene::Load(const std::filesystem::path &p, const std::function<void()>& beforeCommit)
 {
-    mName = SceneSerializer::Load(mWorld, p);
+    mName = SceneSerializer::Load(mWorld, p, beforeCommit);
     RestoreEditorCamera(mWorld, *mCamera);
     EnsureSceneViewObjects(mWorld, *mCamera);
 }

@@ -147,7 +147,9 @@ void Renderer::Initialize()
     UiRenderer::Initialize();
 
     InitializeRenderPasses();
+#ifndef ATOM_GAME_RUNTIME
     SelectionRenderer::Initialize();
+#endif
 }
 
 void Renderer::RebuildPipelines()
@@ -435,7 +437,9 @@ void Renderer::Render(const RenderView &view)
 
 void Renderer::Shutdown()
 {
+#ifndef ATOM_GAME_RUNTIME
     SelectionRenderer::Shutdown();
+#endif
     mRenderPassManager->Shutdown();
     UiRenderer::Shutdown();
     ParticleSystem::Shutdown();

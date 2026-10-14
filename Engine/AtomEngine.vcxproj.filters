@@ -919,9 +919,6 @@
     <None Include="Asset\Particles\fireworks.json">
       <Filter>Config</Filter>
     </None>
-    <None Include="Source\Runtime\Function\Framework\ECS\GameObject.inl">
-      <Filter>Config</Filter>
-    </None>
     <None Include="packages.config">
       <Filter>Config</Filter>
     </None>
@@ -986,7 +983,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\EditorDocument.cpp" />
-    <ClCompile Include="Source\Editor\EditorWorkflow.cpp" />
+    <ClCompile Include="Source\Editor\EditorDocumentActions.cpp" />
     <ClInclude Include="Source\Editor\EditorDocument.h" />
   </ItemGroup>
   <ItemGroup>
@@ -1025,6 +1022,116 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tests\EnhancementSmokeChecks.h" />
+    <ClInclude Include="Tests\PlayWorkflowSmokeChecks.h" />
+    <ClInclude Include="Tests\GameplayToolsSmokeChecks.h" />
     <None Include="Tests\BuildReloadFixtures.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\ScriptFieldEditor.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneAuthoring.h" />
+    <ClInclude Include="Tests\EngineCompletionSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup><ClInclude Include="Source\Runtime\Function\Input\KeyCode.h" /></ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\EditorPanels.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\EditorPanelSupport.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\AssetsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ConsolePanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\HelpPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\HierarchyPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\InspectorPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\MaterialsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\SceneSettingsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ScriptsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ShadersPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ToolbarPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ViewportPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\WorkspacePanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\AssetsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\HelpPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\MaterialsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\SceneSettingsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ScriptsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ShadersPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ToolbarPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\WorkspacePanel.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ProjectSettingsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClInclude Include="Source\Editor\Panels\ProjectSettingsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Scene\ProjectSettings.h"><Filter>Source\Editor</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorBackgroundTasks.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\EditorPreferences.cpp"><Filter>Source\Editor</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Function\Scene\GameProject.cpp" />
+    <ClCompile Include="Source\Runtime\Resource\AssetArchive.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ProjectPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Scene\GameProject.h" />
+    <ClInclude Include="Source\Runtime\Resource\AssetArchive.h" />
+    <ClInclude Include="Source\Editor\Panels\ProjectPanel.h" />
+    <ClInclude Include="Source\Editor\ProjectBuildTools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\ProjectWorkflowSmokeChecks.h" />
   </ItemGroup>
 </Project>

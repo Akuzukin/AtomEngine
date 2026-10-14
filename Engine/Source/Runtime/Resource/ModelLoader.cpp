@@ -2,9 +2,49 @@
 #include "Runtime/Core/Utility/Utility.h"
 #include <functional>
 #include <map>
+#include "AssetArchive.h"
+#include <assimp/IOSystem.hpp>
+#include <assimp/IOStream.hpp>
 
 namespace AtomEngine
 {
+    class ArchiveModelStream final : public Assimp::IOStream
+    {
+        std::shared_ptr<std::vector<uint8_t>> bytes;
+        size_t position = 0;
+    public:
+        explicit ArchiveModelStream(std::shared_ptr<std::vector<uint8_t>> data) : bytes(std::move(data)) {}
+        size_t Read(void* output, size_t size, size_t count) override
+        {
+            if (!size) return 0;
+            auto records=std::min(count,(bytes->size()-position)/size); auto length=records*size;
+            if (length) memcpy(output,bytes->data()+position,length); position+=length; return records;
+        }
+        size_t Write(const void*,size_t,size_t) override { return 0; }
+        aiReturn Seek(size_t offset, aiOrigin origin) override
+        {
+            auto base = origin == aiOrigin_CUR ? position : origin == aiOrigin_END ? bytes->size() : size_t(0);
+            auto delta = static_cast<int64_t>(offset); size_t next;
+            if (delta < 0) { auto distance=uint64_t(-(delta+1))+1; if (distance > base) return aiReturn_FAILURE; next=base-size_t(distance); }
+            else { if (uint64_t(delta) > bytes->size()-base) return aiReturn_FAILURE; next=base+size_t(delta); }
+            position=next; return aiReturn_SUCCESS;
+        }
+        size_t Tell() const override { return position; }
+        size_t FileSize() const override { return bytes->size(); }
+        void Flush() override {}
+    };
+    class ArchiveModelIO final : public Assimp::IOSystem
+    {
+    public:
+        bool Exists(const char* path) const override { return AssetFileExists(UTF8ToWString(path)); }
+        char getOsSeparator() const override { return '/'; }
+        Assimp::IOStream* Open(const char* path, const char* mode = "rb") override
+        {
+            if (!path || !mode || mode[0] != 'r' || !Exists(path)) return nullptr;
+            return new ArchiveModelStream(ReadAssetBytes(UTF8ToWString(path)));
+        }
+        void Close(Assimp::IOStream* stream) override { delete stream; }
+    };
 
 	struct TextureMapping
 	{
@@ -85,6 +125,7 @@ namespace AtomEngine
 			aiProcess_OptimizeMeshes;
 
 		Assimp::Importer importer;
+		if (GameArchiveMounted()) importer.SetIOHandler(new ArchiveModelIO());
 		//いらない情報を削除
 		importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
 			aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS);
@@ -93,6 +134,7 @@ namespace AtomEngine
 		importer.SetPropertyFloat(AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 45.0f);
 
 		const aiScene* scene = importer.ReadFile(filePath, flag);
+		if (!scene || !scene->mRootNode || !scene->HasMeshes()) throw std::runtime_error(std::string("Model import failed: ") + importer.GetErrorString());
 		ASSERT(scene && scene->mRootNode && scene->HasMeshes(), "Load Model Failed to scene");
 		//マテリアルをプロセス
 		for (uint32_t i = 0; i < scene->mNumMaterials; i++)

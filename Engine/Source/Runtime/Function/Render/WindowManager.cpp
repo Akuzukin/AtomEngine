@@ -89,6 +89,7 @@ namespace AtomEngine
 	{
 		messageHandler = {};
 		onResize = {};
+        additionalInputWindow = {};
 		if (mHwnd) { DestroyWindow(mHwnd); mHwnd = nullptr; }
 		UnregisterClassW(L"MainWnd", GetModuleHandle(nullptr));
 		MFShutdown();
@@ -124,7 +125,7 @@ namespace AtomEngine
 		case WM_SIZE:
 			mWindowWidth = (UINT)(UINT64)lParam & 0xFFFF;
 			mWindowHeight = (UINT)(UINT64)lParam >> 16;
-			OnResize(mWindowWidth, mWindowHeight);
+			mResizePending = wParam != SIZE_MINIMIZED && mWindowWidth && mWindowHeight;
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
@@ -135,6 +136,41 @@ namespace AtomEngine
 
 		return 0;
 	}
+
+    void WindowManager::ApplyPendingResize()
+    {
+        if (!mResizePending) return;
+        mResizePending = false;
+        OnResize(mWindowWidth, mWindowHeight);
+    }
+    bool WindowManager::HasInputFocus() const
+    {
+        HWND foreground = GetForegroundWindow();
+        return foreground == mHwnd || (additionalInputWindow && additionalInputWindow(foreground));
+    }
+    void WindowManager::SetFullscreen(bool enabled)
+    {
+        if (!mHwnd || enabled == mFullscreen) return;
+        if (enabled)
+        {
+            mWindowStyle = GetWindowLongPtr(mHwnd, GWL_STYLE);
+            GetWindowPlacement(mHwnd, &mWindowPlacement);
+            MONITORINFO monitor{sizeof(MONITORINFO)};
+            if (!GetMonitorInfo(MonitorFromWindow(mHwnd, MONITOR_DEFAULTTONEAREST), &monitor)) return;
+            SetWindowLongPtr(mHwnd, GWL_STYLE, mWindowStyle & ~WS_OVERLAPPEDWINDOW);
+            SetWindowPos(mHwnd, HWND_TOP, monitor.rcMonitor.left, monitor.rcMonitor.top,
+                monitor.rcMonitor.right - monitor.rcMonitor.left, monitor.rcMonitor.bottom - monitor.rcMonitor.top,
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
+        }
+        else
+        {
+            SetWindowLongPtr(mHwnd, GWL_STYLE, mWindowStyle);
+            SetWindowPlacement(mHwnd, &mWindowPlacement);
+            SetWindowPos(mHwnd, nullptr, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+        }
+        mFullscreen = enabled;
+    }
 
 	void WindowManager::OnResize(uint32_t width, uint32_t height)
 	{

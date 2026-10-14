@@ -17,9 +17,16 @@ inline void RunSceneViewSmokeChecks()
     world.GetComponent<CameraComponent>(camera).fieldOfView = 68;
     auto sun = *world.View<DirectionalLightComponent>().begin();
     world.GetComponent<DirectionalLightComponent>(sun).intensity = 2.75f;
+    world.settings.skyMode=1;world.settings.skyIntensity=1.4f;world.settings.skyRotation=120;world.settings.skySunSize=2;world.settings.skySunIntensity=5;
+    world.settings.skyZenith={.2f,.3f,.4f};world.settings.skyHorizon={.5f,.6f,.7f};world.settings.skyGround={.1f,.2f,.3f};
+    world.settings.environment="Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KEnvHDR.dds";
     auto xml = SceneSerializer::ToXml(world, "View settings");
     World restored;
     SceneSerializer::FromXml(restored, xml);
+    FeatureCheck(restored.settings.skyMode==1 && restored.settings.environment==world.settings.environment && restored.settings.skyIntensity==1.4f && restored.settings.skyRotation==120 && restored.settings.skySunSize==2 && restored.settings.skySunIntensity==5 && restored.settings.skyZenith==world.settings.skyZenith && restored.settings.skyHorizon==world.settings.skyHorizon && restored.settings.skyGround==world.settings.skyGround,"Sky settings roundtrip failed");
+    auto legacy=xml;auto skyMode=legacy.find("skyMode=\"1\"");legacy.erase(skyMode,std::string("skyMode=\"1\"").size());World oldScene;SceneSerializer::FromXml(oldScene,legacy);
+    FeatureCheck(oldScene.settings.skyMode==0,"Legacy scene did not default to procedural sky");
+    auto invalidSky=xml;invalidSky.replace(invalidSky.find("skyMode=\"1\""),std::string("skyMode=\"1\"").size(),"skyMode=\"2\"");bool skyRejected=false;try{World bad;SceneSerializer::FromXml(bad,invalidSky);}catch(...){skyRejected=true;}FeatureCheck(skyRejected,"Invalid sky mode accepted");
     Camera runtime;
     ApplySceneCamera(restored, runtime);
     FeatureCheck(std::abs(runtime.GetFOV() * 180 / Math::PI - 68) < .01f &&

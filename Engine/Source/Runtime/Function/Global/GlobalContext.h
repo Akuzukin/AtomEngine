@@ -1,10 +1,13 @@
 #pragma once
 #include <functional>
+#include <string>
+#include "Runtime/Function/Framework/ECS/ECSCommon.h"
 
 namespace AtomEngine
 {
 	class GraphicsContext;
     class ColorBuffer;
+    class World;
 	class WindowManager;
 	class Input;
 	class Audio;
@@ -23,6 +26,7 @@ namespace AtomEngine
 		std::function<void(GraphicsContext&,ColorBuffer&)> renderOverlay;
         std::function<void(GraphicsContext&, ColorBuffer&)> prepareEditorViewport;
         std::function<void(ColorBuffer&)> capturePresented;
+        std::function<std::string(World&,Entity,size_t)> readScriptFields;
         bool showRenderDiagnostics = false;
         bool showGrid = true;
         bool showColliders = true;

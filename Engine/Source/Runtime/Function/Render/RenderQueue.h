@@ -64,6 +64,7 @@ namespace AtomEngine
 			mRTV = &RTV;
 		}
 		void SetDepthStencilTarget(DepthBuffer& DSV) { mDSV = &DSV; }
+        void SetEnvironmentTextures(const DescriptorHandle &table) { mEnvironmentTextures = table; }
 
 		const Frustum& GetWorldFrustum() const { return  mCamera->GetWorldSpaceFrustum(); }
 		const Frustum& GetViewFrustum() const { return  mCamera->GetViewSpaceFrustum(); }
@@ -113,6 +114,7 @@ namespace AtomEngine
 
 		ColorBuffer* mRTV = nullptr;
 		DepthBuffer* mDSV = nullptr;
+        DescriptorHandle mEnvironmentTextures;
 	};
 }
 

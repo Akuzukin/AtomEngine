@@ -28,11 +28,13 @@ namespace AtomEngine
         // カラーバッファを作成
         void CreateArray(const std::wstring& Name, uint32_t Width, uint32_t Height, uint32_t ArrayCount,
             DXGI_FORMAT Format, D3D12_GPU_VIRTUAL_ADDRESS VidMemPtr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN);
+        // 六面 cubemap，支持逐 mip UAV 写入，用于环境光照预过滤。
+        void CreateCube(const std::wstring& Name, uint32_t Size, uint32_t NumMips, DXGI_FORMAT Format);
 
         // CPUからスワップチェインのリソースを参照するためのハンドル
         const D3D12_CPU_DESCRIPTOR_HANDLE& GetSRV(void) const { return mSRVHandle; }
         const D3D12_CPU_DESCRIPTOR_HANDLE& GetRTV(void) const { return mRTVHandle; }
-        const D3D12_CPU_DESCRIPTOR_HANDLE& GetUAV(void) const { return mUAVHandle[0]; }
+        const D3D12_CPU_DESCRIPTOR_HANDLE& GetUAV(uint32_t mip = 0) const { ASSERT(mip <= mNumMipMaps); return mUAVHandle[mip]; }
 
         void SetClearColor(Color ClearColor) { mClearColor = ClearColor; }
 

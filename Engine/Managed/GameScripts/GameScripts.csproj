@@ -1,4 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>AtomScripts</AssemblyName><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
- <ItemGroup><ProjectReference Include="../Atom.Managed/Atom.Managed.csproj" /></ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework><AssemblyName>AtomScripts</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile><NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Atom.Managed/Atom.Managed.csproj" />
+    <Compile Remove="Generated/AudioAssets.g.cs" />
+    <Compile Include="Generated/AudioAssets.g.cs" />
+  </ItemGroup>
+  <Target Name="GenerateAudioAssets" BeforeTargets="CoreCompile" Condition="'$(DesignTimeBuild)'!='true'">
+    <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)/../AssetCodegen/AssetCodegen.csproj&quot; --configuration $(Configuration) --no-launch-profile -- &quot;$(MSBuildProjectDirectory)/../../Asset/Sounds&quot; &quot;$(MSBuildProjectDirectory)/Generated/AudioAssets.g.cs&quot;" />
+  </Target>
 </Project>

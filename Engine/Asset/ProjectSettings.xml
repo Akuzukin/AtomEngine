@@ -1,0 +1,9 @@
+<Project version="1" name="AtomEngine Project" startupScene="" maximizeOnPlay="true">
+    <Scene version="1" name="Project defaults">
+        <Environment sky="" skyMode="0" skyIntensity="1" skyRotation="0" sunSize="1" sunIntensity="3" diffuse="Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KDiffuseHDR.dds" specular="Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KSpecularHDR.dds" brdf="Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KBrdf.dds" intensity="1" bias="0" exposure="1" enabled="true" fxaa="true" autoExposure="false">
+            <Zenith x="0.079999998" y="0.25" z="0.64999998"/>
+            <Horizon x="0.64999998" y="0.80000001" z="1"/>
+            <Ground x="0.12" y="0.14" z="0.18000001"/>
+        </Environment>
+    </Scene>
+</Project>

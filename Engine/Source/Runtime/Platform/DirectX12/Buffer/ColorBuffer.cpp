@@ -9,7 +9,7 @@ namespace AtomEngine
 
     void ColorBuffer::CreateDerivedViews(ID3D12Device* Device, DXGI_FORMAT Format, uint32_t ArraySize, uint32_t NumMips)
     {
-        ASSERT(ArraySize == 1 || NumMips == 1, "We don't support auto-mips on mTexture arrays");
+        ASSERT(NumMips >= 1 && NumMips <= _countof(mUAVHandle), "Unsupported mip count");
 
         mNumMipMaps = NumMips - 1;
 
@@ -83,7 +83,8 @@ namespace AtomEngine
 
             Device->CreateUnorderedAccessView(Resource, nullptr, &UAVDesc, mUAVHandle[i]);
 
-            UAVDesc.Texture2D.MipSlice++;
+            if (ArraySize > 1) UAVDesc.Texture2DArray.MipSlice++;
+            else UAVDesc.Texture2D.MipSlice++;
         }
     }
 
@@ -114,6 +115,22 @@ namespace AtomEngine
 
         CreateTextureResource(gDevice.Get(), Name, ResourceDesc, ClearValue, VidMem);
         CreateDerivedViews(gDevice.Get(), Format, 1, NumMips);
+    }
+
+    void ColorBuffer::CreateCube(const std::wstring& Name, uint32_t Size, uint32_t NumMips, DXGI_FORMAT Format)
+    {
+        NumMips = NumMips == 0 ? ComputeNumMips(Size, Size) : NumMips;
+        auto desc = DescribeTex2D(Size, Size, 6, NumMips, Format, CombineResourceFlags());
+        D3D12_CLEAR_VALUE clear{};
+        clear.Format = Format;
+        CreateTextureResource(gDevice.Get(), Name, desc, clear);
+        CreateDerivedViews(gDevice.Get(), Format, 6, NumMips);
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
+        srv.Format = Format;
+        srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+        srv.TextureCube.MipLevels = NumMips;
+        gDevice->CreateShaderResourceView(mResource.Get(), &srv, mSRVHandle);
     }
 
     void ColorBuffer::CreateArray(const std::wstring& Name, uint32_t Width, uint32_t Height, uint32_t ArrayCount,

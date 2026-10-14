@@ -1,4 +1,5 @@
 #include "MaterialPreset.h"
+#include "AssetArchive.h"
 #include "AssetManager.h"
 #include "Runtime/Function/Scene/SceneSerializer.h"
 #include "Runtime/Function/Framework/ECS/GameObject.h"
@@ -32,7 +33,8 @@ MaterialPreset MaterialPreset::Load(const std::filesystem::path &path)
     if (path.extension() != L".mat")
         throw std::runtime_error("Material presets must use .mat");
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(path.string().c_str()) != tinyxml2::XML_SUCCESS)
+    auto xml = ReadAssetText(path);
+    if (doc.Parse(xml.c_str(), xml.size()) != tinyxml2::XML_SUCCESS)
         throw std::runtime_error("Cannot load material preset: " + path.string());
     auto root = doc.FirstChildElement("MaterialPreset");
     if (!root || root->IntAttribute("version") != 1 || !root->FirstChildElement("Material"))

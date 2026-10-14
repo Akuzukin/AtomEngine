@@ -25,12 +25,14 @@ namespace AtomEngine
         uint32_t GetWidth() const { return mWidth; }
         uint32_t GetHeight() const { return mHeight; }
         uint32_t GetDepth() const { return mDepth; }
+        D3D12_SRV_DIMENSION GetSRVDimension() const { return mSrvDimension; }
 
     protected:
 
         uint32_t mWidth;
         uint32_t mHeight;
         uint32_t mDepth;
+        D3D12_SRV_DIMENSION mSrvDimension = D3D12_SRV_DIMENSION_UNKNOWN;
 
         D3D12_CPU_DESCRIPTOR_HANDLE mCpuDescriptorHandle;
     };

@@ -53,7 +53,14 @@ class World
 {
   public:
     World();
-    SceneSettings settings;
+    SceneSettings settings = ProjectSceneDefaults;
+    std::string skyTextureError; // 渲染诊断，不保存到场景或撤销历史。
+    Vector2 uiViewportSize{1920,1080}, uiRenderSize{1920,1080};
+    Entity uiFocus=entt::null;
+    Entity FindById(const std::string &id);
+    bool IsActive(Entity entity);
+    bool IsEnabled(Entity entity,ComponentKind kind);
+    void SetComponentEnabled(Entity entity,ComponentKind kind,bool enabled);
     void ReplaceWith(World &source);
     ~World();
 
@@ -204,6 +211,7 @@ class World
     void SetName(Entity entity, const std::string &name);
 
   private:
+    std::map<std::string,Entity> mPersistentIndex;
     std::shared_ptr<void> mLifetime = std::make_shared<int>(0);
     entt::registry mRegistry;     ///< enttレジストリ
     entt::dispatcher mDispatcher; ///< イベントディスパッチャー

@@ -33,6 +33,10 @@ namespace AtomEngine
 		DirectX::ScratchImage scratch = {};
 
 		HRESULT hr = DirectX::LoadFromDDSMemory(ba->data(), ba->size(), DirectX::DDS_FLAGS_NONE, &metadata, scratch);
+		const bool sourceImage = FAILED(hr);
+		if (FAILED(hr)) hr = DirectX::LoadFromWICMemory(ba->data(), ba->size(), DirectX::WIC_FLAGS_FORCE_RGB | DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch);
+		if (FAILED(hr)) hr = DirectX::LoadFromTGAMemory(ba->data(), ba->size(), &metadata, scratch);
+		if (FAILED(hr)) hr = DirectX::LoadFromHDRMemory(ba->data(), ba->size(), &metadata, scratch);
 		if (FAILED(hr))
 		{
 			DX12Core::gDevice->CopyDescriptorsSimple(1, mCpuDescriptorHandle,
@@ -40,7 +44,13 @@ namespace AtomEngine
 			return;
 		}
 
-		if (forceSRGB) metadata.format = DirectX::MakeSRGB(metadata.format);
+		if (forceSRGB) { metadata.format = DirectX::MakeSRGB(metadata.format); scratch.OverrideFormat(metadata.format); }
+		if (sourceImage && metadata.mipLevels == 1 && metadata.dimension == DirectX::TEX_DIMENSION_TEXTURE2D && metadata.arraySize == 1)
+		{
+			DirectX::ScratchImage mipChain;
+			if (SUCCEEDED(DirectX::GenerateMipMaps(scratch.GetImages(), scratch.GetImageCount(), metadata, DirectX::TEX_FILTER_DEFAULT, 0, mipChain)))
+			{ scratch = std::move(mipChain); metadata = scratch.GetMetadata(); }
+		}
 
 		hr = DirectX::CreateTexture(DX12Core::gDevice.Get(), metadata, mResource.GetAddressOf());
 		if (FAILED(hr))
@@ -70,6 +80,7 @@ namespace AtomEngine
 			{
 				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 				srvDesc.Texture1DArray.MipLevels = (UINT)metadata.mipLevels;
+                srvDesc.Texture1DArray.ArraySize = (UINT)metadata.arraySize;
 			}
 			else
 			{
@@ -85,6 +96,7 @@ namespace AtomEngine
 				{
 					srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
 					srvDesc.TextureCubeArray.MipLevels = (UINT)metadata.mipLevels;
+                    srvDesc.TextureCubeArray.NumCubes = (UINT)(metadata.arraySize / 6);
 				}
 				else
 				{
@@ -98,6 +110,7 @@ namespace AtomEngine
 				{
 					srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 					srvDesc.Texture2DArray.MipLevels = (UINT)metadata.mipLevels;
+                    srvDesc.Texture2DArray.ArraySize = (UINT)metadata.arraySize;
 				}
 				else
 				{
@@ -113,6 +126,7 @@ namespace AtomEngine
 			break;
 		}
 
+		mSrvDimension = srvDesc.ViewDimension;
 		DX12Core::gDevice->CreateShaderResourceView(mResource.Get(), &srvDesc, mCpuDescriptorHandle);
 
 		mUsageState = D3D12_RESOURCE_STATE_GENERIC_READ;

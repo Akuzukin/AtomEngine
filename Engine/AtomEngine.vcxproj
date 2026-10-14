@@ -81,6 +81,9 @@
       </Message>
       <Command>copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
+copy "$(ProjectDir)assimp-vc143-mtd.dll" "$(TargetDir)assimp-vc143-mtd.dll"
+xcopy /E /Y /I "$(ProjectDir)Asset" "$(TargetDir)Asset\"
+copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(TargetDir)Asset\Shaders\LightData.h"
 </Command>
     </PostBuildEvent>
     <FxCompile>
@@ -114,7 +117,9 @@ copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Command>copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(windowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
 copy "$(SolutionDir)assimp-vc143-mt.dll" "$(TargetDir)assimp-vc143-mt.dll"
-xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
+xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"
+copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(TargetDir)Asset\Shaders\LightData.h"
+</Command>
     </PostBuildEvent>
     <FxCompile>
       <ShaderModel>6.6</ShaderModel>
@@ -748,14 +753,11 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli" />
     <None Include="Asset\Shaders\Utility.hlsli" />
     <None Include="packages.config" />
-    <None Include="Source\Runtime\Function\Framework\ECS\GameObject.inl">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\EditorLayer.cpp" />
     <ClCompile Include="Source\Editor\EditorDocument.cpp" />
-    <ClCompile Include="Source\Editor\EditorWorkflow.cpp" />
+    <ClCompile Include="Source\Editor\EditorDocumentActions.cpp" />
     <ClCompile Include="Source\Editor\EditorLocalization.cpp" />
     <ClCompile Include="Source\Runtime\Function\Input\GameInputBackend.cpp" />
     <ClCompile Include="Source\Runtime\Function\Input\XInputBackend.cpp" />
@@ -805,7 +807,7 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
   </Target>
   <Target Name="CopyManagedRuntime" AfterTargets="Build">
     <ItemGroup>
-      <ManagedArtifacts Include="$(AtomManagedOutput)*.dll;$(AtomManagedOutput)*.json;$(AtomManagedOutput)*.pdb" />
+      <ManagedArtifacts Include="$(AtomManagedOutput)*.dll;$(AtomManagedOutput)*.json;$(AtomManagedOutput)*.pdb;$(AtomManagedOutput)*.xml" />
       <NetHost Include="$(ProgramW6432)\dotnet\packs\Microsoft.NETCore.App.Host.win-x64\10.*\runtimes\win-x64\native\nethost.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(ManagedArtifacts)" DestinationFolder="$(TargetDir)Scripts" SkipUnchangedFiles="true" />
@@ -845,7 +847,10 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
     <ClInclude Include="Source\Runtime\Function\Framework\ECS\GameObject.inl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Asset\Shaders\ImGuiPresentPS.hlsl" />
+    <None Include="Asset\Shaders\ImGuiPresentPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="Asset\Localization\zh-CN.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -856,10 +861,124 @@ xcopy /E /Y /I "$(SolutionDir)Asset" "$(TargetDir)Asset\"</Command>
     <ClInclude Include="Source\Editor\ScriptTools.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderGraph.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\FXAA.h" />
-    <None Include="Asset\Shaders\PostEffects\FXAA.hlsl" />
+    <None Include="Asset\Shaders\PostEffects\FXAA.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tests\EnhancementSmokeChecks.h" />
+    <ClInclude Include="Tests\PlayWorkflowSmokeChecks.h" />
+    <ClInclude Include="Tests\GameplayToolsSmokeChecks.h" />
     <None Include="Tests\BuildReloadFixtures.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\ScriptFieldEditor.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\SceneAuthoring.h" />
+    <ClInclude Include="Tests\EngineCompletionSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Input\KeyCode.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\EditorPanels.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\EditorPanelSupport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\AssetsPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ConsolePanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\HelpPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\HierarchyPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\InspectorPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\MaterialsPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\SceneSettingsPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ScriptsPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ShadersPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ToolbarPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ViewportPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\WorkspacePanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\AssetsPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\HelpPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\MaterialsPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\SceneSettingsPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ScriptsPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ShadersPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ToolbarPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Editor\Panels\WorkspacePanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\Panels\ProjectSettingsPanel.cpp" />
+    <ClInclude Include="Source\Editor\Panels\ProjectSettingsPanel.h" />
+    <ClInclude Include="Source\Runtime\Function\Scene\ProjectSettings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorBackgroundTasks.cpp" />
+    <ClCompile Include="Source\Editor\EditorPreferences.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Function\Scene\GameProject.cpp" />
+    <ClCompile Include="Source\Runtime\Resource\AssetArchive.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ProjectPanel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Scene\GameProject.h" />
+    <ClInclude Include="Source\Runtime\Resource\AssetArchive.h" />
+    <ClInclude Include="Source\Editor\Panels\ProjectPanel.h" />
+    <ClInclude Include="Source\Editor\ProjectBuildTools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\ProjectWorkflowSmokeChecks.h" />
   </ItemGroup>
 </Project>

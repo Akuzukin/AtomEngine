@@ -11,7 +11,7 @@ inline Entity SceneCamera(World &world)
     for (auto e : world.View<CameraComponent, TransformComponent>())
     {
         const auto &c = world.GetComponent<CameraComponent>(e);
-        if (c.enabled && c.primary &&
+        if (world.IsEnabled(e,ComponentKind::Camera) && c.enabled && c.primary &&
             (selected == entt::null || world.GetComponent<PersistentIdComponent>(e).value <
                                            world.GetComponent<PersistentIdComponent>(selected).value))
             selected = e;

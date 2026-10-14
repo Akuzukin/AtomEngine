@@ -17,6 +17,7 @@ Texture2D<float3> emissiveTexture : register(t5);
 
 Texture2D<float3> specularTexture : register(t6);
 
+// 程序化模式绑定实时生成的 HDR GGX mip 和漫反射卷积；纹理模式绑定场景配置的 IBL。
 TextureCube<float3> radianceIBLTexture : register(t10);
 TextureCube<float3> irradianceIBLTexture : register(t11);
 Texture2D<float2> brdfLUT : register(t12);

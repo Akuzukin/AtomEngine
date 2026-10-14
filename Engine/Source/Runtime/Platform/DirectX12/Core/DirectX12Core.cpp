@@ -414,6 +414,10 @@ void DX12Core::ShutdownDx12()
 #ifdef _DEBUG
     if (debugInfoQueue)
     {
+        // Live-object reporting deliberately emits warnings at shutdown. Keep
+        // runtime warning/error breaks, but do not turn this diagnostic into an
+        // unhandled exception after the engine has already shut down.
+        debugInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
         debugInfoQueue->UnregisterMessageCallback(debugMessageCookie);
         debugInfoQueue.Reset();
     }
@@ -434,6 +438,8 @@ uint32_t GetFrameIndexMod2()
 
 void DX12Core::OnResize(uint32_t width, uint32_t height)
 {
+    if (!width || !height || !gSwapChain || (width == gFrameBuffers[0].GetWidth() && height == gFrameBuffers[0].GetHeight()))
+        return;
     gCommandManager.IdleGPU();
 
     gBackBufferWidth = width;
@@ -442,6 +448,10 @@ void DX12Core::OnResize(uint32_t width, uint32_t height)
     for (uint32_t i = 0; i < kSwapChainBufferCount; ++i)
         gFrameBuffers[i].Destroy();
 
+    // Destroy queues resources for fence retirement. DXGI requires all old
+    // back-buffer references to be released before ResizeBuffers.
+    gCommandManager.IdleGPU();
+    CollectRetiredResources();
     ASSERT(gSwapChain != nullptr);
     ThrowIfFailed(gSwapChain->ResizeBuffers(kSwapChainBufferCount, width, height, gBackBufferFormat, 0));
 

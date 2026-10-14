@@ -6,6 +6,16 @@
 inline void RunEditorSmokeChecks()
 {
     using namespace AtomEngine;
+    {
+        wchar_t executable[32768]{};GetModuleFileNameW(nullptr,executable,DWORD(std::size(executable)));
+        auto file=std::filesystem::path(executable).parent_path()/"Smoke/ProjectSettings.xml";
+        ProjectSettings project;project.name="Panel project test";project.startupScene="Asset/Scenes/MaterialTest.scene";project.defaults.skyIntensity=2;project.defaults.exposure=.6f;project.defaults.fxaa=false;project.maximizeOnPlay=true;project.Save(file);
+        auto loaded=ProjectSettings::Load(file);FeatureCheck(loaded.name==project.name && loaded.startupScene==project.startupScene && loaded.defaults.skyIntensity==2 && loaded.defaults.exposure==.6f && !loaded.defaults.fxaa && loaded.maximizeOnPlay,"Project settings save/load failed");
+        auto previous=ProjectSceneDefaults;ProjectSceneDefaults=loaded.defaults;World fresh;FeatureCheck(fresh.settings.skyIntensity==2 && !fresh.settings.fxaa,"New world ignored project defaults");
+        World saved;saved.settings.skyIntensity=3;auto xml=SceneSerializer::ToXml(saved,"Override");World restored;SceneSerializer::FromXml(restored,xml);FeatureCheck(restored.settings.skyIntensity==3,"Project defaults overwrote saved scene");ProjectSceneDefaults=previous;
+        bool rejected=false;loaded.defaults.skySunSize=-1;try{loaded.Save(file);}catch(...){rejected=true;}FeatureCheck(rejected && ProjectSettings::Load(file).defaults.skySunSize==project.defaults.skySunSize,"Invalid project settings damaged saved defaults");
+        WriteLog(LogLevel::Info,"Smoke","Project settings roundtrip, new-world defaults, scene overrides and invalid-save preservation passed");
+    }
     World world;
     auto parentObject = world.CreateGameObject("Parent");
     auto childObject = world.CreateGameObject("Child");

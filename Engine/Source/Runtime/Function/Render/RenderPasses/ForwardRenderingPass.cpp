@@ -16,10 +16,10 @@ namespace AtomEngine
 ForwardRenderingPass::ForwardRenderingPass()
 {
     mSkybox.Initialize();
+    mSkybox.SetEnvironmentMap(TextureRef{});
     SceneSettings defaults;
-    mSkybox.SetEnvironmentMap(UTF8ToWString(defaults.environment));
     mSkybox.SetBRDF_LUT(UTF8ToWString(defaults.brdfLut));
-    mSkybox.SetIBLTextures(UTF8ToWString(defaults.diffuseIBL), UTF8ToWString(defaults.specularIBL));
+    mSkybox.SetIBLTextures(TextureRef{}, TextureRef{});
     mEnvironmentSignature =
         defaults.environment + "|" + defaults.diffuseIBL + "|" + defaults.specularIBL + "|" + defaults.brdfLut;
     mShadowSrvGpuHandle = Renderer::GetTextureHeap().Alloc();
@@ -46,15 +46,17 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
     mIBLFactor = environment.iblIntensity;
     mIBLBias = environment.iblBias;
     mEnableIBL = environment.skyEnabled;
-    auto signature = environment.environment + "|" + environment.diffuseIBL + "|" + environment.specularIBL + "|" +
+    auto skyPath = environment.skyMode == 1 ? environment.environment : std::string{};
+    auto signature = skyPath + "|" + environment.diffuseIBL + "|" + environment.specularIBL + "|" +
                      environment.brdfLut;
     if (signature != mEnvironmentSignature)
     {
         // Descriptor heaps are persistent; drain prior submissions before replacing their contents.
         DX12Core::gCommandManager.IdleGPU();
-        mSkybox.SetEnvironmentMap(UTF8ToWString(environment.environment));
+        mSkybox.SetEnvironmentMap(UTF8ToWString(skyPath));
         mSkybox.SetBRDF_LUT(UTF8ToWString(environment.brdfLut));
-        mSkybox.SetIBLTextures(UTF8ToWString(environment.diffuseIBL), UTF8ToWString(environment.specularIBL));
+        if (environment.skyMode == 1) mSkybox.SetIBLTextures(UTF8ToWString(environment.diffuseIBL), UTF8ToWString(environment.specularIBL));
+        else mSkybox.SetIBLTextures(TextureRef{}, TextureRef{});
         mEnvironmentSignature = signature;
     }
 
@@ -63,8 +65,8 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
     auto lights = mWorld->View<DirectionalLightComponent, TransformComponent>();
     Entity sun = entt::null;
     for (auto e : lights)
-        if (sun == entt::null || mWorld->GetComponent<PersistentIdComponent>(e).value <
-                                     mWorld->GetComponent<PersistentIdComponent>(sun).value)
+        if (mWorld->IsEnabled(e,ComponentKind::Light) && (sun == entt::null || mWorld->GetComponent<PersistentIdComponent>(e).value <
+                                     mWorld->GetComponent<PersistentIdComponent>(sun).value))
             sun = e;
     if (sun != entt::null)
     {
@@ -80,7 +82,7 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
         mSunLightIntensity = 0;
         mShadowsEnabled = false;
     }
-#ifndef RELEASE
+#if !defined(RELEASE) && !defined(ATOM_GAME_RUNTIME)
     if (ImGui::GetCurrentContext() && gContext.showRenderDiagnostics)
     {
         ImGui::Begin("Forward Rendering");
@@ -99,6 +101,9 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
     }
 #endif
     mSunDirection.Normalize();
+    mWorld->skyTextureError = environment.skyMode == 1 ? mSkybox.TextureError() : std::string{};
+    mSkybox.SetSkySettings(environment, sun != entt::null ? -mSunDirection : Vector3(.3f, .65f, .7f),
+        sun != entt::null ? (mSunLightIntensity > 0 ? mSunColor.ToVector3() : Vector3::ZERO) : Vector3(1.f, .95f, .8f));
     if (mAutoFitShadow)
     {
         ShadowCamera basis;
@@ -109,7 +114,7 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
         for (auto e : mWorld->View<MeshComponent, TransformComponent>())
         {
             auto &mesh = mWorld->GetComponent<MeshComponent>(e);
-            if (!mesh.IsRender() || !mesh.GetModel())
+            if (!mWorld->IsEnabled(e,ComponentKind::Mesh) || !mesh.IsRender() || !mesh.GetModel())
                 continue;
             auto matrix = mWorld->GetComponent<TransformComponent>(e).GetMatrix() * mesh.GetTransform().GetMatrix();
             auto box = mesh.GetModel()->mBoundingBox;
@@ -132,6 +137,7 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
                                (uint32_t)gShadowBuffer.GetHeight());
 
     mSkybox.SetIBLBias(mIBLBias);
+    mSkybox.UpdateEnvironmentLighting(gfxContext);
 
     GlobalConstants globals;
     globals.ViewProjMatrix = mCamera->GetViewProjMatrix();
@@ -153,6 +159,7 @@ void ForwardRenderingPass::Render(GraphicsContext &gfxContext)
     gfxContext.ClearDepth(gSceneDepthBuffer);
 
     RenderQueue queue(RenderQueue::kDefault);
+    queue.SetEnvironmentTextures(mSkybox.LightingTextures());
     // zPrePass
     {
         queue.SetCamera(*mCamera);
@@ -221,7 +228,7 @@ void ForwardRenderingPass::RenderObjects(RenderQueue &queue)
     for (auto entity : view)
     {
         auto &mesh = view.get<MeshComponent>(entity);
-        if (!mesh.IsRender())
+        if (!mWorld->IsEnabled(entity,ComponentKind::Mesh) || !mesh.IsRender())
             continue;
         mesh.Render(queue);
     }

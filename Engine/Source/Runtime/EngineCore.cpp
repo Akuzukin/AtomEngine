@@ -1,10 +1,12 @@
 #include "EngineCore.h"
 #include "Runtime/Function/Scene/SceneRuntime.h"
 #include "Runtime/Function/Scene/SceneView.h"
+#include "Runtime/Function/Scene/GameProject.h"
 #include "Runtime/Core/LogSystem/LogSystem.h"
 #include "Runtime/Function/Global/GlobalContext.h"
 #include "Runtime/Function/Render/WindowManager.h"
 #include "Runtime/Function/Input/Input.h"
+#include "Runtime/Function/Audio/Audio.h"
 #include "Runtime/Function/Render/RenderSystem.h"
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 
@@ -41,6 +43,7 @@ namespace Engine
 		auto window = gContext.windowManager;
 
 		mRuntime=std::make_unique<SceneRuntime>();
+        gContext.readScriptFields=[this](World &w,Entity e,size_t index){return mRuntime->ReadScriptFields(w,e,index);};
         { ScopedLogTimer timer("Startup","Application and scene"); app.Initialize(); }
         WriteLog(LogLevel::Info,"Startup","Ready in "+std::to_string(std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-startupTime).count())+" ms");
         FlushLog();
@@ -50,7 +53,9 @@ namespace Engine
         bool firstFrame=true;
 		while (!window->ShouldClose() && !app.Exit())
 		{
-			const float deltaTime = CalculateDeltaTime();
+			// Resize at a frame boundary, never re-enter rendering from WM_SIZE.
+            window->ApplyPendingResize();
+            const float deltaTime = CalculateDeltaTime();
 			Tick(app,deltaTime);
             if(firstFrame) {
                 firstFrame=false;
@@ -62,6 +67,7 @@ namespace Engine
 
 		DX12Core::gCommandManager.IdleGPU();
 		mRuntime->Reset();
+        gContext.readScriptFields={};
         mRuntime.reset();
         app.Shutdown();
 
@@ -86,8 +92,21 @@ namespace Engine
 	void AtomEngine::LogicalTick(GameApp& app,float deltaTime)
 	{
 		gContext.input->Update();
+        gContext.audio->Update();
 
 		app.Update(deltaTime);
+        if (app.IsPlaying() && !app.IsPaused() && ActiveProject.pendingScene && app.HasScene())
+        {
+            auto path = *ActiveProject.pendingScene; ActiveProject.pendingScene.reset();
+            try
+            {
+                DX12Core::gCommandManager.IdleGPU();
+                app.LoadProjectScene(ActiveProject.SceneRoot() / UTF8ToWString(path), [this] { mRuntime->Reset(); }); ActiveProject.currentScene = path;
+                ActiveProject.lastLoadError.clear();
+                WriteLog(LogLevel::Info, "Scene", "Loaded " + path);
+            }
+            catch (const std::exception& error) { ActiveProject.lastLoadError = error.what(); app.OnSceneLoadError(error.what()); WriteLog(LogLevel::Error, "Scene", error.what()); }
+        }
 
 		if(app.HasScene()){auto pointer=app.RuntimePointerPosition();mRuntime->Update(app.GetWorld(),app.RuntimeDeltaTime(deltaTime),app.IsPlaying(),app.AllowsRuntimeUiInput(),&pointer,app.IsPaused());app.OnRuntimeError(mRuntime->ScriptError());if(app.IsPlaying())ApplySceneCamera(app.GetWorld(),app.GetCamera());Renderer::Update(app.GetWorld(),app.IsPlaying() && !app.IsPaused()?app.RuntimeDeltaTime(deltaTime):0);}
         else mRuntime->Reset();

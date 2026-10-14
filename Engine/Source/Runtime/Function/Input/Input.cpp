@@ -19,6 +19,7 @@ void Input::Initialize()
 }
 void Input::Shutdown()
 {
+    mGameplayInputEnabled = true;
     mPrimary.reset();
     mFallback.reset();
     mState = {};
@@ -55,7 +56,7 @@ void Input::Update()
     }
     mPadBackend = mState.padConnected ? (available.gamepad ? "GameInput" : "XInput") : "Disconnected";
     mState.NormalizeModifiers();
-    if (GetForegroundWindow() != WindowManager::GetInstance()->GetWindowHandle())
+    if (!WindowManager::GetInstance()->HasInputFocus())
     {
         mState.keys = {};
         mState.mouse.buttons = 0;

@@ -22,6 +22,8 @@ public:
 
 	virtual void Initialize() = 0;
 	virtual void BeginFrame() {}
+    virtual void LoadProjectScene(const std::filesystem::path& path, const std::function<void()>& beforeCommit) { mSceneManager.GetCurrentScene()->Load(path, beforeCommit); }
+    virtual void OnSceneLoadError(const std::string& error) { OnRuntimeError(error); }
     virtual bool AllowsRuntimeUiInput()const{return true;}
     virtual Vector2 RuntimePointerPosition() const { auto& m=Input::GetInstance()->GetMouseState(); return Vector2(float(m.positionX),float(m.positionY)); }
     virtual void OnRuntimeError(const std::string&) {}

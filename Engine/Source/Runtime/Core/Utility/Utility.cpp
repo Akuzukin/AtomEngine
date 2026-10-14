@@ -3,6 +3,7 @@
 #include <locale>
 #include <fstream>
 #include <filesystem> 
+#include "Runtime/Resource/AssetArchive.h"
 
 namespace AtomEngine
 {
@@ -271,6 +272,7 @@ namespace AtomEngine
 
 	std::shared_ptr<std::vector<byte>> ReadFileSync(const std::wstring& fileName)
 	{
+		if (GameArchiveMounted()) return ReadAssetBytes(fileName);
 		return ReadFileHelper(*(std::make_shared<std::wstring>(fileName)));
 	}
 }

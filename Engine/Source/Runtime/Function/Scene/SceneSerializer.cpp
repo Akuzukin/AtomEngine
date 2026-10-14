@@ -9,6 +9,7 @@
 #include "Runtime/Core/LogSystem/LogSystem.h"
 #include <cmath>
 #include <stdexcept>
+#include "Runtime/Resource/AssetArchive.h"
 namespace AtomEngine
 {
 namespace
@@ -84,6 +85,7 @@ void ReadTransform(const XMLElement *e, Transform &t)
 }
 void WriteObject(World &w, Entity id, XMLElement *e)
 {
+    if(auto state=w.TryGet<ObjectStateComponent>(id)){e->SetAttribute("active",state->activeSelf);e->SetAttribute("disabledComponents",state->disabledComponents);}
     e->SetAttribute("id", w.GetComponent<PersistentIdComponent>(id).value.c_str());
     if (auto c = w.TryGet<NameComponent>(id))
         e->SetAttribute("name", c->value.c_str());
@@ -159,6 +161,7 @@ void WriteObject(World &w, Entity id, XMLElement *e)
     {
         auto n = Child(e, "Collider");
         n->SetAttribute("shape", int(c->shape));
+        n->SetAttribute("collisionLayer",c->collisionLayer); n->SetAttribute("collisionMask",c->collisionMask);
         Vec(Child(n, "Center"), c->center);
         Quat(Child(n, "Rotation"), c->rotation);
         Vec(Child(n, "HalfExtents"), c->halfExtents);
@@ -191,6 +194,12 @@ void WriteObject(World &w, Entity id, XMLElement *e)
         n->SetAttribute("minAngle", c->minAngle);
         n->SetAttribute("maxAngle", c->maxAngle);
     }
+    if (auto c = w.TryGet<AudioSourceComponent>(id))
+    {
+        auto n = Child(e, "AudioSource");
+        n->SetAttribute("clip", c->clip.c_str()); n->SetAttribute("volume", c->volume);
+        n->SetAttribute("loop", c->loop); n->SetAttribute("playOnAwake", c->playOnAwake);
+    }
     if (auto c = w.TryGet<ScriptComponent>(id))
         for (auto &s : c->scripts)
         {
@@ -215,6 +224,8 @@ void WriteObject(World &w, Entity id, XMLElement *e)
         n->SetAttribute("text", c->text.c_str());
         n->SetAttribute("texture", c->texture.c_str());
         n->SetAttribute("fontSize", c->fontSize);
+        n->SetAttribute("responsive",c->responsive);n->SetAttribute("progressBar",c->progressBar);n->SetAttribute("progress",c->progress);n->SetAttribute("layout",int(c->layout));n->SetAttribute("padding",c->padding);n->SetAttribute("spacing",c->spacing);n->SetAttribute("layoutOrder",c->layoutOrder);
+        n->SetAttribute("anchorMinX",c->anchorMin.x);n->SetAttribute("anchorMinY",c->anchorMin.y);n->SetAttribute("anchorMaxX",c->anchorMax.x);n->SetAttribute("anchorMaxY",c->anchorMax.y);n->SetAttribute("pivotX",c->pivot.x);n->SetAttribute("pivotY",c->pivot.y);
         n->SetAttribute("interactable", c->interactable);
         n->SetAttribute("layer", c->layer);
         Vec(Child(n, "Background"), c->background.ToVector3());
@@ -228,6 +239,8 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
 {
     auto o = w.CreateGameObject(Str(e, "name"));
     Entity id = o->GetHandle();
+    o->GetComponent<ObjectStateComponent>().activeSelf=e->BoolAttribute("active",true);
+    o->GetComponent<ObjectStateComponent>().disabledComponents=e->UnsignedAttribute("disabledComponents",0);
     struct Guard
     {
         World &w;
@@ -323,6 +336,8 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
         o->AddComponent<ColliderComponent>();
         auto &c = o->GetComponent<ColliderComponent>();
         c.shape = ColliderShape(Enum(n, "shape", 0, 4));
+        c.collisionLayer=n->UnsignedAttribute("collisionLayer",0);c.collisionMask=n->UnsignedAttribute("collisionMask",0xffffffffu);
+        if(c.collisionLayer>31)throw std::runtime_error("Collision layer must be 0..31");
         c.center = Vec(n->FirstChildElement("Center"));
         c.rotation = Quat(n->FirstChildElement("Rotation"));
         c.halfExtents = Vec(n->FirstChildElement("HalfExtents"), Vector3(.5f, .5f, .5f));
@@ -345,6 +360,13 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
         c.linearVelocity = Vec(n->FirstChildElement("Velocity"));
         if (c.mass <= 0 || c.friction < 0 || c.restitution < 0 || c.restitution > 1)
             throw std::runtime_error("Invalid rigid body settings");
+    }
+    if (auto n = e->FirstChildElement("AudioSource"))
+    {
+        AudioSourceComponent c; c.clip = Str(n, "clip"); c.volume = Float(n, "volume", 1);
+        c.loop = n->BoolAttribute("loop", false); c.playOnAwake = n->BoolAttribute("playOnAwake", false);
+        if (c.volume < 0 || c.volume > 1) throw std::runtime_error("Invalid audio volume");
+        o->AddComponent<AudioSourceComponent>(c);
     }
     if (e->FirstChildElement("Script"))
     {
@@ -411,6 +433,9 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
         c.text = Str(n, "text");
         c.texture = Str(n, "texture");
         c.fontSize = Float(n, "fontSize", 20);
+        c.responsive=n->BoolAttribute("responsive",false);c.progressBar=n->BoolAttribute("progressBar",false);c.progress=Float(n,"progress",1);c.layout=UiLayout(Enum(n,"layout",0,2));c.padding=Float(n,"padding",8);c.spacing=Float(n,"spacing",8);c.layoutOrder=n->IntAttribute("layoutOrder",0);
+        c.anchorMin={Float(n,"anchorMinX",0),Float(n,"anchorMinY",0)};c.anchorMax={Float(n,"anchorMaxX",0),Float(n,"anchorMaxY",0)};c.pivot={Float(n,"pivotX",0),Float(n,"pivotY",0)};
+        if(c.progress<0||c.progress>1||c.padding<0||c.spacing<0||c.anchorMin.x<0||c.anchorMin.y<0||c.anchorMax.x>1||c.anchorMax.y>1||c.anchorMin.x>c.anchorMax.x||c.anchorMin.y>c.anchorMax.y||c.pivot.x<0||c.pivot.x>1||c.pivot.y<0||c.pivot.y>1)throw std::runtime_error("Invalid UI layout");
         c.interactable = n->BoolAttribute("interactable", false);
         c.layer = n->IntAttribute("layer", 0);
         auto bg = n->FirstChildElement("Background");
@@ -433,6 +458,14 @@ void WriteSettings(XMLElement *root, const SceneSettings &s)
 {
     auto n = Child(root, "Environment");
     n->SetAttribute("sky", s.environment.c_str());
+    n->SetAttribute("skyMode", s.skyMode);
+    n->SetAttribute("skyIntensity", s.skyIntensity);
+    n->SetAttribute("skyRotation", s.skyRotation);
+    n->SetAttribute("sunSize", s.skySunSize);
+    n->SetAttribute("sunIntensity", s.skySunIntensity);
+    Vec(Child(n, "Zenith"), s.skyZenith);
+    Vec(Child(n, "Horizon"), s.skyHorizon);
+    Vec(Child(n, "Ground"), s.skyGround);
     n->SetAttribute("diffuse", s.diffuseIBL.c_str());
     n->SetAttribute("specular", s.specularIBL.c_str());
     n->SetAttribute("brdf", s.brdfLut.c_str());
@@ -457,6 +490,19 @@ void ReadSettings(const XMLElement *root, SceneSettings &s)
     if (auto n = root->FirstChildElement("Environment"))
     {
         s.environment = Str(n, "sky", s.environment.c_str());
+        s.skyMode = Enum(n, "skyMode", 0, 1);
+        s.skyIntensity = Float(n, "skyIntensity", 1);
+        s.skyRotation = Float(n, "skyRotation", 0);
+        s.skySunSize = Float(n, "sunSize", 1);
+        s.skySunIntensity = Float(n, "sunIntensity", 3);
+        s.skyZenith = Vec(n->FirstChildElement("Zenith"), s.skyZenith);
+        s.skyHorizon = Vec(n->FirstChildElement("Horizon"), s.skyHorizon);
+        s.skyGround = Vec(n->FirstChildElement("Ground"), s.skyGround);
+        auto validColor = [](const Vector3 &v) { return v.x >= 0 && v.y >= 0 && v.z >= 0 && v.x <= 20 && v.y <= 20 && v.z <= 20; };
+        if (s.skyIntensity < 0 || s.skyIntensity > 20 || std::abs(s.skyRotation) > 360 ||
+            s.skySunSize < .05f || s.skySunSize > 20 || s.skySunIntensity < 0 || s.skySunIntensity > 20 ||
+            !validColor(s.skyZenith) || !validColor(s.skyHorizon) || !validColor(s.skyGround))
+            throw std::runtime_error("Invalid sky settings");
         s.diffuseIBL = Str(n, "diffuse", s.diffuseIBL.c_str());
         s.specularIBL = Str(n, "specular", s.specularIBL.c_str());
         s.brdfLut = Str(n, "brdf", s.brdfLut.c_str());
@@ -497,7 +543,8 @@ void SaveXml(tinyxml2::XMLDocument &doc, const std::filesystem::path &path)
 std::vector<AssetRequest> SceneSerializer::CollectResources(const std::filesystem::path &p)
 {
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(p.string().c_str()) != tinyxml2::XML_SUCCESS)
+    auto resourceXml = ReadAssetText(p);
+    if (doc.Parse(resourceXml.c_str(), resourceXml.size()) != tinyxml2::XML_SUCCESS)
         throw std::runtime_error("Cannot scan resources: " + p.string() + ": " + doc.ErrorStr());
     auto root = doc.FirstChildElement(p.extension() == L".prefab" ? "Prefab" : "Scene");
     if (!root || root->IntAttribute("version") != 1)
@@ -506,9 +553,15 @@ std::vector<AssetRequest> SceneSerializer::CollectResources(const std::filesyste
     if (auto environment = root->FirstChildElement("Environment"))
         for (auto attribute : {"sky", "diffuse", "specular", "brdf"})
         {
+            if ((std::string(attribute) == "sky" || std::string(attribute) == "diffuse" || std::string(attribute) == "specular") && environment->IntAttribute("skyMode", 0) != 1) continue;
             auto path = Str(environment, attribute);
             if (!path.empty())
-                assets.push_back({AssetKind::Texture, path, BuiltinMesh::None, kBlackCubeMap, false});
+            {
+                auto extension = std::filesystem::path(UTF8ToWString(path)).extension().wstring();
+                std::transform(extension.begin(),extension.end(),extension.begin(),[](wchar_t c){return wchar_t(towlower(c));});
+                bool ldrSky = std::string(attribute) == "sky" && extension != L".dds" && extension != L".hdr" && extension != L".exr";
+                assets.push_back({AssetKind::Texture, path, BuiltinMesh::None, kBlackCubeMap, ldrSky});
+            }
         }
     for (auto object = root->FirstChildElement("Object"); object; object = object->NextSiblingElement("Object"))
     {
@@ -682,12 +735,13 @@ void SceneSerializer::Save(World &w, const std::filesystem::path &p, const std::
         WriteObject(w, e, Child(root, "Object"));
     SaveXml(d, p);
 }
-std::string SceneSerializer::Load(World &w, const std::filesystem::path &p)
+std::string SceneSerializer::Load(World &w, const std::filesystem::path &p, const std::function<void()>& beforeCommit)
 {
     if (p.extension() != L".scene")
         throw std::runtime_error("Scenes must use .scene extension");
     tinyxml2::XMLDocument d;
-    if (d.LoadFile(p.string().c_str()) != XML_SUCCESS)
+    auto sceneXml = ReadAssetText(p);
+    if (d.Parse(sceneXml.c_str(), sceneXml.size()) != XML_SUCCESS)
         throw std::runtime_error(d.ErrorStr());
     auto root = d.FirstChildElement("Scene");
     if (!root || root->IntAttribute("version") != 1)
@@ -707,6 +761,7 @@ std::string SceneSerializer::Load(World &w, const std::filesystem::path &p)
     }
     ResolveHierarchy(staged);
     RefreshPrefabs(staged);
+    if (beforeCommit) beforeCommit();
     w.ReplaceWith(staged);
     return Str(root, "name", "Scene");
 }
@@ -777,7 +832,8 @@ void SceneSerializer::SavePrefab(World &w, Entity root, const std::filesystem::p
 Entity SceneSerializer::InstantiatePrefab(World &w, const std::filesystem::path &p)
 {
     tinyxml2::XMLDocument d;
-    if (d.LoadFile(p.string().c_str()) != XML_SUCCESS)
+    auto prefabXml = ReadAssetText(p);
+    if (d.Parse(prefabXml.c_str(), prefabXml.size()) != XML_SUCCESS)
         throw std::runtime_error(d.ErrorStr());
     auto root = d.FirstChildElement("Prefab");
     if (!root || root->IntAttribute("version") != 1)
@@ -978,7 +1034,8 @@ void SceneSerializer::RefreshPrefabs(World &w, const std::filesystem::path &filt
                                    std::filesystem::absolute(filter).lexically_normal())
             continue;
         tinyxml2::XMLDocument prefab;
-        if (prefab.LoadFile(instance.source.c_str()) != XML_SUCCESS)
+        auto prefabXml = ReadAssetText(UTF8ToWString(instance.source));
+        if (prefab.Parse(prefabXml.c_str(), prefabXml.size()) != XML_SUCCESS)
             throw std::runtime_error("Cannot refresh prefab: " + instance.source);
         auto source = prefab.FirstChildElement("Prefab");
         if (!source || source->IntAttribute("version") != 1)
@@ -1112,7 +1169,8 @@ void SceneSerializer::RevertPrefab(World &w, Entity e)
         }
     }
     tinyxml2::XMLDocument source;
-    if (source.LoadFile(rootLink.source.c_str()) != XML_SUCCESS || !source.FirstChildElement("Prefab"))
+    auto prefabXml = ReadAssetText(UTF8ToWString(rootLink.source));
+    if (source.Parse(prefabXml.c_str(), prefabXml.size()) != XML_SUCCESS || !source.FirstChildElement("Prefab"))
         throw std::runtime_error("Cannot revert prefab source");
     std::set<std::string> present;
     for (auto n = root->FirstChildElement("Object"); n; n = n->NextSiblingElement("Object"))
@@ -1202,5 +1260,23 @@ void SceneSerializer::ApplyPrefab(World &w, Entity e)
             w.GetComponent<PrefabInstanceComponent>(item).members = members;
     }
     RefreshPrefabs(w, std::filesystem::path(path));
+}
+namespace {
+template<class T> void OverlayProperty(World &w,Entity target,Entity source){if(auto value=w.TryGet<T>(source)){if(auto current=w.TryGet<T>(target))*current=*value;else w.AddComponent<T>(target,*value);}}
+}
+void SceneSerializer::AttachPrefab(World &w,Entity target,const std::filesystem::path &path) {
+    if(!w.IsValid(target))throw std::runtime_error("Prefab target was destroyed");
+    auto existing=w.TryGet<PrefabInstanceComponent>(target);if(existing && !existing->source.empty())throw std::runtime_error("Target is already a prefab instance");
+    auto source=InstantiatePrefab(w,path);auto temporaryId=w.GetComponent<PersistentIdComponent>(source).value,targetId=w.GetComponent<PersistentIdComponent>(target).value;
+    std::vector<Entity> created;for(auto e:w.View<PrefabInstanceComponent>())if(w.GetComponent<PrefabInstanceComponent>(e).instanceId==temporaryId)created.push_back(e);
+    try {
+        if(w.HasComponent<MeshSourceComponent>(source)){OverlayProperty<MeshSourceComponent>(w,target,source);RebuildMesh(w,target);}
+        OverlayProperty<MaterialComponent>(w,target,source);OverlayProperty<ColliderComponent>(w,target,source);OverlayProperty<RigidBodyComponent>(w,target,source);OverlayProperty<JointComponent>(w,target,source);OverlayProperty<ScriptComponent>(w,target,source);OverlayProperty<AudioSourceComponent>(w,target,source);OverlayProperty<UiElementComponent>(w,target,source);OverlayProperty<CameraComponent>(w,target,source);OverlayProperty<DirectionalLightComponent>(w,target,source);OverlayProperty<PrefabInstanceComponent>(w,target,source);
+        for(auto e:created){if(auto h=w.TryGet<HierarchyComponent>(e);h && h->parentId==temporaryId)h->parentId=targetId;if(auto j=w.TryGet<JointComponent>(e);j && j->connectedBody==temporaryId)j->connectedBody=targetId;}
+        if(auto j=w.TryGet<JointComponent>(target);j && j->connectedBody==temporaryId)j->connectedBody=targetId;
+        for(auto e:created)if(auto link=w.TryGet<PrefabInstanceComponent>(e)){link->instanceId=targetId;for(auto &[id,value]:link->members)if(value==temporaryId)value=targetId;}
+        auto &link=w.GetComponent<PrefabInstanceComponent>(target);link.instanceId=targetId;for(auto &[id,value]:link.members)if(value==temporaryId)value=targetId;
+        w.DestroyGameObject(source);ResolveHierarchy(w);
+    } catch(...){for(auto e:created)if(w.IsValid(e))w.DestroyGameObject(e);ResolveHierarchy(w);throw;}
 }
 } // namespace AtomEngine

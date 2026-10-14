@@ -7,6 +7,7 @@ namespace AtomEngine
 	{
 	public:
 		void Reset(World& world, const std::string& name);
+        void MarkUnsaved(){mSavedId=~uint64_t(0);}
 		bool Capture(World& world, const std::string& name, const std::string& selection,
 			const std::string& label = "Edit properties");
 		void MarkSaved(World& world, const std::string& name);

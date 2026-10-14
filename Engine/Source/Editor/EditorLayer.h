@@ -1,16 +1,21 @@
 #pragma once
 #include "EditorDocument.h"
+#include "EditorPanels.h"
 #include "MaterialPreviewRenderer.h"
 #include "Runtime/Resource/MaterialPreset.h"
 #include "Runtime/Function/Framework/Component/SceneComponents.h"
 #include "Runtime/Function/Scene/Scene.h"
 #include "Runtime/Resource/TextureRef.h"
 #include <optional>
+#include "Runtime/Function/Scripting/ScriptSystem.h"
 namespace AtomEngine
 {
 class EditorLayer
 {
   public:
+    void RuntimeSceneLoaded(Scene& scene) { Select(scene.GetWorld(), entt::null); mRuntimeError.clear(); }
+    void SetSceneLoadError(const std::string& error) { mError = error; }
+    void ShowProjectSettings() { mProjectSettingsPanel.visible = true; }
     void Initialize(const std::filesystem::path &path);
     void Shutdown();
     void Update(Scene &scene);
@@ -48,6 +53,10 @@ class EditorLayer
         mRefreshAssets = true;
         mShowAssets = true;
     }
+    bool GameplayInputEnabled() const
+    {
+        return mPlaying && mViewportFocused && !mTextInput && !mModal;
+    }
     bool ViewportHovered() const
     {
         return mViewportHovered;
@@ -78,9 +87,7 @@ class EditorLayer
     }
     void SetMaximizeOnPlay(bool enabled)
     {
-#ifndef RELEASE
         mMaximizeOnPlay = enabled;
-#endif
     }
     bool IsPlayMaximized() const
     {
@@ -96,6 +103,34 @@ class EditorLayer
     }
 
   private:
+    friend class ProjectPanel;
+    ProjectPanel mProjectPanel;
+    friend class ProjectSettingsPanel;
+    ProjectSettingsPanel mProjectSettingsPanel;
+    friend class HierarchyPanel;
+    HierarchyPanel mHierarchyPanel;
+    friend class InspectorPanel;
+    InspectorPanel mInspectorPanel;
+    friend class ViewportPanel;
+    ViewportPanel mViewportPanel;
+    friend class AssetsPanel;
+    AssetsPanel mAssetsPanel;
+    friend class MaterialsPanel;
+    MaterialsPanel mMaterialsPanel;
+    friend class WorkspacePanel;
+    WorkspacePanel mWorkspacePanel;
+    friend class ToolbarPanel;
+    ToolbarPanel mToolbarPanel;
+    friend class ScriptsPanel;
+    ScriptsPanel mScriptsPanel;
+    friend class ConsolePanel;
+    ConsolePanel mConsolePanel;
+    friend class ShadersPanel;
+    ShadersPanel mShadersPanel;
+    friend class HelpPanel;
+    HelpPanel mHelpPanel;
+    friend class SceneSettingsPanel;
+    SceneSettingsPanel mSceneSettingsPanel;
     std::shared_ptr<AssetPreloadBatch> mScenePreload;
     std::filesystem::path mPreloadPath;
     std::future<int> mScriptBuild;
@@ -109,6 +144,9 @@ class EditorLayer
         None,
         New,
         Open,
+        Template,
+        NewProject,
+        OpenProject,
         Exit
     };
     void Run(const std::function<void()> &action);
@@ -118,6 +156,11 @@ class EditorLayer
     void PlayViewport(Scene &scene);
     void ClearThumbnails();
     void Inspector(Scene &scene);
+    void ScriptFields(ScriptAttachment &attachment,const std::string &live="{}");
+    void ValidateScripts(World &world);
+    ScriptSystem mScriptInspector;
+    struct ScriptSchema { std::filesystem::file_time_type stamp{}; std::string json, error; };
+    std::map<std::string, ScriptSchema> mScriptSchemas;
     void Create(World &world, BuiltinMesh type);
     void Workspace(Scene &scene);
     void Assets(Scene &scene);
@@ -153,8 +196,13 @@ class EditorLayer
     std::map<std::string, Thumbnail> mThumbnails;
     bool mThumbnailView = true;
     bool mPlaying = false, mPaused = false, mStep = false, mExitRequested = false, mModal = false, mTextInput = false;
+    bool mViewportFocused = false;
     bool mGizmoActive = false, mViewportHovered = false, mLocal = true, mSnap = false;
     bool mHistoryPending = true;
+    bool mShowPool=false,mPoolUsePrefab=false,mPoolInactive=true;
+    int mPoolCount=16,mPoolColumns=8;
+    Vector3 mPoolSpacing{2,0,2};
+    char mPoolPrefab[1024]{};
     int mGizmoOperation = 1;
     float mMoveSnap = .5f, mRotateSnap = 15, mScaleSnap = .1f;
     Entity mSelected = entt::null;

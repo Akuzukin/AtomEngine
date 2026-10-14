@@ -3,6 +3,7 @@
 #include "Runtime/Function/Camera/DebugCamera.h"
 #include "Runtime/Function/Input/InputBackend.h"
 #include "Runtime/Function/Render/SkyboxRenderer.h"
+#include "DirectXTex.h"
 inline void RunRenderCameraSmokeChecks()
 {
     using namespace AtomEngine;
@@ -70,7 +71,6 @@ inline void RunRenderCameraSmokeChecks()
     auto path = std::filesystem::path(exe).parent_path() / "Smoke/skybox.raw";
     SkyboxRenderer sky;
     sky.Initialize();
-    sky.SetEnvironmentMap(L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KEnvHDR.dds");
     DepthBuffer occluder(1.f);
     occluder.Create(L"Sky regression occlusion", gSceneDepthBuffer.GetWidth(), gSceneDepthBuffer.GetHeight(),
                     gSceneDepthBuffer.GetFormat());
@@ -100,14 +100,52 @@ inline void RunRenderCameraSmokeChecks()
         file.read(reinterpret_cast<char *>(pixels.data()), pixels.size() * 4);
         return pixels;
     };
-    auto visible = render(false);
+    auto procedural = render(false);
+    std::filesystem::copy_file(path,path.parent_path()/"sky-procedural.raw",std::filesystem::copy_options::overwrite_existing);
+    auto different = [](const auto &a, const auto &b) { size_t count = 0; for (size_t i = 0; i < a.size(); ++i) count += a[i] != b[i]; return count; };
+    SceneSettings skySettings;
+    FeatureCheck(skySettings.skyMode == 0 && skySettings.environment.empty(), "New scene does not default to procedural sky");
+    skySettings.skyZenith=skySettings.skyHorizon=skySettings.skyGround=Vector3(0,.4f,0);skySettings.skySunIntensity=0;
+    sky.SetSkySettings(skySettings);auto green=render(false);
+    FeatureCheck(different(procedural,green)>green.size()/2,"Procedural sky colors did not update");
+    skySettings=SceneSettings{};skySettings.skyMode=1;sky.SetSkySettings(skySettings);
+    sky.SetEnvironmentMap(L"Asset/Textures/Environment/NightSkyHDRI004_4K/NightSkyHDRI004_4KEnvHDR.dds");
+    FeatureCheck(sky.TextureError().empty(),"Valid cube sky rejected");auto visible = render(false);
+    std::filesystem::copy_file(path,path.parent_path()/"sky-texture.raw",std::filesystem::copy_options::overwrite_existing);
     auto blocked = render(true);
     size_t changed = 0;
     for (size_t i = 0; i < visible.size(); ++i)
         changed += visible[i] != blocked[i];
     FeatureCheck(changed > visible.size() / 2, "Skybox was culled or failed its reverse-Z depth test");
+    sky.SetEnvironmentMap(L"Asset/Textures/Environment/PaperMill/PaperMill_E_3kEnvHDR.dds");auto replacement=render(false);
+    FeatureCheck(different(visible,replacement)>visible.size()/4,"Replacing cubemap did not update sky pixels");
+    skySettings.skyRotation=90;sky.SetSkySettings(skySettings);auto rotated=render(false);
+    FeatureCheck(different(replacement,rotated)>visible.size()/4,"Sky texture rotation did not update pixels");
+    // 真实二维全景 DDS 和 PNG，验证 descriptor 类型、转换和经纬度采样。
+    DirectX::ScratchImage panorama;ThrowIfFailed(panorama.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM,64,32,1,1));
+    auto image=panorama.GetImage(0,0,0);
+    for(size_t y=0;y<32;++y)for(size_t x=0;x<64;++x){auto pixel=image->pixels+y*image->rowPitch+x*4;pixel[0]=uint8_t(x*4);pixel[1]=uint8_t(y*8);pixel[2]=160;pixel[3]=255;}
+    auto panoramaFile=path.parent_path()/"sky-panorama.dds";
+    ThrowIfFailed(DirectX::SaveToDDSFile(panorama.GetImages(),panorama.GetImageCount(),panorama.GetMetadata(),DirectX::DDS_FLAGS_NONE,panoramaFile.c_str()));
+    sky.SetEnvironmentMap(panoramaFile.wstring());FeatureCheck(sky.TextureError().empty(),"2D panorama DDS rejected");auto panoramaPixels=render(false);
+    std::filesystem::copy_file(path,path.parent_path()/"sky-panorama.raw",std::filesystem::copy_options::overwrite_existing);
+    FeatureCheck(different(rotated,panoramaPixels)>visible.size()/2,"Panorama sky failed to draw");
+    auto pngFile=path.parent_path()/"sky-panorama.png";ThrowIfFailed(DirectX::SaveToWICFile(*image,DirectX::WIC_FLAGS_NONE,DirectX::GetWICCodec(DirectX::WIC_CODEC_PNG),pngFile.c_str()));
+    sky.SetEnvironmentMap(pngFile.wstring());FeatureCheck(sky.TextureError().empty(),"PNG panorama conversion failed");render(false);
+    sky.SetEnvironmentMap(L"missing-sky.dds");FeatureCheck(!sky.TextureError().empty(),"Missing texture has no diagnostic");auto fallback=render(false);
+    FeatureCheck(different(fallback,procedural)==0,"Missing texture did not fall back to procedural sky");
+    DirectX::ScratchImage array;ThrowIfFailed(array.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM,4,4,2,1));auto arrayFile=path.parent_path()/"sky-array.dds";
+    ThrowIfFailed(DirectX::SaveToDDSFile(array.GetImages(),array.GetImageCount(),array.GetMetadata(),DirectX::DDS_FLAGS_NONE,arrayFile.c_str()));
+    sky.SetEnvironmentMap(arrayFile.wstring());FeatureCheck(!sky.TextureError().empty(),"Texture array incorrectly accepted as a sky cubemap");
+    FeatureCheck(different(render(false),procedural)==0,"Unsupported sky descriptor did not safely fall back");
+    auto updateLighting=[&]{auto &context=GraphicsContext::Begin(L"Sky lighting cache regression");sky.UpdateEnvironmentLighting(context);context.Finish(true);};
+    updateLighting();auto generation=sky.LightingGeneration();FeatureCheck(generation==1,"Procedural sky IBL not generated");
+    updateLighting();FeatureCheck(sky.LightingGeneration()==generation,"Unchanged sky regenerated IBL");
+    skySettings.skyIntensity=.7f;sky.SetSkySettings(skySettings);updateLighting();FeatureCheck(sky.LightingGeneration()==generation+1,"Sky brightness failed to invalidate lighting cache");
+    sky.SetSkySettings(skySettings,Vector3::UP);updateLighting();FeatureCheck(sky.LightingGeneration()==generation+2,"Sun direction failed to invalidate lighting cache");
+    sky.SetEnvironmentMap(panoramaFile.wstring());updateLighting();FeatureCheck(sky.LightingGeneration()==generation+2,"Texture mode regenerated procedural IBL");
     sky.Shutdown();
     occluder.Destroy();
     WriteLog(LogLevel::Info, "Smoke",
-             "Cube winding, sky pixels/depth, modifiers and camera orbit/fly/zoom checks passed");
+             "Procedural sky, cube replacement/rotation, DDS/PNG panoramas, invalid texture fallback, depth occlusion and IBL cache passed");
 }

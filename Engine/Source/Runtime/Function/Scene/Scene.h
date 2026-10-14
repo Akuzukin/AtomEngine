@@ -3,6 +3,7 @@
 #include "Runtime/Function/Camera/CameraBase.h"
 #include <string>
 #include <filesystem>
+#include <functional>
 
 namespace AtomEngine
 {
@@ -31,7 +32,7 @@ namespace AtomEngine
 		void RequestReplaceScene(std::unique_ptr<Scene>&& scene);
 
 		void Save(const std::filesystem::path& path);
-        void Load(const std::filesystem::path& path);
+        void Load(const std::filesystem::path& path, const std::function<void()>& beforeCommit = {});
         const std::string& GetName()const{return mName;}
         void SetName(std::string name){mName=std::move(name);}
 		World& GetWorld() { return mWorld; }

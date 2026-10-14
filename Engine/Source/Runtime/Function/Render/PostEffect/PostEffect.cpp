@@ -111,7 +111,7 @@ void PostEffect::Shutdown()
 
 void PostEffect::Render(ComputeContext &Context)
 {
-#ifndef RELEASE
+#if !defined(RELEASE) && !defined(ATOM_GAME_RUNTIME)
 
     if (ImGui::GetCurrentContext() && gContext.showRenderDiagnostics)
     {

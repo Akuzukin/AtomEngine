@@ -46,10 +46,7 @@ void LoadMaterialTexture(Model &model, const ModelData &modelData,
             std::wstring originalFile = basePath + mataTextures[ti].name;
             bool optionalSRGB =
                 (mataTextures[ti].slot & (TextureSlot::kBaseColor | TextureSlot::kEmissive)) ? true : false;
-            CompileTextureOnDemand(originalFile, TextureOptions(optionalSRGB));
-
-            std::wstring ddsFile = RemoveExtension(originalFile) + L".dds";
-            modelTextures[ti] = AssetManager::LoadTextureFile(ddsFile);
+            modelTextures[ti] = AssetManager::LoadCovertTexture(originalFile, kWhiteOpaque2D, optionalSRGB);
         }
     }
 

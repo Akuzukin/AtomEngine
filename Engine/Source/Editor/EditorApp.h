@@ -38,6 +38,8 @@ namespace AtomEngine
 		}
 		void Initialize() override;
 		void BeginFrame() override;
+        void LoadProjectScene(const std::filesystem::path& path, const std::function<void()>& beforeCommit) override { GameApp::LoadProjectScene(path, beforeCommit); mEditor.RuntimeSceneLoaded(*mSceneManager.GetCurrentScene()); }
+        void OnSceneLoadError(const std::string& error) override { mEditor.SetSceneLoadError(error); }
 		void Update(float deltaTime) override;
 		void Render() override;
 		Vector2 RuntimePointerPosition() const override

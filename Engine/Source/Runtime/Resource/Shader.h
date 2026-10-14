@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <Windows.h>
 #include <dxcapi.h>
 #include <wrl.h>
@@ -55,6 +56,7 @@ class Shader
 
   private:
     std::wstring mFile, mProfile, mEntry;
+    std::filesystem::path mSource, mIncludeDirectory;
     Microsoft::WRL::ComPtr<IDxcBlob> mBytecode;
     std::vector<ShaderBinding> mBindings;
     uint64_t mRevision = 0;

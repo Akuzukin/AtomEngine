@@ -19,6 +19,12 @@
 #include "PhysicsWorld.h"
 #include "Runtime/Function/Framework/Component/SceneComponents.h"
 #include "Runtime/Function/Framework/Component/TransformComponent.h"
+#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <cmath>
 #include <set>
 #include <sstream>
 #include <algorithm>
@@ -66,7 +72,7 @@ class BroadFilter : public JPH::ObjectVsBroadPhaseLayerFilter
 std::string Signature(const ColliderComponent &c, const RigidBodyComponent &b, const Vector3 &s)
 {
     std::ostringstream out;
-    out << int(c.shape) << ',' << c.center.x << ',' << c.center.y << ',' << c.center.z << ',' << c.rotation.x << ','
+    out << c.collisionLayer << "," << c.collisionMask << "," << int(c.shape) << ',' << c.center.x << ',' << c.center.y << ',' << c.center.z << ',' << c.rotation.x << ','
         << c.rotation.y << ',' << c.rotation.z << ',' << c.rotation.w << ',' << c.halfExtents.x << ','
         << c.halfExtents.y << ',' << c.halfExtents.z << ',' << c.radius << ',' << c.halfHeight << ',' << c.trigger
         << ',' << int(b.motion) << ',' << b.mass << ',' << b.friction << ',' << b.restitution << ',' << b.gravity << ','
@@ -111,6 +117,11 @@ std::vector<Vector3> CollisionWireEdges(MeshComponent &mesh, bool convex)
 }
 struct PhysicsWorld::Impl : public JPH::ContactListener
 {
+    World *world=nullptr;
+    JPH::ValidateResult OnContactValidate(const JPH::Body &a,const JPH::Body &b,JPH::RVec3Arg,const JPH::CollideShapeResult &) override {
+        auto ca=world->TryGet<ColliderComponent>(Entity(uint32_t(a.GetUserData()))),cb=world->TryGet<ColliderComponent>(Entity(uint32_t(b.GetUserData())));
+        return ca && cb && (ca->collisionMask & (1u << cb->collisionLayer)) && (cb->collisionMask & (1u << ca->collisionLayer))?JPH::ValidateResult::AcceptAllContactsForThisBodyPair:JPH::ValidateResult::RejectAllContactsForThisBodyPair;
+    }
     Layers layers;
     PairFilter pair;
     BroadFilter broad;
@@ -208,11 +219,13 @@ void PhysicsWorld::Update(World &w, float dt)
         i.Clear();
         i.lifetime = current;
     }
-    i.contacts.clear();
+    i.world=&w;
+    if(dt>0)i.contacts.clear();
     auto &bi = i.system.GetBodyInterface();
     std::set<Entity> alive;
     for (auto e : w.View<TransformComponent, ColliderComponent>())
     {
+        if(!w.IsEnabled(e,ComponentKind::Collider) || (w.HasComponent<RigidBodyComponent>(e) && !w.IsEnabled(e,ComponentKind::RigidBody)))continue;
         auto &t = w.GetComponent<TransformComponent>(e);
         auto &c = w.GetComponent<ColliderComponent>(e);
         RigidBodyComponent defaultBody;
@@ -326,7 +339,7 @@ void PhysicsWorld::Update(World &w, float dt)
     for (auto e : w.View<JointComponent>())
     {
         const auto &j = w.GetComponent<JointComponent>(e);
-        if (!j.enabled || !i.bodies.contains(e) || !ids.contains(j.connectedBody))
+        if (!w.IsEnabled(e,ComponentKind::Joint) || !j.enabled || !i.bodies.contains(e) || !ids.contains(j.connectedBody))
             continue;
         auto other = ids.at(j.connectedBody);
         if (other == e || !i.bodies.contains(other))
@@ -420,5 +433,34 @@ void PhysicsWorld::Update(World &w, float dt)
             t.rotation = local.GetRotation();
         }
     }
+}
+namespace {
+class QueryFilter final : public JPH::BodyFilter {
+    World &world;uint32_t mask;bool triggers;Entity ignore;
+public:
+    QueryFilter(World &w,uint32_t m,bool t,Entity i):world(w),mask(m),triggers(t),ignore(i){}
+    bool ShouldCollideLocked(const JPH::Body &body) const override {
+        auto e=Entity(uint32_t(body.GetUserData()));auto c=world.TryGet<ColliderComponent>(e);
+        return e!=ignore && world.IsEnabled(e,ComponentKind::Collider) && (!world.HasComponent<RigidBodyComponent>(e) || world.IsEnabled(e,ComponentKind::RigidBody)) && c && c->collisionLayer<32 && (mask & (1u<<c->collisionLayer)) && (triggers || !c->trigger);
+    }
+};
+bool Finite(const Vector3 &v){return std::isfinite(v.x)&&std::isfinite(v.y)&&std::isfinite(v.z);}
+}
+bool PhysicsWorld::Raycast(World &w,const Vector3 &origin,const Vector3 &direction,float distance,PhysicsHit &hit,uint32_t mask,bool triggers,Entity ignore) {
+    hit={};if(!Finite(origin)||!Finite(direction)||!std::isfinite(distance)||distance<=0 || direction.LengthSqr()<1e-12f)return false;
+    Update(w,0);auto &i=*mImpl;double length=std::sqrt(double(direction.x)*direction.x+double(direction.y)*direction.y+double(direction.z)*direction.z);auto delta=Vector3(float(direction.x/length),float(direction.y/length),float(direction.z/length))*distance;QueryFilter filter(w,mask,triggers,ignore);
+    JPH::RRayCast ray(V(origin),V(delta));JPH::RayCastResult result;
+    if(!i.system.GetNarrowPhaseQuery().CastRay(ray,result,{},{},filter))return false;
+    JPH::BodyLockRead lock(i.system.GetBodyLockInterface(),result.mBodyID);if(!lock.Succeeded())return false;
+    auto point=ray.GetPointOnRay(result.mFraction),normal=lock.GetBody().GetWorldSpaceSurfaceNormal(result.mSubShapeID2,point);
+    hit={Entity(uint32_t(lock.GetBody().GetUserData())),Vector3(point.GetX(),point.GetY(),point.GetZ()),Vector3(normal.GetX(),normal.GetY(),normal.GetZ()),distance*result.mFraction};return true;
+}
+std::vector<Entity> PhysicsWorld::OverlapSphere(World &w,const Vector3 &center,float radius,uint32_t mask,bool triggers,Entity ignore) {
+    std::vector<Entity> entities;if(!Finite(center)||!std::isfinite(radius)||radius<=0)return entities;
+    Update(w,0);auto &i=*mImpl;QueryFilter filter(w,mask,triggers,ignore);JPH::SphereShape shape(radius);
+    JPH::AllHitCollisionCollector<JPH::CollideShapeCollector> collector;JPH::CollideShapeSettings settings;
+    i.system.GetNarrowPhaseQuery().CollideShape(&shape,JPH::Vec3::sReplicate(1),JPH::RMat44::sTranslation(V(center)),settings,JPH::RVec3::sZero(),collector,{},{},filter);
+    for(auto &result:collector.mHits){JPH::BodyLockRead lock(i.system.GetBodyLockInterface(),result.mBodyID2);if(lock.Succeeded())entities.push_back(Entity(uint32_t(lock.GetBody().GetUserData())));}
+    std::sort(entities.begin(),entities.end());entities.erase(std::unique(entities.begin(),entities.end()),entities.end());return entities;
 }
 } // namespace AtomEngine

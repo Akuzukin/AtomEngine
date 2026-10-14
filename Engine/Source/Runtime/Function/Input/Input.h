@@ -1,5 +1,6 @@
 #pragma once
 #include "InputBackend.h"
+#include "KeyCode.h"
 namespace AtomEngine
 {
 class Input
@@ -9,6 +10,11 @@ class Input
     void Initialize();
     void Shutdown();
     void Update();
+    void SetGameplayInputEnabled(bool enabled) { mGameplayInputEnabled = enabled; }
+    bool GameplayInputEnabled() const { return mGameplayInputEnabled; }
+    bool IsPressKey(KeyCode k) const {return uint16_t(k)<256 && IsPressKey(uint8_t(k));}
+    bool IsTriggerKey(KeyCode k) const {return uint16_t(k)<256 && IsTriggerKey(uint8_t(k));}
+    bool IsReleaseKey(KeyCode k) const {return uint16_t(k)<256 && IsReleaseKey(uint8_t(k));}
     bool IsPressKey(uint8_t k) const
     {
         return mState.keys[k];
@@ -60,6 +66,7 @@ class Input
 
   private:
     Input() = default;
+    bool mGameplayInputEnabled = true;
     std::unique_ptr<InputBackend> mPrimary, mFallback;
     InputSnapshot mState{}, mPrevious{};
     InputDeviceType mDevice = InputDeviceType::None;

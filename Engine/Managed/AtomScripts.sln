@@ -1,0 +1,22 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Atom.Managed", "Atom.Managed\Atom.Managed.csproj", "{D30BFEEB-9864-459E-A49C-605F346E1431}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtomScripts", "GameScripts\GameScripts.csproj", "{59C949DC-7743-467A-894E-D3A23D38E2C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D30BFEEB-9864-459E-A49C-605F346E1431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D30BFEEB-9864-459E-A49C-605F346E1431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D30BFEEB-9864-459E-A49C-605F346E1431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D30BFEEB-9864-459E-A49C-605F346E1431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C949DC-7743-467A-894E-D3A23D38E2C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C949DC-7743-467A-894E-D3A23D38E2C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C949DC-7743-467A-894E-D3A23D38E2C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C949DC-7743-467A-894E-D3A23D38E2C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

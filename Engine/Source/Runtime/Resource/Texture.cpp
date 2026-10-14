@@ -18,6 +18,7 @@ namespace AtomEngine
         mWidth = (uint32_t)Width;
         mHeight = (uint32_t)Height;
         mDepth = 1;
+        mSrvDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 
         D3D12_RESOURCE_DESC texDesc = {};
         texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -64,6 +65,7 @@ namespace AtomEngine
         mWidth = (uint32_t)Width;
         mHeight = (uint32_t)Height;
         mDepth = 6;
+        mSrvDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 
         D3D12_RESOURCE_DESC texDesc = {};
         texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;

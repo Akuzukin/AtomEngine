@@ -108,7 +108,7 @@ namespace AtomEngine
 		context.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context.SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, textureHeap.GetHeapPointer());
 
-		context.SetDescriptorTable(kCommonSRVs, commonSRVs);
+		context.SetDescriptorTable(kCommonSRVs, mEnvironmentTextures.IsNull() ? commonSRVs : mEnvironmentTextures);
 
 		globals.ViewProjMatrix = mCamera->GetViewProjMatrix();
 		globals.CameraPos = mCamera->GetPosition();

@@ -1,0 +1,1498 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Scene version="1" name="Atom Survivors">
+  <Object id="Main Camera" name="Main Camera">
+    <Transform>
+      <Position x="0" y="25" z="-19" />
+      <Rotation x="0.44619781310980877" y="0" z="0" w="0.8949343616020251" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <Camera fieldOfView="55" nearClip=".1" farClip="200" primary="true" enabled="true" />
+  </Object>
+  <Object id="Sun" name="Sun">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x=".38" y="-.2" z="0" w=".9031" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <DirectionalLight intensity="3" enabled="true" shadows="true" autoFitShadow="true">
+      <Color x="1" y="0.94" z="0.85" />
+    </DirectionalLight>
+  </Object>
+  <Object id="Arena" name="Arena">
+    <Transform>
+      <Position x="0" y="-0.3" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="28" y="0.5" z="20" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.08" y="0.12" z="0.18" alpha="1" />
+      <Emissive x="0.0096" y="0.0144" z="0.021599999999999998" />
+    </Material>
+  </Object>
+  <Object id="Boundary0" name="Boundary0">
+    <Transform>
+      <Position x="0" y="0.15" z="-10" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="28" y="0.3" z="0.2" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.15" y="0.65" z="0.8" alpha="1" />
+      <Emissive x="0.018" y="0.078" z="0.096" />
+    </Material>
+  </Object>
+  <Object id="Boundary1" name="Boundary1">
+    <Transform>
+      <Position x="0" y="0.15" z="10" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="28" y="0.3" z="0.2" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.15" y="0.65" z="0.8" alpha="1" />
+      <Emissive x="0.018" y="0.078" z="0.096" />
+    </Material>
+  </Object>
+  <Object id="Boundary2" name="Boundary2">
+    <Transform>
+      <Position x="-14" y="0.15" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.2" y="0.3" z="20" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.15" y="0.65" z="0.8" alpha="1" />
+      <Emissive x="0.018" y="0.078" z="0.096" />
+    </Material>
+  </Object>
+  <Object id="Boundary3" name="Boundary3">
+    <Transform>
+      <Position x="14" y="0.15" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.2" y="0.3" z="20" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.15" y="0.65" z="0.8" alpha="1" />
+      <Emissive x="0.018" y="0.078" z="0.096" />
+    </Material>
+  </Object>
+  <Object id="Player" name="Player">
+    <Transform>
+      <Position x="0" y="0.65" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="0.1" y="0.85" z="1" alpha="1" />
+      <Emissive x="0.012" y="0.102" z="0.12" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="0" />
+    </Script>
+  </Object>
+  <Object id="Enemy0" name="Enemy0">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy1" name="Enemy1">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy2" name="Enemy2">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy3" name="Enemy3">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy4" name="Enemy4">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy5" name="Enemy5">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy6" name="Enemy6">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy7" name="Enemy7">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy8" name="Enemy8">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy9" name="Enemy9">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy10" name="Enemy10">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy11" name="Enemy11">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy12" name="Enemy12">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy13" name="Enemy13">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy14" name="Enemy14">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy15" name="Enemy15">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy16" name="Enemy16">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy17" name="Enemy17">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy18" name="Enemy18">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy19" name="Enemy19">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy20" name="Enemy20">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy21" name="Enemy21">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy22" name="Enemy22">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy23" name="Enemy23">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy24" name="Enemy24">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy25" name="Enemy25">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy26" name="Enemy26">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy27" name="Enemy27">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy28" name="Enemy28">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy29" name="Enemy29">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy30" name="Enemy30">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy31" name="Enemy31">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy32" name="Enemy32">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy33" name="Enemy33">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy34" name="Enemy34">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy35" name="Enemy35">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy36" name="Enemy36">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy37" name="Enemy37">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy38" name="Enemy38">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy39" name="Enemy39">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy40" name="Enemy40">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy41" name="Enemy41">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy42" name="Enemy42">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy43" name="Enemy43">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy44" name="Enemy44">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy45" name="Enemy45">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy46" name="Enemy46">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy47" name="Enemy47">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy48" name="Enemy48">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy49" name="Enemy49">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy50" name="Enemy50">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy51" name="Enemy51">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy52" name="Enemy52">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy53" name="Enemy53">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy54" name="Enemy54">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy55" name="Enemy55">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy56" name="Enemy56">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy57" name="Enemy57">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy58" name="Enemy58">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy59" name="Enemy59">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy60" name="Enemy60">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy61" name="Enemy61">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy62" name="Enemy62">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Enemy63" name="Enemy63">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.85" y="0.85" z="0.85" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.18" z="0.12" alpha="1" />
+      <Emissive x="0.12" y="0.021599999999999998" z="0.0144" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="1" />
+    </Script>
+  </Object>
+  <Object id="Projectile0" name="Projectile0">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile1" name="Projectile1">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile2" name="Projectile2">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile3" name="Projectile3">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile4" name="Projectile4">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile5" name="Projectile5">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile6" name="Projectile6">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile7" name="Projectile7">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile8" name="Projectile8">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile9" name="Projectile9">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile10" name="Projectile10">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile11" name="Projectile11">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile12" name="Projectile12">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile13" name="Projectile13">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile14" name="Projectile14">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile15" name="Projectile15">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile16" name="Projectile16">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile17" name="Projectile17">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile18" name="Projectile18">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile19" name="Projectile19">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile20" name="Projectile20">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile21" name="Projectile21">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile22" name="Projectile22">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="Projectile23" name="Projectile23">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="0.22" y="0.22" z="0.22" />
+    </Transform>
+    <Mesh primitive="3" asset="" visible="true" />
+    <Material metallic="0" roughness=".65" useLight="1">
+      <BaseColor x="1" y="0.9" z="0.1" alpha="1" />
+      <Emissive x="0.12" y="0.108" z="0.012" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorActor" enabled="true">
+      <Field name="Role" value="2" />
+    </Script>
+  </Object>
+  <Object id="HUD" name="HUD">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="20" y="20" width="1050" height="95" fontSize="22" visible="true" text="ATOM SURVIVORS | Press Play" layer="10" responsive="true">
+      <Color x="1" y="1" z="1" alpha="1" />
+    </UI>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorGame" enabled="true">
+      <Field name="DeathSound" value="Asset/Sounds/se.mp3" />
+      <Field name="Controls" value="Wasd" />
+      <Field name="RestartKey" value="R" />
+    </Script>
+    <AudioSource clip="Asset/Sounds/se.mp3" volume=".65" loop="false" playOnAwake="false" />
+  </Object>
+  <Environment enabled="false" fxaa="true" autoExposure="false" exposure="1" intensity="1" />
+  <EditorCamera fov="55" near=".1" far="200">
+    <Position x="0" y="25" z="-19" />
+    <Rotation x="0.44619781310980877" y="0" z="0" w="0.8949343616020251" />
+  </EditorCamera>
+  <Object id="HealthBar" name="Health bar">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="24" y="115" width="250" height="16" text="" responsive="true" progressBar="true" progress="1" layer="1">
+      <Color x=".1" y=".8" z=".3" alpha="1" />
+      <Background x=".1" y=".15" z=".2" alpha="1" />
+    </UI>
+  </Object>
+  <Object id="UpgradeChoices" name="Upgrade choices" active="false">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="0" y="-50" width="930" height="70" text="" responsive="true" anchorMinX=".5" anchorMinY=".5" anchorMaxX=".5" anchorMaxY=".5" pivotX=".5" pivotY=".5" layout="1" padding="8" spacing="10" layer="3" />
+  </Object>
+  <Object id="Upgrade0" name="Upgrade 0" parent="UpgradeChoices">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="0" y="0" width="295" height="50" text="1: Faster shots" responsive="true" interactable="true" fontSize="24" layoutOrder="0" layer="4">
+      <Color x="1" y="1" z="1" alpha="1" />
+      <Background x=".15" y=".2" z=".3" alpha="1" />
+    </UI>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorUpgrade" enabled="true">
+      <Field name="Choice" value="0" />
+    </Script>
+  </Object>
+  <Object id="Upgrade1" name="Upgrade 1" parent="UpgradeChoices">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="0" y="0" width="295" height="50" text="2: Move speed" responsive="true" interactable="true" fontSize="24" layoutOrder="1" layer="4">
+      <Color x="1" y="1" z="1" alpha="1" />
+      <Background x=".15" y=".2" z=".3" alpha="1" />
+    </UI>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorUpgrade" enabled="true">
+      <Field name="Choice" value="1" />
+    </Script>
+  </Object>
+  <Object id="Upgrade2" name="Upgrade 2" parent="UpgradeChoices">
+    <Transform>
+      <Position x="0" y="0" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <UI x="0" y="0" width="295" height="50" text="3: Heal +2" responsive="true" interactable="true" fontSize="24" layoutOrder="2" layer="4">
+      <Color x="1" y="1" z="1" alpha="1" />
+      <Background x=".15" y=".2" z=".3" alpha="1" />
+    </UI>
+    <Script assembly="Scripts/AtomScripts.dll" type="Game.SurvivorUpgrade" enabled="true">
+      <Field name="Choice" value="2" />
+    </Script>
+  </Object>
+</Scene>

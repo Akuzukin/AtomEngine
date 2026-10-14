@@ -189,7 +189,8 @@ void UiRenderer::Render(GraphicsContext &ctx, World &w)
     ctx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     for (auto e : UiSystem::DrawOrder(w))
     {
-        auto &c = w.GetComponent<UiElementComponent>(e);
+        auto c = w.GetComponent<UiElementComponent>(e);
+        auto rect=UiSystem::Resolve(w,e);c.position=rect.position;c.size=rect.size;c.fontSize*=rect.fontScale;
         if (!c.visible)
             continue;
         auto draw = [&](D3D12_CPU_DESCRIPTOR_HANDLE srv, const Color &color) {
@@ -210,8 +211,8 @@ void UiRenderer::Render(GraphicsContext &ctx, World &w)
             ctx.SetDynamicVB(0, 6, sizeof(SpriteVertex), vertices);
             ctx.Draw(6);
         };
-        if (c.interactable)
-            draw(white.GetSRV(), c.background);
+        if(c.interactable || c.progressBar)draw(white.GetSRV(),e==w.uiFocus?Color(.3f,.5f,.8f,1):c.background);
+        if(c.progressBar){auto full=c.size.x;c.size.x*=std::clamp(c.progress,0.f,1.f);draw(white.GetSRV(),c.color);c.size.x=full;}
         if (!c.texture.empty())
         {
             auto it = images.find(c.texture);

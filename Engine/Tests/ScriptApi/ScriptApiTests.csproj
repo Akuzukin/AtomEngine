@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><AssemblyName>Atom.ScriptApiTests</AssemblyName><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AllowUnsafeBlocks>true</AllowUnsafeBlocks><RoslynTools>$(MSBuildSDKsPath)/../DotnetTools/dotnet-format</RoslynTools></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../Managed/GameScripts/GameScripts.csproj" /></ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.Workspaces.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Features"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.Features.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Features"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath></Reference>
+    <Reference Include="System.Composition.AttributedModel"><HintPath>$(RoslynTools)/System.Composition.AttributedModel.dll</HintPath></Reference>
+    <Reference Include="System.Composition.Runtime"><HintPath>$(RoslynTools)/System.Composition.Runtime.dll</HintPath></Reference>
+    <Reference Include="System.Composition.Hosting"><HintPath>$(RoslynTools)/System.Composition.Hosting.dll</HintPath></Reference>
+    <Reference Include="System.Composition.TypedParts"><HintPath>$(RoslynTools)/System.Composition.TypedParts.dll</HintPath></Reference>
+    <Reference Include="System.Composition.Convention"><HintPath>$(RoslynTools)/System.Composition.Convention.dll</HintPath></Reference>
+    <Reference Include="Humanizer"><HintPath>$(RoslynTools)/Humanizer.dll</HintPath></Reference>
+    <Reference Include="Microsoft.DiaSymReader"><HintPath>$(RoslynTools)/Microsoft.DiaSymReader.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Elfie"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.Elfie.dll</HintPath></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Scripting"><HintPath>$(RoslynTools)/Microsoft.CodeAnalysis.Scripting.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

@@ -137,7 +137,7 @@ void SSAO::Shutdown()
 }
 void SSAO::Render(GraphicsContext &GfxContext, const float *ProjMat, float NearClipDist, float FarClipDist)
 {
-#ifndef RELEASE
+#if !defined(RELEASE) && !defined(ATOM_GAME_RUNTIME)
     if (ImGui::GetCurrentContext() && gContext.showRenderDiagnostics)
     {
         ImGui::Begin("SSAO");

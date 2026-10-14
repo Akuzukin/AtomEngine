@@ -5,13 +5,27 @@
 #include <regex>
 #include <Windows.h>
 #include "Runtime/Core/Utility/Utility.h"
+#include "Runtime/Function/Scene/GameProject.h"
 namespace AtomEngine
 {
+inline std::filesystem::path EngineSourceDirectory()
+{
+    for (auto start : {EngineDirectory(), std::filesystem::current_path()})
+        for (auto p = start; !p.empty(); p = p.parent_path())
+        {
+            if (std::filesystem::exists(p / "AtomGame.vcxproj")) return p;
+            if (std::filesystem::exists(p / "Engine/AtomGame.vcxproj")) return p / "Engine";
+            if (p == p.parent_path()) break;
+        }
+    throw std::runtime_error("Engine source/build tools not found");
+}
 class ScriptTools
 {
   public:
     static std::filesystem::path ProjectDirectory()
     {
+        if (ActiveProject.project && !ActiveProject.project->scriptProject.empty())
+            return (ActiveProject.project->Root() / UTF8ToWString(ActiveProject.project->scriptProject)).parent_path();
         wchar_t exe[32768]{};
         GetModuleFileNameW(nullptr, exe, DWORD(std::size(exe)));
         for (auto start : {std::filesystem::current_path(), std::filesystem::path(exe).parent_path()})
@@ -26,6 +40,43 @@ class ScriptTools
             }
         throw std::runtime_error("GameScripts project not found");
     }
+    static std::filesystem::path WorkspacePath()
+    {
+        return ProjectDirectory().parent_path() / L"AtomScripts.code-workspace";
+    }
+    static std::filesystem::path VsCodeExecutable()
+    {
+        auto installed = [](const std::filesystem::path &path) {
+            std::error_code ec;
+            return std::filesystem::is_regular_file(path, ec);
+        };
+        wchar_t buffer[32768]{};
+        for (auto name : {L"Code.exe", L"code.cmd"})
+        {
+            auto length = SearchPathW(nullptr, name, nullptr, DWORD(std::size(buffer)), buffer, nullptr);
+            if (length && length < std::size(buffer))
+            {
+                auto path = std::filesystem::path(buffer);
+                if (std::wstring(name) == L"code.cmd")
+                    path = path.parent_path().parent_path() / L"Code.exe";
+                if (installed(path))
+                    return path;
+            }
+        }
+        for (auto variable : {L"LOCALAPPDATA", L"ProgramFiles", L"ProgramFiles(x86)"})
+        {
+            auto length = GetEnvironmentVariableW(variable, buffer, DWORD(std::size(buffer)));
+            if (!length || length >= std::size(buffer))
+                continue;
+            auto path = std::filesystem::path(buffer);
+            if (std::wstring(variable) == L"LOCALAPPDATA")
+                path /= L"Programs";
+            path /= L"Microsoft VS Code/Code.exe";
+            if (installed(path))
+                return path;
+        }
+        throw std::runtime_error("VS Code not found; install VS Code or add its bin directory to PATH");
+    }
     static std::filesystem::path Generate(const std::string &name, bool overrides,
                                           const std::filesystem::path &directory = {})
     {
@@ -34,7 +85,7 @@ class ScriptTools
         auto path = (directory.empty() ? ProjectDirectory() : directory) / (name + ".cs");
         if (std::filesystem::exists(path))
             throw std::runtime_error("Script already exists");
-        std::string source = "using Atom;\n\nnamespace Game;\n\npublic sealed class @" + name + " : Behaviour\n{\n";
+        std::string source = "using Atom;\n\n// Open AtomScripts.code-workspace in VS Code for engine API completion and documentation.\nnamespace Game;\n\npublic sealed class @" + name + " : Behaviour\n{\n";
         if (overrides)
             source += "    public override void OnCreate() { }\n"
                       "    public override void OnUpdate(float dt) { }\n"
@@ -56,7 +107,9 @@ class ScriptTools
     }
     static std::future<int> Build()
     {
-        auto project = ProjectDirectory() / "GameScripts.csproj";
+        auto project = ActiveProject.project && !ActiveProject.project->scriptProject.empty()
+            ? ActiveProject.project->Root() / UTF8ToWString(ActiveProject.project->scriptProject)
+            : ProjectDirectory() / "GameScripts.csproj";
         wchar_t exe[32768]{};
         GetModuleFileNameW(nullptr, exe, DWORD(std::size(exe)));
         auto output = std::filesystem::path(exe).parent_path() / "Scripts";
@@ -81,7 +134,7 @@ class ScriptTools
 #endif
             auto buildOutput = output / "Build";
             auto command = L"dotnet build \"" + project.wstring() + L"\" -c " + config + L" -o \"" +
-                           buildOutput.wstring() + L"\" --nologo --ignore-failed-sources";
+                           buildOutput.wstring() + L"\" --nologo --ignore-failed-sources -p:AtomEngineSdkProject=\"" + (EngineSourceDirectory() / L"Managed/Atom.Managed/Atom.Managed.csproj").wstring() + L"\"";
             bool ok = CreateProcessW(nullptr, command.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr,
                                      project.parent_path().c_str(), &si, &process);
             if (!ok)
@@ -96,7 +149,7 @@ class ScriptTools
             CloseHandle(process.hThread);
             CloseHandle(file);
             if (!code)
-                for (auto extension : {L".pdb", L".deps.json", L".dll"})
+                for (auto extension : {L".pdb", L".xml", L".deps.json", L".dll"})
                 {
                     auto name = std::wstring(L"AtomScripts") + extension;
                     auto target = output / name, temp = output / (name + L".tmp");

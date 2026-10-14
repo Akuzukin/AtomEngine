@@ -1,5 +1,7 @@
 #include "AssetManager.h"
+#include "Runtime/Function/Scene/GameProject.h"
 #include "ModelLoader.h"
+#include "AssetArchive.h"
 #include "Primitive.h"
 #include "Runtime/Core/LogSystem/LogSystem.h"
 #include <set>
@@ -40,7 +42,7 @@ AssetPreloadBatch::AssetPreloadBatch(std::vector<AssetRequest> requests, bool as
     for (auto &request : requests)
     {
         auto path = request.path.empty() ? std::string()
-                                         : WStringToUTF8(std::filesystem::absolute(std::filesystem::path(sRootPath) /
+                                         : WStringToUTF8(ResolveAssetFile(std::filesystem::path(sRootPath) /
                                                                                    UTF8ToWString(request.path))
                                                              .lexically_normal()
                                                              .wstring());
@@ -71,7 +73,7 @@ const PreloadReport &AssetPreloadBatch::Step(size_t budget)
                         CoInitializeEx(nullptr, COINIT_MULTITHREADED);
                         try
                         {
-                            p->path = std::filesystem::absolute(std::filesystem::path(root) / UTF8ToWString(r.path))
+                            p->path = ResolveAssetFile(std::filesystem::path(root) / UTF8ToWString(r.path))
                                           .lexically_normal()
                                           .wstring();
                             if (r.kind == AssetKind::Model)
@@ -83,8 +85,7 @@ const PreloadReport &AssetPreloadBatch::Step(size_t budget)
                             else
                             {
                                 std::lock_guard prepareGuard(sPreparationMutex);
-                                CompileTextureOnDemand(p->path, TextureOptions(r.sRGB));
-                                p->path = RemoveExtension(p->path) + L".dds";
+                                if (!GameArchiveMounted()) { CompileTextureOnDemand(p->path, TextureOptions(r.sRGB)); p->path = RemoveExtension(p->path) + L".dds"; }
                                 p->texture = ReadFileSync(p->path);
                             }
                         }
@@ -214,7 +215,7 @@ std::shared_ptr<ManagedTexture> FindOrLoadTexture(const std::wstring &fileName, 
                                                   bool forceSRGB)
 {
     const auto path =
-        std::filesystem::absolute(std::filesystem::path(sRootPath) / fileName).lexically_normal().wstring();
+        ResolveAssetFile(std::filesystem::path(sRootPath) / fileName).lexically_normal().wstring();
     const auto key = path + (forceSRGB ? L"_sRGB" : L"_linear") + std::to_wstring(static_cast<int>(fallback));
     std::lock_guard<std::mutex> guard(sTextureMutex);
     auto it = sTextureCache.find(key);
@@ -242,7 +243,8 @@ TextureRef AssetManager::LoadTextureFile(const std::string &filePath, eDefaultTe
 TextureRef AssetManager::LoadCovertTexture(const std::wstring &filePath, eDefaultTexture fallback, bool forceSRGB)
 {
     std::wstring originalFile =
-        std::filesystem::absolute(std::filesystem::path(sRootPath) / filePath).lexically_normal().wstring();
+        ResolveAssetFile(std::filesystem::path(sRootPath) / filePath).lexically_normal().wstring();
+    if (GameArchiveMounted()) return FindOrLoadTexture(originalFile, fallback, forceSRGB);
     {
         std::lock_guard prepareGuard(sPreparationMutex);
         CompileTextureOnDemand(originalFile, TextureOptions(forceSRGB));
@@ -266,7 +268,7 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string &filePath)
 {
     std::lock_guard<std::mutex> guard(sModelMutex);
 
-    std::wstring filePathW = std::filesystem::absolute(std::filesystem::path(sRootPath) / UTF8ToWString(filePath))
+    std::wstring filePathW = ResolveAssetFile(std::filesystem::path(sRootPath) / UTF8ToWString(filePath))
                                  .lexically_normal()
                                  .wstring();
 

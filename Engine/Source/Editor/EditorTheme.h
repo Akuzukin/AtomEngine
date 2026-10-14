@@ -1,6 +1,7 @@
 #pragma once
 #include "imgui.h"
 #include <cmath>
+#include <string>
 
 namespace AtomEngine::EditorTheme
 {
@@ -48,7 +49,7 @@ enum class Icon
     Play,
     Stop,
     Pause,
-    Step
+    Step, Save, Undo, Redo, Move, Rotate, Scale, Settings, Folder, File, Cube, Audio, Script
 };
 inline bool IconButton(const char *id, Icon icon, bool active, ImVec4 background, ImVec4 foreground = Gray(214))
 {
@@ -74,8 +75,47 @@ inline bool IconButton(const char *id, Icon icon, bool active, ImVec4 background
         draw->AddTriangleFilled(ImVec2(x - r, y - r), ImVec2(x + r * .45f, y), ImVec2(x - r, y + r), color);
         draw->AddRectFilled(ImVec2(x + r * .65f, y - r), ImVec2(x + r * 1.05f, y + r), color, 1);
         break;
+    case Icon::Save:
+        draw->AddRect(ImVec2(x-r,y-r),ImVec2(x+r,y+r),color,1,0,1.5f);
+        draw->AddRectFilled(ImVec2(x-r*.5f,y-r),ImVec2(x+r*.5f,y-r*.2f),color);
+        draw->AddRect(ImVec2(x-r*.5f,y+r*.2f),ImVec2(x+r*.5f,y+r),color);
+        break;
+    case Icon::Undo: case Icon::Redo:
+        draw->AddCircle(ImVec2(x,y),r*.8f,color,16,1.5f);
+        {float direction=icon==Icon::Undo?-1.f:1.f;draw->AddTriangleFilled(ImVec2(x+direction*r,y-r),ImVec2(x+direction*r,y),ImVec2(x,y-r),color);}break;
+    case Icon::Move:
+        draw->AddLine(ImVec2(x-r,y),ImVec2(x+r,y),color,1.5f);draw->AddLine(ImVec2(x,y-r),ImVec2(x,y+r),color,1.5f);
+        draw->AddTriangleFilled(ImVec2(x+r,y),ImVec2(x+r*.5f,y-r*.35f),ImVec2(x+r*.5f,y+r*.35f),color);break;
+    case Icon::Rotate: case Icon::Settings:
+        draw->AddCircle(ImVec2(x,y),r,color,icon==Icon::Settings?8:20,1.8f);draw->AddCircleFilled(ImVec2(x,y),r*.3f,color);break;
+    case Icon::Scale:
+        draw->AddRect(ImVec2(x-r,y-r),ImVec2(x+r,y+r),color);draw->AddLine(ImVec2(x-r,y+r),ImVec2(x+r,y-r),color,2);break;
+    default:
+        draw->AddRect(ImVec2(x-r,y-r),ImVec2(x+r,y+r),color,1,0,1.5f);draw->AddLine(ImVec2(x-r*.5f,y),ImVec2(x+r*.5f,y),color,1.5f);break;
     }
     return clicked;
+}
+// 原生矢量资源图标，无需额外字体或纹理资源。
+inline void ResourceIcon(ImDrawList *draw, ImVec2 center, float radius, const std::string &extension)
+{
+    float x=center.x,y=center.y,r=radius;auto color=U32(165,190,220);
+    if(extension==".mp3" || extension==".wav") {
+        draw->AddLine(ImVec2(x,y-r),ImVec2(x,y+r*.6f),color,2);
+        draw->AddLine(ImVec2(x,y-r),ImVec2(x+r*.7f,y-r*.5f),color,2);
+        draw->AddCircleFilled(ImVec2(x-r*.3f,y+r*.6f),r*.4f,color);
+    } else if(extension==".cs" || extension==".hlsl") {
+        draw->AddLine(ImVec2(x-r*.3f,y-r),ImVec2(x-r,y),color,2);draw->AddLine(ImVec2(x-r,y),ImVec2(x-r*.3f,y+r),color,2);
+        draw->AddLine(ImVec2(x+r*.3f,y-r),ImVec2(x+r,y),color,2);draw->AddLine(ImVec2(x+r,y),ImVec2(x+r*.3f,y+r),color,2);
+    } else if(extension==".mat") {
+        draw->AddCircleFilled(center,r,U32(91,151,205));draw->AddCircleFilled(ImVec2(x-r*.3f,y-r*.3f),r*.35f,U32(213,232,245));
+    } else if(extension==".prefab" || extension==".scene" || extension==".obj" || extension==".gltf" || extension==".fbx") {
+        draw->AddQuad(ImVec2(x,y-r),ImVec2(x+r,y-r*.4f),ImVec2(x,y+r*.2f),ImVec2(x-r,y-r*.4f),color,1.5f);
+        draw->AddLine(ImVec2(x-r,y-r*.4f),ImVec2(x-r,y+r*.5f),color,1.5f);draw->AddLine(ImVec2(x+r,y-r*.4f),ImVec2(x+r,y+r*.5f),color,1.5f);
+        draw->AddLine(ImVec2(x,y+r*.2f),ImVec2(x,y+r),color,1.5f);draw->AddLine(ImVec2(x-r,y+r*.5f),ImVec2(x,y+r),color,1.5f);draw->AddLine(ImVec2(x+r,y+r*.5f),ImVec2(x,y+r),color,1.5f);
+    } else {
+        draw->AddRect(ImVec2(x-r*.7f,y-r),ImVec2(x+r*.7f,y+r),color,1,0,1.5f);
+        for(int i=-1;i<=1;++i)draw->AddLine(ImVec2(x-r*.4f,y+i*r*.45f),ImVec2(x+r*.4f,y+i*r*.45f),color);
+    }
 }
 inline void Apply()
 {

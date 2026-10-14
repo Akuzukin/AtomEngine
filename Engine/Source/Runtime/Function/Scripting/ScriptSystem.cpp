@@ -1,17 +1,25 @@
 #include "ScriptSystem.h"
 #include "Runtime/Function/Framework/Component/SceneComponents.h"
 #include "Runtime/Function/Framework/Component/TransformComponent.h"
+#include "Runtime/Function/Framework/Component/MeshComponent.h"
 #include "Runtime/Function/Input/Input.h"
 #include "External/dotnet/nethost.h"
 #include "External/dotnet/hostfxr.h"
 #include "External/dotnet/coreclr_delegates.h"
 #include "json.hpp"
+#include "Runtime/Function/Audio/Audio.h"
+#include "Runtime/Function/Scene/SceneSerializer.h"
+#include "Runtime/Function/Scene/GameProject.h"
+#include "Runtime/Function/Framework/ECS/GameObject.h"
+#include "Runtime/Core/LogSystem/LogSystem.h"
+#include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 #include <Windows.h>
 #include <filesystem>
 #include <set>
 #include <algorithm>
 #include <cmath>
 #include <atomic>
+#include <vector>
 namespace AtomEngine
 {
 using Json = nlohmann::json;
@@ -24,11 +32,18 @@ struct ScriptSystem::Impl
     struct Context
     {
         World *world = nullptr;
-        std::string error;
+        std::string error, response, exchangeResponse;
+        PhysicsWorld *physics=nullptr;
+        struct Command { uint64_t request; int operation; uint32_t entity; std::string value; NativeTransform pose; };
+        std::vector<Command> commands;
+        std::map<uint64_t, uint32_t> results;
+        std::set<uint64_t> inFlight;
+        bool acceptCommands = false;
+        uint64_t generation = 1;
     };
     struct NativeApi
     {
-        uint32_t version = 3, size = sizeof(NativeApi);
+        uint32_t version = 7, size = sizeof(NativeApi);
         int(__cdecl *get)(void *, uint32_t, NativeTransform *);
         int(__cdecl *set)(void *, uint32_t, NativeTransform *);
         int(__cdecl *key)(int);
@@ -37,6 +52,15 @@ struct ScriptSystem::Impl
         int(__cdecl *button)(int, int);
         float(__cdecl *axis)(int);
         int(__cdecl *uiText)(void *, uint32_t, char *, int, int);
+        uint32_t(__cdecl *find)(void *, const char *);
+        int(__cdecl *valid)(void *, uint32_t);
+        int(__cdecl *visible)(void *, uint32_t, int);
+        int(__cdecl *audio)(void *, uint32_t, int, const char *, float);
+        uint64_t(__cdecl *command)(void *, uint32_t, int, const char *, NativeTransform *);
+        int(__cdecl *result)(void *, uint64_t, uint32_t *);
+        uint64_t(__cdecl *epoch)(void *);
+        void(__cdecl *reply)(void *, const char *);
+        int(__cdecl *exchange)(void *,const char *,char *,int);
     };
     using Dispatch = int(__cdecl *)(const char *, const NativeApi *, void *);
     Dispatch dispatch = nullptr;
@@ -50,6 +74,8 @@ struct ScriptSystem::Impl
         bool failed = false;
         std::filesystem::path assembly;
         bool created = true;
+        bool enabled=false;
+        std::map<std::string,std::string> fields;
     };
     std::map<std::pair<Entity, size_t>, Instance> instances;
     struct WatchedAssembly
@@ -59,8 +85,12 @@ struct ScriptSystem::Impl
     std::map<std::filesystem::path, WatchedAssembly> assemblies;
     float reloadTimer = 0;
     std::weak_ptr<void> lifetime;
-    static inline std::atomic<uint64_t> nextId = 0;
+    static inline std::atomic<uint64_t> nextId = 0, nextCommand = 0;
     float accumulator = 0;
+    float frameDelta = 0, fixedDelta = 1.f / 60;
+    double elapsed = 0, fixedElapsed = 0;
+    uint64_t frames = 0, fixedFrames = 0;
+    bool paused = false;
     Impl()
     {
         api.get = [](void *p, uint32_t e, NativeTransform *out) -> int {
@@ -100,7 +130,7 @@ struct ScriptSystem::Impl
             t->scale = Vector3(in->scale[0], in->scale[1], in->scale[2]);
             return 1;
         };
-        api.key = [](int k) -> int { return k >= 0 && k < 256 && Input::GetInstance()->IsPressKey(uint8_t(k)); };
+        api.key = [](int k) -> int { return Input::GetInstance()->GameplayInputEnabled() && k >= 0 && k < 256 && Input::GetInstance()->IsPressKey(uint8_t(k)); };
         api.log = [](void *p, const char *s) {
             static_cast<Context *>(p)->error = s;
             OutputDebugStringA(s);
@@ -125,6 +155,7 @@ struct ScriptSystem::Impl
         };
         api.button = [](int device, int index) -> int {
             auto *input = Input::GetInstance();
+            if (!input->GameplayInputEnabled()) return 0;
             if (device == 0)
                 return input->IsPressMouse(index);
             if (device == 1)
@@ -134,6 +165,7 @@ struct ScriptSystem::Impl
             return 0;
         };
         api.axis = [](int axis) -> float {
+            if (!Input::GetInstance()->GameplayInputEnabled()) return 0;
             auto &s = Input::GetInstance()->GetGamePadStick();
             switch (axis)
             {
@@ -152,6 +184,119 @@ struct ScriptSystem::Impl
             default:
                 return 0;
             }
+        };
+        api.find = [](void *p, const char *id) -> uint32_t {
+            auto *w = static_cast<Context *>(p)->world;
+            if (w && id)
+                for (auto e : w->View<PersistentIdComponent>())
+                    if (w->GetComponent<PersistentIdComponent>(e).value == id) return uint32_t(e);
+            return uint32_t(entt::null);
+        };
+        api.valid = [](void *p, uint32_t e) -> int {
+            auto *w = static_cast<Context *>(p)->world;
+            return w && w->IsValid(Entity(e));
+        };
+        api.visible = [](void *p, uint32_t e, int value) -> int {
+            auto *w = static_cast<Context *>(p)->world;
+            if (!w || !w->IsValid(Entity(e))) return -1;
+            auto *mesh = w->TryGet<MeshComponent>(Entity(e));
+            auto *ui = w->TryGet<UiElementComponent>(Entity(e));
+            auto *source = w->TryGet<MeshSourceComponent>(Entity(e));
+            if (!mesh && !ui && !source) return -1;
+            if (value >= 0) {
+                if (source) source->visible = value != 0;
+                if (mesh) mesh->SetIsRender(value != 0);
+                if (ui) ui->visible = value != 0;
+            }
+            return mesh ? mesh->IsRender() : source ? source->visible : ui->visible;
+        };
+        api.exchange = [](void *p,const char *request,char *buffer,int capacity)->int {
+            auto &c=*static_cast<Context *>(p);
+            if(request) try {
+                auto j=Json::parse(request);if(!c.world)throw std::runtime_error("Physics runtime unavailable");
+                auto vector=[](const Json &v){if(!v.is_array() || v.size()!=3)throw std::runtime_error("Expected vector3");return Vector3(v.at(0).get<float>(),v.at(1).get<float>(),v.at(2).get<float>());};
+                auto mask=j.value("mask",0xffffffffu);auto triggers=j.value("triggers",false);auto ignore=Entity(j.value("ignore",uint32_t(entt::null)));
+                Json out=nullptr;auto op=j.at("op").get<std::string>();
+                if(op=="scene") {
+                    auto action=j.at("action").get<std::string>();
+                    if(action=="current")out=ActiveProject.currentScene;
+                    else if(action=="error")out=ActiveProject.lastLoadError;
+                    else if(action=="loading")out=ActiveProject.pendingScene.has_value();
+                    else if(action=="list")out=Json(ActiveProject.ScenePaths());
+                    else if(action=="load") {
+                        if(!c.acceptCommands)throw std::runtime_error("Scene loading is only available during gameplay callbacks");
+                        ActiveProject.RequestScene(j.at("scene").get<std::string>());out=true;
+                    } else throw std::runtime_error("Unknown scene operation");
+                }
+                else if(op=="input") {
+                    auto device=j.at("device").get<int>(),code=j.at("code").get<int>(),state=j.at("state").get<int>();
+                    auto input=Input::GetInstance();if(device<0||device>2||state<0||state>2||code<0||(device==0 && code>=256)||(device==1 && code>=5)||(device==2 && code>=COUNT))throw std::runtime_error("Invalid input query");
+                    bool value=false;
+                    if(input->GameplayInputEnabled()) {
+                        if(device==0)value=state==0?input->IsPressKey(uint8_t(code)):state==1?input->IsTriggerKey(uint8_t(code)):input->IsReleaseKey(uint8_t(code));
+                        else if(device==1)value=state==0?input->IsPressMouse(code):state==1?input->IsTriggerMouse(code):input->IsReleaseMouse(code);
+                        else value=state==0?input->IsPressGamePad(GamePadButton(code)):state==1?input->IsTriggerGamePad(GamePadButton(code)):input->IsReleaseGamePad(GamePadButton(code));
+                    }
+                    out=value;
+                }
+                else if(op=="ui") {
+                    auto e=Entity(j.at("entity").get<uint32_t>());auto component=c.world->TryGet<UiElementComponent>(e);if(!component)throw std::runtime_error("Object has no UI element");auto candidate=*component;
+                    auto vec=[](const Json &v){if(!v.is_array()||v.size()!=2)throw std::runtime_error("Expected vector2");auto x=v[0].get<float>(),y=v[1].get<float>();if(!std::isfinite(x)||!std::isfinite(y))throw std::runtime_error("UI vector must be finite");return Vector2(x,y);};
+                    if(j.contains("position"))candidate.position=vec(j["position"]);if(j.contains("size"))candidate.size=vec(j["size"]);if(j.contains("anchorMin"))candidate.anchorMin=vec(j["anchorMin"]);if(j.contains("anchorMax"))candidate.anchorMax=vec(j["anchorMax"]);if(j.contains("pivot"))candidate.pivot=vec(j["pivot"]);
+                    if(j.contains("progress"))candidate.progress=j["progress"].get<float>();if(j.contains("visible"))candidate.visible=j["visible"].get<bool>();if(j.contains("interactable"))candidate.interactable=j["interactable"].get<bool>();if(j.contains("responsive"))candidate.responsive=j["responsive"].get<bool>();
+                    if(!std::isfinite(candidate.progress)||candidate.progress<0||candidate.progress>1||candidate.size.x<=0||candidate.size.y<=0||candidate.size.x>4096||candidate.size.y>4096||candidate.anchorMin.x<0||candidate.anchorMin.y<0||candidate.anchorMax.x>1||candidate.anchorMax.y>1||candidate.anchorMin.x>candidate.anchorMax.x||candidate.anchorMin.y>candidate.anchorMax.y||candidate.pivot.x<0||candidate.pivot.x>1||candidate.pivot.y<0||candidate.pivot.y>1)throw std::runtime_error("Invalid UI layout values");
+                    *component=candidate;out={{"position",{candidate.position.x,candidate.position.y}},{"size",{candidate.size.x,candidate.size.y}},{"progress",candidate.progress},{"anchorMin",{candidate.anchorMin.x,candidate.anchorMin.y}},{"anchorMax",{candidate.anchorMax.x,candidate.anchorMax.y}},{"pivot",{candidate.pivot.x,candidate.pivot.y}},{"visible",candidate.visible},{"responsive",candidate.responsive},{"interactable",candidate.interactable}};
+                }
+                else if(op=="active" || op=="activeHierarchy" || op=="component") {
+                    auto e=Entity(j.at("entity").get<uint32_t>());if(!c.world->IsValid(e))throw std::runtime_error("Destroyed object");
+                    if(op=="component"){auto kind=j.at("kind").get<int>();if(kind<0 || kind>8)throw std::runtime_error("Invalid component kind");if(j.contains("value"))c.world->SetComponentEnabled(e,ComponentKind(kind),j.at("value").get<bool>());auto state=c.world->TryGet<ObjectStateComponent>(e);out=!state || !(state->disabledComponents & (1u<<kind));}
+                    else {if(!c.world->HasComponent<ObjectStateComponent>(e))c.world->AddComponent<ObjectStateComponent>(e);auto &state=c.world->GetComponent<ObjectStateComponent>(e);if(j.contains("value"))state.activeSelf=j.at("value").get<bool>();out=op=="active"?state.activeSelf:c.world->IsActive(e);}
+                }
+                else if(op=="raycast"){if(!c.physics)throw std::runtime_error("Physics runtime unavailable");PhysicsHit hit;if(c.physics->Raycast(*c.world,vector(j.at("origin")),vector(j.at("direction")),j.at("distance").get<float>(),hit,mask,triggers,ignore))out={{"entity",uint32_t(hit.entity)},{"point",{hit.point.x,hit.point.y,hit.point.z}},{"normal",{hit.normal.x,hit.normal.y,hit.normal.z}},{"distance",hit.distance}};}
+                else if(op=="overlap"){if(!c.physics)throw std::runtime_error("Physics runtime unavailable");out=Json::array();for(auto e:c.physics->OverlapSphere(*c.world,vector(j.at("center")),j.at("radius").get<float>(),mask,triggers,ignore))out.push_back(uint32_t(e));}
+                else throw std::runtime_error("Unknown native request");
+                c.exchangeResponse=out.dump();
+            } catch(const std::exception &error){c.exchangeResponse=Json{{"error",error.what()}}.dump();}
+            int count=int(c.exchangeResponse.size())+1;if(buffer && capacity>=count)std::copy_n(c.exchangeResponse.c_str(),count,buffer);return count;
+        };
+        api.reply = [](void *p, const char *value) { static_cast<Context *>(p)->response = value ? value : ""; };
+        api.epoch = [](void *p) -> uint64_t { return static_cast<Context *>(p)->generation; };
+        api.audio = [](void *p, uint32_t e, int operation, const char *path, float volume) -> int {
+            auto *w = static_cast<Context *>(p)->world;
+            if (!w || !w->IsValid(Entity(e))) return 0;
+            try {
+                auto audio = Audio::GetInstance(); uint64_t owner = uint64_t(e) + 1;
+                if (operation == 1) { audio->StopOwner(owner); return 1; }
+                if (!w->IsEnabled(Entity(e),ComponentKind::Audio))return 0;
+                if (operation == 2 && path) { audio->PlayClip(path, volume, false, owner); return 1; }
+                if (auto source = w->TryGet<AudioSourceComponent>(Entity(e)); operation == 0 && source && !source->clip.empty()) {
+                    audio->PlayClip(source->clip, source->volume, source->loop, owner); return 1;
+                }
+            } catch (const std::exception &error) { WriteLog(LogLevel::Warning, "Audio", error.what()); }
+            return 0;
+        };
+        api.command = [](void *p, uint32_t e, int operation, const char *value, NativeTransform *pose) -> uint64_t {
+            auto &c = *static_cast<Context *>(p);
+            if (!c.acceptCommands || !c.world || !c.world->IsValid(Entity(e)) || operation < 0 || operation > 3 ||
+                c.commands.size() >= 256 || (operation != 2 &&
+                    c.results.size() + c.commands.size() + c.inFlight.size() >= 4096)) return 0;
+            if (operation != 2) {
+                if (!value || !*value || !pose) return 0;
+                for (float v : pose->position) if (!std::isfinite(v)) return 0;
+            }
+            auto request = ++nextCommand;
+            c.commands.push_back({request,operation,e,value ? value : "",pose ? *pose : NativeTransform{}});
+            return request;
+        };
+        api.result = [](void *p, uint64_t request, uint32_t *entity) -> int {
+            auto &c = *static_cast<Context *>(p);
+            if (auto it = c.results.find(request); it != c.results.end()) {
+                *entity = it->second; c.results.erase(it);
+                return c.world && c.world->IsValid(Entity(*entity)) ? 1 : -1;
+            }
+            if (c.inFlight.contains(request)) return 0;
+            for (auto &command : c.commands) if (command.request == request) return 0;
+            return -1;
         };
         api.uiText = [](void *p, uint32_t e, char *text, int capacity, int write) -> int {
             auto *w = static_cast<Context *>(p)->world;
@@ -180,6 +325,10 @@ struct ScriptSystem::Impl
     {
         if (!dispatch)
             return false;
+        auto op = j.value("op", std::string{});
+        if (op != "inspect" && op != "validate")
+            j["time"] = {{"delta", frameDelta}, {"fixedDelta", fixedDelta}, {"elapsed", elapsed},
+                         {"fixedElapsed", fixedElapsed}, {"frames", frames}, {"fixedFrames", fixedFrames}, {"paused", paused}};
         auto text = j.dump();
         return dispatch(text.c_str(), &api, &context) == 0;
     }
@@ -216,9 +365,13 @@ bool ScriptSystem::Initialize()
             throw std::runtime_error("Invalid nethost library");
         wchar_t hostPath[4096];
         size_t count = 4096;
-        if (locate(hostPath, &count, nullptr) != 0)
+        auto bundledRoot = root / L"Runtime";
+        get_hostfxr_parameters locateParams{sizeof(get_hostfxr_parameters), nullptr, bundledRoot.c_str()};
+        auto params = std::filesystem::is_directory(bundledRoot / L"host/fxr") ? &locateParams : nullptr;
+        if (locate(hostPath, &count, params) != 0)
             throw std::runtime_error(".NET 10 runtime not installed");
         i.hostfxr = LoadLibraryW(hostPath);
+        WriteLog(LogLevel::Info, "Scripts", "Managed host: " + WStringToUTF8(hostPath));
         if (!i.hostfxr)
             throw std::runtime_error("Cannot load hostfxr");
         auto init = reinterpret_cast<hostfxr_initialize_for_runtime_config_fn>(
@@ -230,7 +383,9 @@ bool ScriptSystem::Initialize()
             throw std::runtime_error("Invalid hostfxr exports");
         hostfxr_handle handle = nullptr;
         auto config = root / L"Scripts/Atom.Managed.runtimeconfig.json";
-        int result = init(config.c_str(), nullptr, &handle);
+        auto hostExe = std::filesystem::path(exe);
+        hostfxr_initialize_parameters initParams{sizeof(hostfxr_initialize_parameters), hostExe.c_str(), bundledRoot.c_str()};
+        int result = init(config.c_str(), params ? &initParams : nullptr, &handle);
         if (result < 0 || !handle)
             throw std::runtime_error("Cannot initialize managed runtime");
         load_assembly_and_get_function_pointer_fn load = nullptr;
@@ -252,17 +407,54 @@ bool ScriptSystem::Initialize()
         return false;
     }
 }
+namespace {
+std::filesystem::path ScriptPath(const std::filesystem::path &path) {
+    if (path.is_absolute()) return path;
+    wchar_t exe[32768]{}; GetModuleFileNameW(nullptr,exe,DWORD(std::size(exe)));
+    return std::filesystem::path(exe).parent_path()/path;
+}
+}
+std::string ScriptSystem::DescribeAssembly(const std::filesystem::path &path)
+{
+    auto &i=*mImpl; i.context.error.clear(); i.context.response.clear();
+    if(!Initialize() || !i.Call({{"op","inspect"},{"assembly",ScriptPath(path).generic_string()}}))
+        throw std::runtime_error(i.context.error.empty()?"Cannot inspect scripts":i.context.error);
+    return i.context.response;
+}
+bool ScriptSystem::ValidateFields(const ScriptAttachment &attachment)
+{
+    auto &i=*mImpl; i.context.error.clear();
+    return Initialize() && i.Call({{"op","validate"},{"assembly",ScriptPath(UTF8ToWString(attachment.assembly)).generic_string()},
+        {"type",attachment.type},{"fields",attachment.fields}});
+}
+void ScriptSystem::SynchronizeParameters(World &world) {
+    auto &i=*mImpl;if(i.context.world!=&world || i.lifetime.lock()!=world.GetLifetime().lock())return;
+    for(auto &[key,instance]:i.instances)if(instance.created && world.IsValid(key.first))if(auto component=world.TryGet<ScriptComponent>(key.first);component && key.second<component->scripts.size()){
+        auto &attachment=component->scripts[key.second];if(attachment.fields==instance.fields)continue;
+        if(i.Call({{"op","patchFields"},{"id",instance.id},{"fields",attachment.fields}})){instance.fields=attachment.fields;i.context.error.clear();}else attachment.fields=instance.fields;
+    }
+}
+std::string ScriptSystem::ReadFields(World &world,Entity e,size_t index) {
+    auto &i=*mImpl;auto it=i.instances.find({e,index});if(i.context.world!=&world || i.lifetime.lock()!=world.GetLifetime().lock() || it==i.instances.end() || !it->second.created)return "{}";
+    i.context.response.clear();if(!i.Call({{"op","readFields"},{"id",it->second.id}}))return "{}";return i.context.response;
+}
+void ScriptSystem::SetPhysics(PhysicsWorld *physics){mImpl->context.physics=physics;}
 void ScriptSystem::Reset()
 {
     auto &i = *mImpl;
     if (i.lifetime.expired())
         i.context.world = nullptr;
+    i.context.acceptCommands = false;
     for (auto &[key, instance] : i.instances)
-        i.Call({{"op", "destroy"}, {"id", instance.id}});
+        {if(instance.enabled)i.Call({{"op","disable"},{"id",instance.id}});i.Call({{"op", "destroy"}, {"id", instance.id}});}
     i.instances.clear();
+    i.context.commands.clear(); i.context.results.clear(); i.context.inFlight.clear(); ++i.context.generation;
     i.lifetime.reset();
     i.context.world = nullptr;
     i.accumulator = 0;
+    i.frameDelta = 0; i.fixedDelta = 1.f / 60; i.elapsed = i.fixedElapsed = 0;
+    i.frames = i.fixedFrames = 0; i.paused = false;
+    i.Call({{"op", "time"}});
     i.context.error.clear();
 }
 bool ScriptSystem::ReloadAssembly(const std::filesystem::path &file)
@@ -299,6 +491,10 @@ void ScriptSystem::Update(World &w, float dt)
         i.lifetime = life;
     }
     i.context.world = &w;
+    i.context.acceptCommands = true;
+    dt = std::isfinite(dt) ? (std::max)(0.f, dt) : 0.f;
+    i.frameDelta = dt; i.elapsed += double(dt); ++i.frames; i.paused = false;
+    i.Call({{"op", "time"}});
     i.reloadTimer += (std::max)(0.f, dt);
     if (i.reloadTimer >= .5f)
     {
@@ -323,21 +519,23 @@ void ScriptSystem::Update(World &w, float dt)
         }
     }
     std::set<std::pair<Entity, size_t>> active;
+    std::vector<std::pair<Entity, size_t>> updates;
     for (auto e : w.View<ScriptComponent>())
     {
         auto &scripts = w.GetComponent<ScriptComponent>(e).scripts;
         for (size_t index = 0; index < scripts.size(); ++index)
         {
             auto &s = scripts[index];
-            if (!s.enabled || s.assembly.empty() || s.type.empty())
+            if (s.assembly.empty() || s.type.empty())
                 continue;
             auto key = std::make_pair(e, index);
             active.insert(key);
             Json definition = {{"assembly", s.assembly}, {"type", s.type}, {"fields", s.fields}};
-            auto signature = definition.dump();
+            auto signature = Json{{"assembly",s.assembly},{"type",s.type}}.dump();
             auto it = i.instances.find(key);
             if (it != i.instances.end() && it->second.signature != signature)
             {
+                if(it->second.enabled)i.Call({{"op","disable"},{"id",it->second.id}});
                 i.Call({{"op", "destroy"}, {"id", it->second.id}});
                 i.instances.erase(it);
                 it = i.instances.end();
@@ -364,28 +562,108 @@ void ScriptSystem::Update(World &w, float dt)
                 definition["entity"] = uint32_t(e);
                 definition["assembly"] = path.generic_string();
                 bool ok = i.Call(definition);
-                it = i.instances.emplace(key, Impl::Instance{id, signature, !ok, path, ok}).first;
+                it = i.instances.emplace(key, Impl::Instance{id, signature, !ok, path, ok, false, s.fields}).first;
             }
-            if (!it->second.failed && !i.Call({{"op", "update"}, {"id", it->second.id}, {"dt", dt}}))
-                it->second.failed = true;
+            if(it->second.created && it->second.fields!=s.fields){
+                if(i.Call({{"op","patchFields"},{"id",it->second.id},{"fields",s.fields}})){it->second.fields=s.fields;i.context.error.clear();}
+                else s.fields=it->second.fields;
+            }
+            updates.push_back(key);
         }
     }
     for (auto it = i.instances.begin(); it != i.instances.end();)
         if (!active.contains(it->first))
         {
-            i.Call({{"op", "destroy"}, {"id", it->second.id}});
+            if(it->second.enabled)i.Call({{"op","disable"},{"id",it->second.id}});
+                i.Call({{"op", "destroy"}, {"id", it->second.id}});
             it = i.instances.erase(it);
         }
         else
             ++it;
+    // Finish all OnCreate/OnDestroy callbacks before the first OnUpdate.
+    // Startup registries must not depend on the ECS pool's iteration order,
+    // which can change after restoring the editing snapshot on Stop.
+    for (const auto &key : updates)
+    {
+        auto it = i.instances.find(key);
+        if(it==i.instances.end())continue;
+        auto e=key.first;auto component=w.TryGet<ScriptComponent>(e);
+        bool enabled=component && key.second<component->scripts.size() && component->scripts[key.second].enabled && w.IsEnabled(e,ComponentKind::Script);
+        if(it->second.created && it->second.enabled!=enabled){it->second.enabled=enabled;if(!i.Call({{"op",enabled?"enable":"disable"},{"id",it->second.id}}))it->second.failed=true;}
+        if (enabled && !it->second.failed &&
+            !i.Call({{"op", "update"}, {"id", it->second.id}, {"dt", dt}}))
+            it->second.failed = true;
+    }
+    for(auto &[key,instance]:i.instances){auto component=w.TryGet<ScriptComponent>(key.first);bool enabled=component && key.second<component->scripts.size() && component->scripts[key.second].enabled && w.IsEnabled(key.first,ComponentKind::Script);
+        if(instance.created && instance.enabled!=enabled){instance.enabled=enabled;if(!i.Call({{"op",enabled?"enable":"disable"},{"id",instance.id}}))instance.failed=true;}}
+}
+void ScriptSystem::FlushCommands(World &w)
+{
+    auto &i = *mImpl;
+    if (i.context.world != &w) return;
+    auto commands = std::move(i.context.commands); i.context.commands.clear();
+    for (const auto &command : commands) i.context.inFlight.insert(command.request);
+    for (const auto &command : commands)
+    {
+        if (command.operation == 2)
+        {
+            Entity root = Entity(command.entity); i.context.inFlight.erase(command.request); if (!w.IsValid(root)) continue;
+            std::set<Entity> destroyed{root};
+            bool changed = true;
+            while (changed) {
+                changed = false;
+                for (auto e : w.View<HierarchyComponent>()) {
+                    auto parent = w.GetComponent<HierarchyComponent>(e).parentId;
+                    for (auto candidate : destroyed)
+                        if (auto id = w.TryGet<PersistentIdComponent>(candidate); id && id->value == parent && !destroyed.contains(e))
+                            { destroyed.insert(e); changed = true; break; }
+                }
+            }
+            for (auto it = i.instances.begin(); it != i.instances.end();)
+                if (destroyed.contains(it->first.first)) {
+                    if(it->second.enabled)i.Call({{"op","disable"},{"id",it->second.id}});i.Call({{"op","destroy"},{"id",it->second.id}}); it = i.instances.erase(it);
+                } else ++it;
+            for (auto e : destroyed) { Audio::GetInstance()->StopOwner(uint64_t(uint32_t(e)) + 1); w.DestroyGameObject(e); }
+        }
+        else
+        {
+            Entity result = entt::null;
+            try {
+                if(command.operation==3){
+                    result=Entity(command.entity);if(!w.IsValid(result))throw std::runtime_error("Prefab target was destroyed");
+                    DX12Core::gCommandManager.IdleGPU();SceneSerializer::AttachPrefab(w,result,UTF8ToWString(command.value));
+                    Audio::GetInstance()->StopOwner(uint64_t(uint32_t(result))+1);
+                }
+                else if (command.operation == 1) result = SceneSerializer::InstantiatePrefab(w, UTF8ToWString(command.value));
+                else {
+                    auto object = w.CreateGameObject(command.value);
+                    result = object->GetHandle(); w.AddComponent<TransformComponent>(result);
+                }
+                if(command.operation!=3)w.GetComponent<TransformComponent>(result).transition = Vector3(command.pose.position);
+            } catch (const std::exception &error) { result=entt::null;WriteLog(LogLevel::Warning,"Scripts",error.what()); }
+            i.context.results[command.request] = uint32_t(result);
+            i.context.inFlight.erase(command.request);
+        }
+    }
+    SceneSerializer::ResolveHierarchy(w);
 }
 void ScriptSystem::FixedUpdate(World &w, float dt)
 {
     auto &i = *mImpl;
+    dt = std::isfinite(dt) ? (std::max)(0.f, dt) : 0.f;
+    i.fixedDelta = dt; i.fixedElapsed += double(dt); ++i.fixedFrames;
+    i.Call({{"op", "time"}});
     i.context.world = &w;
     for (auto &[key, instance] : i.instances)
-        if (!instance.failed && !i.Call({{"op", "fixed"}, {"id", instance.id}, {"dt", dt}}))
+        if (instance.enabled && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && !i.Call({{"op", "fixed"}, {"id", instance.id}, {"dt", dt}}))
             instance.failed = true;
+}
+
+void ScriptSystem::PauseTime()
+{
+    auto &i = *mImpl;
+    i.frameDelta = 0; i.paused = true;
+    i.Call({{"op", "time"}});
 }
 
 void ScriptSystem::UiClick(World &w, Entity entity)
@@ -393,7 +671,7 @@ void ScriptSystem::UiClick(World &w, Entity entity)
     auto &i = *mImpl;
     i.context.world = &w;
     for (auto &[key, instance] : i.instances)
-        if (key.first == entity && !instance.failed && !i.Call({{"op", "uiClick"}, {"id", instance.id}}))
+        if (key.first == entity && instance.enabled && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && !i.Call({{"op", "uiClick"}, {"id", instance.id}}))
             instance.failed = true;
 }
 void ScriptSystem::Collision(World &w, const PhysicsContact &c)
@@ -401,7 +679,7 @@ void ScriptSystem::Collision(World &w, const PhysicsContact &c)
     auto &i = *mImpl;
     i.context.world = &w;
     for (auto &[key, instance] : i.instances)
-        if (!instance.failed && (key.first == c.first || key.first == c.second))
+        if (instance.enabled && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && (key.first == c.first || key.first == c.second))
             if (!i.Call({{"op", "collision"},
                          {"id", instance.id},
                          {"other", uint32_t(key.first == c.first ? c.second : c.first)},
