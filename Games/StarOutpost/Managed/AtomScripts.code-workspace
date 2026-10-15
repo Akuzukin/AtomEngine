@@ -1,0 +1,12 @@
+{
+    "folders": [
+        {
+            "path": "GameScripts"
+        },
+        {
+            "path": "../../../Engine/Managed/Atom.Managed",
+            "name": "Atom SDK"
+        }
+    ],
+    "settings": {}
+}

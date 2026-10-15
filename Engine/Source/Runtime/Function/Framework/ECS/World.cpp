@@ -91,7 +91,7 @@ bool World::IsEnabled(Entity e,ComponentKind kind) {
     return IsActive(e) && (!state || !(state->disabledComponents & (1u<<int(kind))));
 }
 void World::SetComponentEnabled(Entity e,ComponentKind kind,bool enabled) {
-    if(!IsValid(e) || int(kind)<0 || int(kind)>8)throw std::runtime_error("Invalid component state");
+    if(!IsValid(e) || int(kind)<0 || int(kind)>9)throw std::runtime_error("Invalid component state");
     if(!HasComponent<ObjectStateComponent>(e))AddComponent<ObjectStateComponent>(e);
     auto &mask=GetComponent<ObjectStateComponent>(e).disabledComponents;if(enabled)mask &= ~(1u<<int(kind));else mask |= 1u<<int(kind);
 }

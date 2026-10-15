@@ -1,28 +1,38 @@
 {
-    "MinStartColor": [1.0,0.6,1.0,0.2],
-    "MaxStartColor": [1.0,0.8,1.0,0.35],
-    "MinEndColor": [1.0,0.4,1.0,0.0],
-    "MaxEndColor": [1.0,0.5,1.0,0.0],
-    "Velocity": [-1.0,1.0,-0.5,0.5],
-    "Size": [5.0,12.0,2.0,6.0],
-    "Spread": [10.0,10.0,10.0],
-    "EmitRate": 20.0,
-    "LifeMinMax": [6.0,10.0],
-    "MassMinMax": [0.0,0.0],
-    "TotalActiveLifetime": 0.0,
-    "EmitProperties": {
-      "EmitPosW": [-15.0,0.0,-15.0],
-      "EmitSpeed": 0.5,
-      "Gravity": [0.0,-0.1,0.0],
-      "MaxParticles": 600,
-      "LastEmitPosW": [-15.0,0.0,-15.0],
-      "FloorHeight": -0.7,
-      "EmitDirW": [0.0,1.0,0.0],
-      "Restitution": 0.6,
-      "EmitRightW": [1.0,0.0,0.0],
-      "EmitUpW": [0.0,1.0,0.0],
-      "EmitterVelocitySensitivity": 0.0,
-      "EmissiveColor": [1.0,0.5,1.0]
-    },
-    "TexturePath": "Asset/Textures/waveRing.png"
-  }
+  "version": 2,
+  "capacity": 600,
+  "burst": 32,
+  "rate": 20.0,
+  "duration": 1,
+  "lifetime": 10.0,
+  "sizeStart": 5.0,
+  "sizeEnd": 2.0,
+  "shape": 0,
+  "blend": 1,
+  "billboard": true,
+  "loop": false,
+  "texture": "Asset/Textures/waveRing.png",
+  "colorStart": [
+    1.0,
+    0.6,
+    1.0,
+    0.2
+  ],
+  "colorEnd": [
+    1.0,
+    0.5,
+    1.0,
+    0.0
+  ],
+  "gravity": [
+    0.0,
+    -0.1,
+    0.0
+  ],
+  "extent": [
+    10.0,
+    10.0,
+    10.0
+  ],
+  "speed": 2
+}

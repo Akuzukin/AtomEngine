@@ -2,6 +2,7 @@
 #include "Runtime/Function/Camera/CameraBase.h"
 #include "Runtime/Function/Physics/PhysicsWorld.h"
 #include "Runtime/Function/Scripting/ScriptSystem.h"
+#include "Runtime/Function/Framework/Component/SceneComponents.h"
 #include <set>
 namespace AtomEngine
 {
@@ -20,7 +21,8 @@ class SceneRuntime
   private:
     std::unique_ptr<PhysicsWorld> mPhysics;
     ScriptSystem mScripts;
-    std::map<Entity,std::string> mAudioStarted;
+    std::map<Entity,AudioSourceComponent> mAudioStarted;
+    std::map<Entity,uint32_t> mParticleEmitters;
     std::weak_ptr<void> mAudioLifetime;
     bool mPlaying = false;
     float mAccumulator = 0;

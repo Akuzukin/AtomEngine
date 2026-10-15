@@ -473,6 +473,10 @@ void DX12Core::Present()
 {
     // TODO:: HDR present
 
+    if(gOverlayBuffer.GetWidth()!=gFrameBuffers[gCurrentBuffer].GetWidth() ||
+       gOverlayBuffer.GetHeight()!=gFrameBuffers[gCurrentBuffer].GetHeight())
+        throw std::runtime_error("Primary UI Overlay must match the composite target, independently of 3D resolution");
+
     GraphicsContext &Context = GraphicsContext::Begin(L"Present");
     Context.SetRootSignature(sPresentRS);
     Context.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -1,28 +1,38 @@
 {
-  "MinStartColor": [0.5,1.0,0.8,0.2],
-    "MaxStartColor": [0.6,1.0,0.9,0.3],
-    "MinEndColor": [0.0,0.8,0.5,0.0],
-    "MaxEndColor": [0.1,0.9,0.6,0.0],
-    "Velocity": [-0.5,0.5,0.2,1.0],
-    "Size": [3.0,8.0,1.0,4.0],
-    "Spread": [10.0,10.0,10.0],
-    "EmitRate": 25.0,
-    "LifeMinMax": [4.0,7.0],
-    "MassMinMax": [0.0,0.1],
-    "TotalActiveLifetime": 0.0,
-    "EmitProperties": {
-      "EmitPosW": [5.0,0.0,-5.0],
-      "EmitSpeed": 0.5,
-      "Gravity": [0.0,0.1,0.0],
-      "MaxParticles": 500,
-      "LastEmitPosW": [5.0,0.0,-5.0],
-      "FloorHeight": -0.7,
-      "EmitDirW": [0.0,1.0,0.0],
-      "Restitution": 0.6,
-      "EmitRightW": [1.0,0.0,0.0],
-      "EmitUpW": [0.0,1.0,0.0],
-      "EmitterVelocitySensitivity": 0.0,
-      "EmissiveColor": [0.5,1.0,0.8]
-    },
-  "TexturePath": "Asset/Textures/smoke.png"
+  "version": 2,
+  "capacity": 500,
+  "burst": 32,
+  "rate": 25.0,
+  "duration": 1,
+  "lifetime": 7.0,
+  "sizeStart": 3.0,
+  "sizeEnd": 1.0,
+  "shape": 0,
+  "blend": 1,
+  "billboard": true,
+  "loop": false,
+  "texture": "",
+  "colorStart": [
+    0.5,
+    1.0,
+    0.8,
+    0.2
+  ],
+  "colorEnd": [
+    0.1,
+    0.9,
+    0.6,
+    0.0
+  ],
+  "gravity": [
+    0.0,
+    0.1,
+    0.0
+  ],
+  "extent": [
+    10.0,
+    10.0,
+    10.0
+  ],
+  "speed": 2
 }

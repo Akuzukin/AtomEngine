@@ -1,0 +1,34 @@
+{
+  "Version": 1,
+  "GoldTenths": 0,
+  "Stars": 0,
+  "Meta": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "Unlocked": [
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "Consumables": [
+    0,
+    0,
+    0
+  ],
+  "Achievements": [
+    false,
+    false,
+    false
+  ],
+  "ScoutUnlocked": false,
+  "LegendUnlocked": false,
+  "Character": 0
+}

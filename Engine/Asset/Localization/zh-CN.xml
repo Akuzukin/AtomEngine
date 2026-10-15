@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Language id="zh-CN" name="简体中文">
+  <Text key="New particle">新建粒子</Text>
   <Text key="%.1f FPS | %.2f ms | %zu history states">%.1f FPS | %.2f ms | %zu 条历史记录</Text>
   <Text key="%s : register %u, space %u">%s：寄存器 %u，空间 %u</Text>
   <Text key="%zu items">%zu 项</Text>

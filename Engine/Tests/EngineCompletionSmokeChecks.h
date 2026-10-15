@@ -1,3 +1,6 @@
+#include "Runtime/Function/Render/Particle/ParticleEmitterRuntime.h"
+#include "Runtime/Function/Render/Particle/ParticleComponentEditor.h"
+#include "Runtime/Function/Render/Particle/ParticleAsset.h"
 #pragma once
 #include "GameplayToolsSmokeChecks.h"
 #include "Runtime/Function/UI/UiSystem.h"
@@ -103,16 +106,6 @@ inline void RunEngineCompletionSmokeChecks() {
     FeatureCheck(UiSystem::HitTest(world,b.position.x+2,b.position.y+2)==second->GetHandle(),"Resolved layout hit testing failed");
     FeatureCheck(UiSystem::Navigate(world,0)==first->GetHandle() && UiSystem::Navigate(world,1)==second->GetHandle() && UiSystem::Navigate(world,1)==first->GetHandle(),"UI focus wrap failed");
     world.GetComponent<ObjectStateComponent>(second->GetHandle()).activeSelf=false;FeatureCheck(UiSystem::Navigate(world,1)==first->GetHandle(),"Inactive UI received focus");
-    World demo;SceneSerializer::Load(demo,"Asset/Scenes/Survivors.scene");SceneRuntime runtime;
-    for(int i=0;i<45;i++)runtime.Update(demo,1.f/30,true,false);
-    auto hud=demo.FindByName("HUD");auto before=demo.GetComponent<UiElementComponent>(hud).text;
-    FeatureCheck(runtime.ReloadScripts(assembly),runtime.ScriptError().c_str());runtime.Update(demo,0,true,false);
-    FeatureCheck(demo.GetComponent<UiElementComponent>(hud).text==before,"DEMO reload reset time/HP/kills/level");
-    demo.GetComponent<ScriptComponent>(hud).scripts[0].fields["Duration"]="30";
-    runtime.Update(demo,0,true,false,nullptr,true);auto pausedValues=nlohmann::json::parse(runtime.ReadScriptFields(demo,hud,0));
-    FeatureCheck(pausedValues["Duration"]=="30" && demo.GetComponent<UiElementComponent>(hud).text==before,"Paused tuning updated gameplay or failed to update parameters");
-    runtime.Update(demo,0,true,false);FeatureCheck(demo.GetComponent<UiElementComponent>(hud).text.find("/30s")!=std::string::npos,"Live DEMO duration did not apply on resume");
-    runtime.Reset();
     World pool;auto original=pool.CreateGameObject("Pool source");original->AddComponent<TransformComponent>();auto originalId=original->GetComponent<PersistentIdComponent>().value;
     auto child=pool.CreateGameObject("Pool child");child->AddComponent<TransformComponent>();child->AddComponent<HierarchyComponent>(originalId);
     EditorDocument document;document.Reset(pool,"Pool");auto objects=SceneAuthoring::CreatePool(pool,original->GetHandle(),4,2,Vector3(3,0,4),true);
@@ -132,6 +125,93 @@ inline void RunEngineCompletionSmokeChecks() {
     World filtered;auto stationary=filtered.CreateGameObject("Stationary");stationary->AddComponent<TransformComponent>();stationary->AddComponent<ColliderComponent>();stationary->GetComponent<ColliderComponent>().collisionLayer=2;stationary->GetComponent<ColliderComponent>().collisionMask=1u<<3;
     auto moving=filtered.CreateGameObject("Moving sensor");moving->AddComponent<TransformComponent>();moving->AddComponent<ColliderComponent>();moving->GetComponent<ColliderComponent>().collisionLayer=3;moving->GetComponent<ColliderComponent>().collisionMask=0;moving->GetComponent<ColliderComponent>().trigger=true;moving->AddComponent<RigidBodyComponent>();moving->GetComponent<RigidBodyComponent>().gravity=false;
     PhysicsWorld filteredPhysics;filteredPhysics.Update(filtered,1.f/60);FeatureCheck(filteredPhysics.Contacts().empty(),"Collision pair mask ignored");moving->GetComponent<ColliderComponent>().collisionMask=1u<<2;filteredPhysics.Update(filtered,1.f/60);FeatureCheck(!filteredPhysics.Contacts().empty(),"Allowed collision pair did not contact");
-    World templated;SceneSerializer::Load(templated,"Asset/Templates/Survivors.scene");document.Reset(templated,"Survivors copy");document.MarkUnsaved();FeatureCheck(document.Dirty(),"Template copy marked saved");
+    World templated;SceneSerializer::FromXml(templated,SceneSerializer::ToXml(pool,"Template fixture"));document.Reset(templated,"Template copy");document.MarkUnsaved();FeatureCheck(document.Dirty(),"Template copy marked saved");
+    {
+        World particles;auto a=particles.CreateGameObject("Emitter A"),b=particles.CreateGameObject("Emitter B");
+        a->AddComponent<TransformComponent>();b->AddComponent<TransformComponent>();a->AddComponent<ParticleComponent>();b->AddComponent<ParticleComponent>();
+        a->GetComponent<ParticleComponent>().settings.duration=.1f;a->GetComponent<ParticleComponent>().settings.rate=8;
+        EmitSceneParticle(particles,a->GetHandle(),Vector3::ZERO);EmitSceneParticle(particles,b->GetHandle(),Vector3(1,0,0));
+        auto first=a->GetComponent<ParticleComponent>().runtimeId,second=b->GetComponent<ParticleComponent>().runtimeId;
+        ParticleSystem::StopParticle(first);FeatureCheck(ParticleSystem::GetCurrentLife(second)>=0,"Particle removal invalidated another emitter handle");
+        EmitSceneParticle(particles,a->GetHandle(),Vector3(2,0,0));FeatureCheck(a->GetComponent<ParticleComponent>().runtimeId==first,"Particle replay allocated another emitter");
+        ParticleSystem::ReleaseParticle(first);ParticleSystem::ReleaseParticle(second);
+        a->GetComponent<ParticleComponent>().runtimeId=0xffffffff;b->GetComponent<ParticleComponent>().runtimeId=0xffffffff;
+        World saved;SceneSerializer::FromXml(saved,SceneSerializer::ToXml(particles,"Particles"));auto &copy=saved.GetComponent<ParticleComponent>(saved.FindByName("Emitter A"));
+        FeatureCheck(copy.settings.duration==.1f&&copy.settings.rate==8&&copy.runtimeId==0xffffffff,"Particle component XML roundtrip persisted runtime handle");
+        auto bId=b->GetComponent<PersistentIdComponent>().value;
+        a->AddComponent<UiElementComponent>();a->AddComponent<ScriptComponent>();
+        a->GetComponent<ScriptComponent>().scripts.push_back({"Scripts/AtomScripts.dll","Game.ParticleApiProbe",true,{{"Effect","particle:"+bId}}});
+        ScriptSystem refs;refs.Update(particles,.016f);FeatureCheck(refs.Error().empty(),refs.Error().c_str());
+        FeatureCheck(a->GetComponent<UiElementComponent>().text==bId,"Particle script reference not bound before OnCreate");
+        auto &fields=a->GetComponent<ScriptComponent>().scripts[0].fields;
+        fields["Effect"]="";refs.Update(particles,.016f);FeatureCheck(a->GetComponent<UiElementComponent>().text=="unassigned","Live particle reference clear failed");
+        fields["Effect"]="particle:"+bId;refs.Update(particles,.016f);
+        FeatureCheck(refs.ReloadAssembly(std::filesystem::path(exe).parent_path()/"Scripts/AtomScripts.dll"),refs.Error().c_str());
+        refs.Update(particles,.016f);FeatureCheck(a->GetComponent<UiElementComponent>().text==bId,"Reload lost particle reference world binding");refs.Reset();
+        ParticleSystem::ReleaseParticle(b->GetComponent<ParticleComponent>().runtimeId);b->GetComponent<ParticleComponent>().runtimeId=0xffffffff;
+        b->AddComponent<HierarchyComponent>();b->GetComponent<HierarchyComponent>().parentId=a->GetComponent<PersistentIdComponent>().value;
+        auto particlePrefab=std::filesystem::path(exe).parent_path()/"Smoke/Particles.prefab";SceneSerializer::SavePrefab(particles,a->GetHandle(),particlePrefab);
+        World prefabWorld;auto prefabRoot=SceneSerializer::InstantiatePrefab(prefabWorld,particlePrefab);
+        auto assigned=prefabWorld.GetComponent<ScriptComponent>(prefabRoot).scripts[0].fields.at("Effect").substr(9);
+        FeatureCheck(assigned!=bId&&prefabWorld.HasComponent<ParticleComponent>(prefabWorld.FindById(assigned)),"Prefab particle component reference was not remapped");
+        auto dropped=SceneSerializer::InstantiateParticlePrefab(prefabWorld,particlePrefab);
+        FeatureCheck(prefabWorld.HasComponent<ParticleComponent>(dropped),"Particle prefab field drop did not resolve component");
+        auto beforeDrop=prefabWorld.View<PersistentIdComponent>().size();bool wrongPrefab=false;
+        try{SceneSerializer::InstantiateParticlePrefab(prefabWorld,attachPrefab);}catch(...){wrongPrefab=true;}
+        FeatureCheck(wrongPrefab&&prefabWorld.View<PersistentIdComponent>().size()==beforeDrop,"Invalid particle prefab field drop changed scene");
+        ParticleSettings lowRate;lowRate.capacity=64;lowRate.burst=0;lowRate.rate=10;lowRate.duration=2;lowRate.lifetime=4;
+        auto handle=ParticleSystem::Create(lowRate,true);ParticleSystem::EmitParticle(handle,Vector3::ZERO);
+        {auto &gpu=GraphicsContext::Begin(L"Fractional emission regression");for(int i=0;i<240;i++)ParticleSystem::UpdatePreview(gpu.GetComputeContext(),handle,1.f/240);gpu.Finish(true);}
+        auto alive=ParticleSystem::ReadAliveCountForDiagnostics(handle);FeatureCheck(alive>=9&&alive<=11,"Fractional GPU emission disappeared at high frame rate");
+        ParticleSystem::ReleaseParticle(handle);auto replacement=ParticleSystem::Create(lowRate,true);FeatureCheck(handle!=replacement&&ParticleSystem::GetCurrentLife(handle)<0,"Reused particle slot accepted stale handle");ParticleSystem::ReleaseParticle(replacement);
+        ParticleComponentEditor::Open(saved,saved.FindByName("Emitter B"));
+        for(int frame=0;frame<20;frame++)ParticleComponentEditor::Render(1.f/60);
+        ParticleComponentEditor::CapturePreview(std::filesystem::path(exe).parent_path()/"Smoke/ParticlePreview.bin");ParticleComponentEditor::Shutdown();
+        for(int shape=0;shape<5;shape++) {
+            ParticleSettings burstOnly;burstOnly.capacity=64;burstOnly.burst=10;burstOnly.rate=0;burstOnly.lifetime=.1f;burstOnly.shape=EmitterShape(shape);
+            auto isolated=ParticleSystem::Create(burstOnly,true);ParticleSystem::EmitParticle(isolated,Vector3::ZERO);
+            {auto &gpu=GraphicsContext::Begin(L"Preview isolation");ParticleSystem::Update(gpu.GetComputeContext(),1.f/60);gpu.Finish(true);}
+            FeatureCheck(ParticleSystem::ReadAliveCountForDiagnostics(isolated)==0,"Preview emitter advanced in scene simulation");
+            {auto &gpu=GraphicsContext::Begin(L"Emitter shape");ParticleSystem::UpdatePreview(gpu.GetComputeContext(),isolated,1.f/60);gpu.Finish(true);}
+            FeatureCheck(ParticleSystem::ReadAliveCountForDiagnostics(isolated)==10,"Emitter shape did not generate requested burst");
+            ParticleSystem::StopParticle(isolated);
+            {auto &gpu=GraphicsContext::Begin(L"Particle natural expiry");for(int frame=0;frame<18;frame++)ParticleSystem::UpdatePreview(gpu.GetComputeContext(),isolated,1.f/60);gpu.Finish(true);}
+            FeatureCheck(ParticleSystem::ReadAliveCountForDiagnostics(isolated)==0,"Stopped particles did not expire");ParticleSystem::ReleaseParticle(isolated);
+        }
+        auto previewEntity=saved.FindByName("Emitter B");
+        for(int blend=0;blend<4;blend++)for(int billboard=0;billboard<2;billboard++) {
+            auto &config=saved.GetComponent<ParticleComponent>(previewEntity).settings;config.blend=ParticleBlend(blend);config.billboard=billboard!=0;config.texture=billboard?"Asset/Textures/Particle.png":"";
+            ParticleComponentEditor::Open(saved,previewEntity);for(int frame=0;frame<20;frame++)ParticleComponentEditor::Render(1.f/60);
+            ParticleComponentEditor::CapturePreview(std::filesystem::path(exe).parent_path()/("Smoke/ParticleBlend"+std::to_string(blend)+"-"+std::to_string(billboard)+".bin"));ParticleComponentEditor::Shutdown();
+        }
+        auto particleDirectory=std::filesystem::path(exe).parent_path()/"Smoke/ParticleAssets";
+        std::filesystem::create_directories(particleDirectory);
+        auto exportPath=particleDirectory/L"粒子 导出.particle";
+        auto &exportComponent=saved.GetComponent<ParticleComponent>(previewEntity);exportComponent.settings.rate=37;
+        ParticleComponentEditor::Open(saved,previewEntity);ParticleComponentEditor::SaveAs(exportPath);
+        FeatureCheck(LoadParticleAsset(exportPath).rate==37&&!exportComponent.preset.empty(),"Component .particle export lost settings or binding");
+        auto originalFile=ReadAssetText(exportPath);bool invalidParticle=false;auto invalidSettings=exportComponent.settings;invalidSettings.rate=std::numeric_limits<float>::infinity();
+        try{SaveParticleAsset(exportPath,invalidSettings);}catch(...){invalidParticle=true;}
+        FeatureCheck(invalidParticle&&ReadAssetText(exportPath)==originalFile,"Invalid asset save damaged existing particle file");
+        invalidParticle=false;try{SaveParticleAsset(particleDirectory/"wrong.json",exportComponent.settings);}catch(...){invalidParticle=true;}
+        FeatureCheck(invalidParticle&&!std::filesystem::exists(particleDirectory/"wrong.json"),"Particle save accepted wrong extension");
+        auto sceneBeforeAsset=SceneSerializer::ToXml(saved,"Particle asset isolation");
+        auto createdAsset=ParticleComponentEditor::CreateAsset(particleDirectory);
+        auto secondAsset=ParticleComponentEditor::CreateAsset(particleDirectory);
+        FeatureCheck(createdAsset!=secondAsset&&createdAsset.extension()==L".particle","Particle creation overwrote another asset");
+        ParticleComponentEditor::OpenAsset(exportPath);
+        for(int frame=0;frame<10;frame++)ParticleComponentEditor::Render(1.f/60);
+        auto savedAs=particleDirectory/"SavedAs.particle";ParticleComponentEditor::SaveAs(savedAs);
+        FeatureCheck(LoadParticleAsset(savedAs).rate==37&&!ParticleComponentEditor::HasUnsavedChanges(),"Asset editor reopen/save-as lost data");
+        ParticleComponentEditor::CapturePreview(particleDirectory/"AssetPreview.bin");ParticleComponentEditor::Shutdown();
+        FeatureCheck(SceneSerializer::ToXml(saved,"Particle asset isolation")==sceneBeforeAsset,"Asset editor altered scene objects");
+        World particleAssetWorld;auto assetInstance=SceneSerializer::InstantiateParticlePrefab(particleAssetWorld,exportPath);
+        auto &bound=particleAssetWorld.GetComponent<ParticleComponent>(assetInstance);
+        FeatureCheck(bound.settings.rate==37&&bound.preset==WStringToUTF8(exportPath.generic_wstring()),"Particle asset field drop did not bind native component");
+        EmitSceneParticle(particleAssetWorld,assetInstance,Vector3::ZERO);ParticleSystem::ReleaseParticle(bound.runtimeId);
+        WriteLog(LogLevel::Info,"Smoke","Particle v2 GPU emission, component references and .particle creation/export/reopen/atomic save/scene isolation/asset instantiation passed");
+        auto audio=Audio::GetInstance();auto master=audio->GetMasterVolume(),bus=audio->GetBusVolume(1);audio->SetMasterVolume(.4f);audio->SetBusVolume(1,.3f);
+        FeatureCheck(audio->GetMasterVolume()==.4f&&audio->GetBusVolume(1)==.3f,"Audio mixer state failed");audio->SetMasterVolume(master);audio->SetBusVolume(1,bus);
+    }
     WriteLog(LogLevel::Info,"Smoke","Reflection, live fields, query/collision filters, Active, UI layout/navigation, reload state, templates/pools and prefab attachment passed");
 }

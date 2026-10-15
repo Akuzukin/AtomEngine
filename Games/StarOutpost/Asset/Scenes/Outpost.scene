@@ -1,0 +1,2389 @@
+<Scene version="1" name="碎星哨站 / survivor-v1">
+    <Environment sky="" skyMode="0" skyIntensity="0.25" skyRotation="0" sunSize="1" sunIntensity="1" diffuse="" specular="" brdf="" intensity="0.60000002" bias="0" exposure="1" enabled="true" fxaa="true" autoExposure="false">
+        <Zenith x="0.015" y="0.025" z="0.07"/>
+        <Horizon x="0.039999999" y="0.1" z="0.18000001"/>
+        <Ground x="0.015" y="0.02" z="0.035"/>
+    </Environment>
+    <EditorCamera fov="45" near="0.029999999" far="1000">
+        <Position x="11.482056" y="13.832882" z="-17.560787"/>
+        <Rotation x="0.25974983" y="-0.27482221" z="0.077381745" w="0.92250466"/>
+    </EditorCamera>
+    <Object active="true" disabledComponents="0" id="XP" name="XP">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="390" y="140" width="310" height="14" text="" texture="" fontSize="24" responsive="true" progressBar="true" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0" anchorMinY="0" anchorMaxX="0" anchorMaxY="0" pivotX="0" pivotY="0" interactable="false" layer="3" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.30000001" y="0.60000002" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon6" name="Weapon6">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="6"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon5" name="Weapon5">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="5"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon4" name="Weapon4">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="4"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon3" name="Weapon3">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="3"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon2" name="Weapon2">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="2"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon1" name="Weapon1">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="1"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Weapon0" name="Weapon0">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.WeaponController" enabled="true">
+            <Field name="WeaponIndex" value="0"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Title" name="Title">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-720" y="-290" width="1440" height="110" text="" texture="" fontSize="38" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="12" visible="true">
+            <Background x="0" y="0" z="0" alpha="0"/>
+            <Color x="0.40000001" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Supply" name="Supply">
+        <Transform>
+            <Position x="0" y="-100" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="false"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.1" y="1" z="0.60000002" alpha="1"/>
+            <Emissive x="0.025" y="0.25" z="0.15000001"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.SupplyController" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Sun" name="Sun">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0.38003629" y="-0.20001911" z="0" w="0.90308625"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <DirectionalLight intensity="2" enabled="true" shadows="true" autoFitShadow="true">
+            <Color x="0.64999998" y="0.80000001" z="1"/>
+        </DirectionalLight>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop9" name="Shop9">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop9"/>
+        </Script>
+        <UI x="440" y="45" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop8" name="Shop8">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop8"/>
+        </Script>
+        <UI x="150" y="45" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop7" name="Shop7">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop7"/>
+        </Script>
+        <UI x="-140" y="45" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop6" name="Shop6">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop6"/>
+        </Script>
+        <UI x="-430" y="45" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop5" name="Shop5">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop5"/>
+        </Script>
+        <UI x="-720" y="45" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop4" name="Shop4">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop4"/>
+        </Script>
+        <UI x="440" y="-65" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop3" name="Shop3">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop3"/>
+        </Script>
+        <UI x="150" y="-65" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop2" name="Shop2">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop2"/>
+        </Script>
+        <UI x="-140" y="-65" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop14" name="Shop14">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop14"/>
+        </Script>
+        <UI x="440" y="155" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop13" name="Shop13">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop13"/>
+        </Script>
+        <UI x="150" y="155" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop12" name="Shop12">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop12"/>
+        </Script>
+        <UI x="-140" y="155" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop11" name="Shop11">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop11"/>
+        </Script>
+        <UI x="-430" y="155" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop10" name="Shop10">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop10"/>
+        </Script>
+        <UI x="-720" y="155" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop1" name="Shop1">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop1"/>
+        </Script>
+        <UI x="-430" y="-65" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Shop0" name="Shop0">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="shop0"/>
+        </Script>
+        <UI x="-720" y="-65" width="260" height="90" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Secondary" name="Secondary">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="secondary"/>
+        </Script>
+        <UI x="20" y="290" width="650" height="68" text="" texture="" fontSize="25" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.15000001" y="0.1" z="0.25" alpha="1"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="ProjectileSpawner" name="ProjectileSpawner">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.ProjectileSpawner" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Primary" name="Primary">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="primary"/>
+        </Script>
+        <UI x="-720" y="290" width="610" height="68" text="" texture="" fontSize="26" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.039999999" y="0.25" z="0.31999999" alpha="1"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Player" name="Player">
+        <Transform>
+            <Position x="0" y="-100" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="false"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.85000002" z="1" alpha="1"/>
+            <Emissive x="0.015" y="0.21250001" z="0.25"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.PlayerController" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Panel" name="Panel">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-790" y="-320" width="1580" height="750" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="10" visible="true">
+            <Background x="0.014" y="0.025" z="0.055" alpha="0.97000003"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="OutpostUI" name="OutpostUI">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostUI" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Notice" name="Notice">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-650" y="-290" width="1300" height="55" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="30" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="1" y="0.80000001" z="0.34999999" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Mute" name="Mute">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="mute"/>
+        </Script>
+        <UI x="-310" y="40" width="260" height="50" text="" texture="" fontSize="21" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="1" anchorMinY="0" anchorMaxX="1" anchorMaxY="0" pivotX="0" pivotY="0" interactable="true" layer="40" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Health" name="Health">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="60" y="140" width="310" height="14" text="" texture="" fontSize="24" responsive="true" progressBar="true" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0" anchorMinY="0" anchorMaxX="0" anchorMaxY="0" pivotX="0" pivotY="0" interactable="false" layer="3" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.2" y="1" z="0.60000002" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="HUD" name="HUD">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="60" y="40" width="1350" height="80" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0" anchorMinY="0" anchorMaxX="0" anchorMaxY="0" pivotX="0" pivotY="0" interactable="false" layer="3" visible="true">
+            <Background x="0.015" y="0.029999999" z="0.059999999" alpha="0.88"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ8" name="GridZ8">
+        <Transform>
+            <Position x="0" y="-0.025" z="8"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ7" name="GridZ7">
+        <Transform>
+            <Position x="0" y="-0.025" z="7"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ6" name="GridZ6">
+        <Transform>
+            <Position x="0" y="-0.025" z="6"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ5" name="GridZ5">
+        <Transform>
+            <Position x="0" y="-0.025" z="5"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ4" name="GridZ4">
+        <Transform>
+            <Position x="0" y="-0.025" z="4"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ3" name="GridZ3">
+        <Transform>
+            <Position x="0" y="-0.025" z="3"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ2" name="GridZ2">
+        <Transform>
+            <Position x="0" y="-0.025" z="2"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ1" name="GridZ1">
+        <Transform>
+            <Position x="0" y="-0.025" z="1"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ0" name="GridZ0">
+        <Transform>
+            <Position x="0" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-8" name="GridZ-8">
+        <Transform>
+            <Position x="0" y="-0.025" z="-8"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-7" name="GridZ-7">
+        <Transform>
+            <Position x="0" y="-0.025" z="-7"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-6" name="GridZ-6">
+        <Transform>
+            <Position x="0" y="-0.025" z="-6"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-5" name="GridZ-5">
+        <Transform>
+            <Position x="0" y="-0.025" z="-5"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-4" name="GridZ-4">
+        <Transform>
+            <Position x="0" y="-0.025" z="-4"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-3" name="GridZ-3">
+        <Transform>
+            <Position x="0" y="-0.025" z="-3"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-2" name="GridZ-2">
+        <Transform>
+            <Position x="0" y="-0.025" z="-2"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridZ-1" name="GridZ-1">
+        <Transform>
+            <Position x="0" y="-0.025" z="-1"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.015" z="0.015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX9" name="GridX9">
+        <Transform>
+            <Position x="9" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX8" name="GridX8">
+        <Transform>
+            <Position x="8" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX7" name="GridX7">
+        <Transform>
+            <Position x="7" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX6" name="GridX6">
+        <Transform>
+            <Position x="6" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX5" name="GridX5">
+        <Transform>
+            <Position x="5" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX4" name="GridX4">
+        <Transform>
+            <Position x="4" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX3" name="GridX3">
+        <Transform>
+            <Position x="3" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX2" name="GridX2">
+        <Transform>
+            <Position x="2" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX12" name="GridX12">
+        <Transform>
+            <Position x="12" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX11" name="GridX11">
+        <Transform>
+            <Position x="11" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX10" name="GridX10">
+        <Transform>
+            <Position x="10" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX1" name="GridX1">
+        <Transform>
+            <Position x="1" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX0" name="GridX0">
+        <Transform>
+            <Position x="0" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-9" name="GridX-9">
+        <Transform>
+            <Position x="-9" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-8" name="GridX-8">
+        <Transform>
+            <Position x="-8" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-7" name="GridX-7">
+        <Transform>
+            <Position x="-7" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-6" name="GridX-6">
+        <Transform>
+            <Position x="-6" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-5" name="GridX-5">
+        <Transform>
+            <Position x="-5" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-4" name="GridX-4">
+        <Transform>
+            <Position x="-4" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-3" name="GridX-3">
+        <Transform>
+            <Position x="-3" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-2" name="GridX-2">
+        <Transform>
+            <Position x="-2" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-12" name="GridX-12">
+        <Transform>
+            <Position x="-12" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-11" name="GridX-11">
+        <Transform>
+            <Position x="-11" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-10" name="GridX-10">
+        <Transform>
+            <Position x="-10" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="GridX-1" name="GridX-1">
+        <Transform>
+            <Position x="-1" y="-0.025" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.015" y="0.015" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.059999999" y="0.19" z="0.25" alpha="1"/>
+            <Emissive x="0.015" y="0.047499999" z="0.0625"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Footer" name="Footer">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="60" y="-80" width="1750" height="50" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0" anchorMinY="1" anchorMaxX="0" anchorMaxY="1" pivotX="0" pivotY="0" interactable="false" layer="3" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Energy" name="Energy">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="720" y="140" width="210" height="14" text="" texture="" fontSize="24" responsive="true" progressBar="true" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0" anchorMinY="0" anchorMaxX="0" anchorMaxY="0" pivotX="0" pivotY="0" interactable="false" layer="3" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.69999999" y="0.40000001" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="EnemySpawner" name="EnemySpawner">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.EnemySpawner" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="EffectSpawner" name="EffectSpawner">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.EffectSpawner" enabled="true">
+            <Field name="HitEffect" value="particle:BurstEmitter0"/>
+            <Field name="UpgradeEffect" value="particle:BurstEmitter1"/>
+            <Field name="DeathEffect" value="particle:BurstEmitter2"/>
+            <Field name="HealEffect" value="particle:BurstEmitter3"/>
+        </Script>
+    </Object>
+    <Object active="true" disabledComponents="0" id="DropSpawner" name="DropSpawner">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.DropSpawner" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Controller" name="Controller">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostRuntime" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Choice2" name="Choice2">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="choice2"/>
+        </Script>
+        <UI x="250" y="-55" width="440" height="300" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.035" y="0.1" z="0.18000001" alpha="1"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Choice1" name="Choice1">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="choice1"/>
+        </Script>
+        <UI x="-230" y="-55" width="440" height="300" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.035" y="0.1" z="0.18000001" alpha="1"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Choice0" name="Choice0">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="choice0"/>
+        </Script>
+        <UI x="-710" y="-55" width="440" height="300" text="" texture="" fontSize="24" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.035" y="0.1" z="0.18000001" alpha="1"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Camera" name="Camera">
+        <Transform>
+            <Position x="0" y="17" z="-12"/>
+            <Rotation x="0.46006349" y="0" z="0" w="0.88788605"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Camera fieldOfView="55" nearClip="0.1" farClip="200" primary="true" enabled="true"/>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.CameraController" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="BurstEmitter3" name="BurstEmitter3">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <ParticleComponent preset="Asset/Particles/Burst3.json" playOnAwake="false" />
+    </Object>
+    <Object active="true" disabledComponents="0" id="BurstEmitter2" name="BurstEmitter2">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <ParticleComponent preset="Asset/Particles/Burst2.json" playOnAwake="false" />
+    </Object>
+    <Object active="true" disabledComponents="0" id="BurstEmitter1" name="BurstEmitter1">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <ParticleComponent preset="Asset/Particles/Burst1.json" playOnAwake="false" />
+    </Object>
+    <Object active="true" disabledComponents="0" id="BurstEmitter0" name="BurstEmitter0">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <ParticleComponent preset="Asset/Particles/Burst0.json" playOnAwake="false" />
+    </Object>
+    <Object active="true" disabledComponents="0" id="Boundary3" name="Boundary3">
+        <Transform>
+            <Position x="12" y="0.059999999" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.15000001" y="0.12" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.079999998" y="0.64999998" z="0.69999999" alpha="1"/>
+            <Emissive x="0.079999998" y="0.64999998" z="0.69999999"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Boundary2" name="Boundary2">
+        <Transform>
+            <Position x="-12" y="0.059999999" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="0.15000001" y="0.12" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.079999998" y="0.64999998" z="0.69999999" alpha="1"/>
+            <Emissive x="0.079999998" y="0.64999998" z="0.69999999"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Boundary1" name="Boundary1">
+        <Transform>
+            <Position x="0" y="0.059999999" z="8"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.12" z="0.15000001"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.079999998" y="0.64999998" z="0.69999999" alpha="1"/>
+            <Emissive x="0.079999998" y="0.64999998" z="0.69999999"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Boundary0" name="Boundary0">
+        <Transform>
+            <Position x="0" y="0.059999999" z="-8"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.12" z="0.15000001"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.079999998" y="0.64999998" z="0.69999999" alpha="1"/>
+            <Emissive x="0.079999998" y="0.64999998" z="0.69999999"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="BossText" name="BossText">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-300" y="-345" width="600" height="38" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="4" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Boss" name="Boss">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-350" y="-365" width="700" height="12" text="" texture="" fontSize="24" responsive="true" progressBar="true" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="4" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="1" y="0.15000001" z="0.25" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Body" name="Body">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <UI x="-720" y="-165" width="1440" height="400" text="" texture="" fontSize="25" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="false" layer="12" visible="true">
+            <Background x="0" y="0" z="0" alpha="0"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="BlackHole" name="BlackHole">
+        <Transform>
+            <Position x="0" y="-100" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="false"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.2" y="0.039999999" z="0.5" alpha="1"/>
+            <Emissive x="0.050000001" y="0.0099999998" z="0.125"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.BlackHoleController" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Back" name="Back">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.OutpostButton" enabled="true">
+            <Field name="Action" value="back"/>
+        </Script>
+        <UI x="-120" y="365" width="240" height="50" text="" texture="" fontSize="22" responsive="true" progressBar="false" progress="1" layout="0" padding="16" spacing="8" layoutOrder="0" anchorMinX="0.5" anchorMinY="0.5" anchorMaxX="0.5" anchorMaxY="0.5" pivotX="0" pivotY="0" interactable="true" layer="12" visible="true">
+            <Background x="0.025" y="0.055" z="0.1" alpha="0.95999998"/>
+            <Color x="0.75" y="0.89999998" z="1" alpha="1"/>
+        </UI>
+    </Object>
+    <Object active="true" disabledComponents="0" id="AudioController" name="AudioController">
+        <Transform>
+            <Position x="0" y="0" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1" y="1" z="1"/>
+        </Transform>
+        <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.AudioController" enabled="true"/>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid9" name="Asteroid9">
+        <Transform>
+            <Position x="20.248606" y="-0.5453673" z="3.3222413"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.4104619" y="1.5258754" z="1.2567666"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid8" name="Asteroid8">
+        <Transform>
+            <Position x="-20.428856" y="2.5850925" z="-0.0085138455"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.7321403" y="2.7810695" z="1.4897671"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid7" name="Asteroid7">
+        <Transform>
+            <Position x="-4.452209" y="0.81799942" z="-15.45495"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.9595089" y="1.2395974" z="1.9603869"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid6" name="Asteroid6">
+        <Transform>
+            <Position x="-2.9906974" y="0.56112045" z="-25.44252"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.277087" y="2.2526345" z="1.2092837"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid5" name="Asteroid5">
+        <Transform>
+            <Position x="22.375319" y="2.1678522" z="-13.252949"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.90783" y="1.4656826" z="2.0905039"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid47" name="Asteroid47">
+        <Transform>
+            <Position x="-15.334225" y="-0.95061791" z="-10.029852"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.9309096" y="2.377862" z="2.6895583"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid46" name="Asteroid46">
+        <Transform>
+            <Position x="22.251244" y="0.38828737" z="-1.8367225"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.3785067" y="2.0430541" z="2.2621996"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid45" name="Asteroid45">
+        <Transform>
+            <Position x="-0.14423501" y="0.9504661" z="17.970335"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.8102622" y="1.8312477" z="2.0736661"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid44" name="Asteroid44">
+        <Transform>
+            <Position x="7.9887037" y="0.533023" z="16.132402"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.4320381" y="1.1383039" z="2.8726158"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid43" name="Asteroid43">
+        <Transform>
+            <Position x="-16.830942" y="2.9715648" z="0.98041046"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.5756402" y="1.4548661" z="2.1975355"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid42" name="Asteroid42">
+        <Transform>
+            <Position x="5.9327321" y="0.086085223" z="22.378489"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.1496387" y="1.6304377" z="1.4204305"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid41" name="Asteroid41">
+        <Transform>
+            <Position x="-18.977684" y="1.5109869" z="1.3372602"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.2137427" y="2.9665456" z="2.5669177"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid40" name="Asteroid40">
+        <Transform>
+            <Position x="16.434254" y="-0.77735543" z="22.167763"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.7256598" y="1.3597732" z="2.2795634"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid4" name="Asteroid4">
+        <Transform>
+            <Position x="20.070244" y="2.0226526" z="14.458631"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.7921267" y="2.3165786" z="1.5981016"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid39" name="Asteroid39">
+        <Transform>
+            <Position x="25.204145" y="1.7535034" z="5.6706963"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.6207509" y="2.968188" z="1.562466"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid38" name="Asteroid38">
+        <Transform>
+            <Position x="16.644995" y="1.6689923" z="2.7439005"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.8954737" y="2.0682833" z="1.1260986"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid37" name="Asteroid37">
+        <Transform>
+            <Position x="25.408512" y="-0.0038978364" z="-11.379644"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.3605911" y="1.1411519" z="2.8616197"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid36" name="Asteroid36">
+        <Transform>
+            <Position x="16.981478" y="0.70813471" z="2.3344889"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.037836" y="2.2197242" z="2.9890168"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid35" name="Asteroid35">
+        <Transform>
+            <Position x="-2.9367037" y="1.9649266" z="21.63711"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.7937939" y="2.9336138" z="1.846532"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid34" name="Asteroid34">
+        <Transform>
+            <Position x="22.144863" y="2.8458581" z="9.4801245"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.4770398" y="2.6827824" z="2.8783839"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid33" name="Asteroid33">
+        <Transform>
+            <Position x="10.137137" y="1.432212" z="15.155316"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.1719824" y="2.5133092" z="1.8776145"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid32" name="Asteroid32">
+        <Transform>
+            <Position x="-6.8994956" y="2.1522264" z="17.622396"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.8339912" y="1.2726066" z="2.0682788"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid31" name="Asteroid31">
+        <Transform>
+            <Position x="-27.27936" y="0.81228387" z="1.9082421"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.0508771" y="1.0529089" z="1.4508052"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid30" name="Asteroid30">
+        <Transform>
+            <Position x="4.8929629" y="-0.23867466" z="-16.782959"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.1275433" y="1.2518905" z="2.0413883"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid3" name="Asteroid3">
+        <Transform>
+            <Position x="6.6116118" y="0.55424726" z="21.516405"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.4669411" y="2.6061192" z="1.8288752"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid29" name="Asteroid29">
+        <Transform>
+            <Position x="-15.434612" y="-0.1158316" z="22.279911"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.894922" y="1.6080687" z="2.1665156"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid28" name="Asteroid28">
+        <Transform>
+            <Position x="-21.941368" y="0.41529927" z="-6.7108679"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.5705633" y="2.3536618" z="1.5168"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid27" name="Asteroid27">
+        <Transform>
+            <Position x="11.599844" y="1.3579515" z="15.636778"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.8882681" y="1.1443762" z="1.8993094"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid26" name="Asteroid26">
+        <Transform>
+            <Position x="-9.5970039" y="-0.018782271" z="-21.295321"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.461303" y="2.6714563" z="1.5542958"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid25" name="Asteroid25">
+        <Transform>
+            <Position x="-23.096624" y="1.0576712" z="-8.2286673"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.7477372" y="2.1751189" z="1.0932891"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid24" name="Asteroid24">
+        <Transform>
+            <Position x="-4.2118974" y="0.56741405" z="27.40555"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.945749" y="1.3312347" z="2.3278129"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid23" name="Asteroid23">
+        <Transform>
+            <Position x="-12.799287" y="0.46831036" z="15.112137"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.1869445" y="1.7342058" z="1.5915476"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid22" name="Asteroid22">
+        <Transform>
+            <Position x="16.850752" y="1.6707686" z="-3.1095486"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.057682" y="1.8263218" z="1.0815164"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid21" name="Asteroid21">
+        <Transform>
+            <Position x="-20.106901" y="0.29715094" z="4.2493339"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.7388245" y="1.8904881" z="2.683531"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid20" name="Asteroid20">
+        <Transform>
+            <Position x="12.14958" y="2.7201667" z="17.737999"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.0259085" y="2.7370355" z="1.521015"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid2" name="Asteroid2">
+        <Transform>
+            <Position x="15.523983" y="0.24426028" z="12.460123"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.1384799" y="1.4032619" z="1.1415755"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid19" name="Asteroid19">
+        <Transform>
+            <Position x="-4.8747063" y="0.71699774" z="21.51111"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.9569104" y="1.1249391" z="2.6993549"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid18" name="Asteroid18">
+        <Transform>
+            <Position x="-1.8711699" y="1.9001458" z="26.547874"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.910804" y="2.2819538" z="2.3625515"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid17" name="Asteroid17">
+        <Transform>
+            <Position x="7.273622" y="2.0068078" z="21.064226"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.2717752" y="1.6468095" z="2.0255141"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid16" name="Asteroid16">
+        <Transform>
+            <Position x="5.4141054" y="-0.75382513" z="21.436579"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.5491927" y="2.307291" z="1.4211674"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid15" name="Asteroid15">
+        <Transform>
+            <Position x="-15.74924" y="2.7158146" z="-22.423525"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.1390629" y="2.1777024" z="2.9169376"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid14" name="Asteroid14">
+        <Transform>
+            <Position x="-6.7774434" y="1.5939833" z="-15.389428"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.2677355" y="1.0175393" z="1.7693981"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid13" name="Asteroid13">
+        <Transform>
+            <Position x="9.2384109" y="0.86815983" z="17.093275"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.2244451" y="2.2406869" z="2.7575097"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid12" name="Asteroid12">
+        <Transform>
+            <Position x="-23.861567" y="-0.93553716" z="-0.86941683"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.8735522" y="1.5495998" z="1.1702101"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid11" name="Asteroid11">
+        <Transform>
+            <Position x="17.764853" y="1.7498803" z="5.2007332"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.5040939" y="1.2026179" z="1.1329359"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid10" name="Asteroid10">
+        <Transform>
+            <Position x="-4.3810658" y="1.9415984" z="20.375399"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.9220798" y="1.6023549" z="2.3547401"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid1" name="Asteroid1">
+        <Transform>
+            <Position x="-4.3527389" y="0.044314299" z="17.23806"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="1.5208744" y="1.654734" z="1.5358217"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Asteroid0" name="Asteroid0">
+        <Transform>
+            <Position x="-11.236421" y="1.0818646" z="-22.800552"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="2.0229833" y="1.7870693" z="2.993634"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.07" y="0.1" z="0.17" alpha="1"/>
+            <Emissive x="0.0014" y="0.0020000001" z="0.0034"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+    <Object active="true" disabledComponents="0" id="Arena" name="Arena">
+        <Transform>
+            <Position x="0" y="-0.25" z="0"/>
+            <Rotation x="0" y="0" z="0" w="1"/>
+            <Scale x="24" y="0.40000001" z="16"/>
+        </Transform>
+        <Mesh primitive="2" asset="" visible="true"/>
+        <Material metallic="0.2" roughness="0.69999999" normalScale="1" ao="1" useLight="1" shadingModel="0" overrideModelTextures="false" packedTextureChannels="0">
+            <BaseColor x="0.035" y="0.064999998" z="0.1" alpha="1"/>
+            <Emissive x="0.00069999998" y="0.0013" z="0.0020000001"/>
+            <Fresnel x="0.039999999" y="0.039999999" z="0.039999999"/>
+            <UV>
+                <Position x="0" y="0" z="0"/>
+                <Rotation x="0" y="0" z="0" w="1"/>
+                <Scale x="1" y="1" z="1"/>
+            </UV>
+        </Material>
+    </Object>
+</Scene>

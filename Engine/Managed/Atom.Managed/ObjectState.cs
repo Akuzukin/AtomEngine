@@ -20,6 +20,8 @@ public enum ComponentKind
     Light,
     /// <summary>物理关节组件。</summary>
     Joint,
+    /// <summary>原生GPU粒子发射器组件。</summary>
+    Particle,
 }
 public sealed partial class GameObject {
     /// <summary>此对象自身的激活状态；父对象的状态不改变此值。</summary>

@@ -55,22 +55,22 @@ public sealed class EnterLevel : Behaviour
 
 每次发布先生成临时目录，成功后替换旧发行包。失败保留上一份目录和 ZIP；输出位置不能覆盖源码、资源、项目目录或未经本工具创建的已有目录。
 
-## 命令行与示例
+## 命令行发布
 
 从仓库根目录执行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Engine/Tools/Publish-Project.ps1 `
-  -Project Engine/Survivors.atproj -Output generated/published/Survivors
+  -Project "D:/Games/MyGame/MyGame.atproj" -Output "D:/Games/MyGame/Build/Windows"
 ```
 
 `-BuildOnly` 只生成运行目录，`-SkipNativeBuild` 用于已有正确游戏二进制的开发验证。正常发布不跳过原生构建。
 
-`Survivors.atproj` 提供标题和游戏两个场景：Enter/开始按钮进入游戏，Escape 返回标题。源 `Survivors.scene` 保留，项目使用独立的 `SurvivorsGame.scene`。
+项目文件由编辑器“新建项目”生成；发布时使用自己的 .atproj 路径。
 
 回归入口：编辑器 `--project-workflow-smoke-test` 覆盖项目创建/重开、保存验证、脚本切换、时间重置、失败回滚、Stop 和再次 Play；游戏 `--smoke-test` 覆盖独立运行及场景往返，`--inspect-package` 校验全部资产并输出包内路径清单。`Tests/ProjectPublisherSmoke.ps1` 验证真实模型纹理、预制体/材质/音频内存加载、编辑器资源剔除、加密索引、篡改/错误密钥/缺包拒绝、失败发布和输出保护。
 
-## 本次验证（2026-10-14）
+## 历史验证（2026-10-14）
 
 - Debug、Release 编辑器构建及项目工作流回归通过；Debug 游玩回归和 Release 编辑器综合回归通过。
 - 脚本类型接口、中文 XML 提示与 Roslyn 补全检查通过；`SceneManager` 的场景列表、加载、错误和等待状态均有补全提示。
@@ -82,6 +82,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Engine/Tools/Publish-Project
 - Debug、Release 编辑器重新构建与项目工作流回归通过；Debug 游玩回归、Release 综合回归通过。
 - 模型使用真实 JPG 纹理；包内材质、预制体和 MP3 从内存加载通过；附加目录 `GameData` 的资源也进入加密包，不保留明文副本。
 - 完整资产解密校验、加密索引、篡改/错误密钥/缺包拒绝通过；非法配置、ZIP 占用和无关输出目录保护通过。
-- 最终 `Survivors.zip` 约 48.17 MiB，解压后的 218 个清单文件 SHA256 一致；从包外目录启动、随包 .NET、标题/游戏场景往返通过。启动前后均没有 `.atproj` 或明文 `Asset` 目录。
+- 当时使用的示例发行包完成解压后文件哈希、从包外目录启动、随包 .NET 和场景往返验证；该示例游戏现已移除，发布功能与独立回归夹具保留。
 
 示例发行包为 Windows x64 Release，测试机器使用 D3D12 显卡。尚未在另一台干净机器上进行兼容性测试。

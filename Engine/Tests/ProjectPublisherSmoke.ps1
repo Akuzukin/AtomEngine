@@ -16,11 +16,13 @@ $workspaceRoot = Split-Path -Parent $engineSource
 $testRoot = Join-Path $workspaceRoot ('generated/publisher-tests/' + [guid]::NewGuid().ToString('N'))
 $fixtureRoot = Join-Path $testRoot 'Project'
 $outputRoot = Join-Path $testRoot 'Game'
-New-Item -ItemType Directory -Path "$fixtureRoot/Asset/Scenes","$fixtureRoot/Asset/Prefabs","$fixtureRoot/GameData" -Force | Out-Null
+New-Item -ItemType Directory -Path "$fixtureRoot/Asset/Scenes","$fixtureRoot/Asset/Prefabs","$fixtureRoot/Asset/Particles","$fixtureRoot/GameData" -Force | Out-Null
+'{"version":2,"capacity":64,"burst":12,"rate":8,"duration":1,"texture":"Asset/Textures/Particle.png"}' | Set-Content -LiteralPath "$fixtureRoot/Asset/Particles/Test.particle" -Encoding UTF8
 'A custom game asset outside the Asset folder' | Set-Content -LiteralPath "$fixtureRoot/GameData/Plain.txt" -Encoding UTF8
 @'
 <Scene version="1" name="Model dependency test">
  <Object id="model" name="Model"><Transform/><Mesh primitive="0" asset="Asset/Models/DamagedHelmet/DamagedHelmet.gltf" visible="true"/></Object>
+ <Object id="particle" name="Particle"><Transform/><ParticleComponent preset="Asset/Particles/Test.particle" playOnAwake="true"/></Object>
 </Scene>
 '@ | Set-Content -LiteralPath "$fixtureRoot/Asset/Scenes/Main.scene" -Encoding UTF8
 @'
@@ -45,6 +47,7 @@ foreach ($file in @('Asset','GameData','game.atproj','Source','Managed','AtomEdi
 $inspection = Inspect-Package "$outputRoot/AtomGame.exe"
 if ($inspection.ExitCode -ne 0) { throw ('Encrypted archive inspection failed: ' + $inspection.Error) }
 $entries = $inspection.Json | ConvertFrom-Json
+foreach($asset in @('Asset/Particles/Test.particle','Asset/Textures/Particle.png')){if($asset -notin $entries){throw "Missing particle asset dependency: $asset"}}
 foreach ($asset in @('Asset/Models/DamagedHelmet/DamagedHelmet.gltf','Asset/Models/DamagedHelmet/DamagedHelmet.bin','Asset/Models/DamagedHelmet/Default_albedo.jpg','Asset/Prefabs/Spawn.prefab','Asset/Sounds/se.mp3','Asset/Materials/RedPlastic.mat','GameData/Plain.txt','__runtime/startup.json')) {
     if ($asset -notin $entries) { throw "Missing encrypted asset: $asset" }
 }

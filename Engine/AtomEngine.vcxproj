@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -143,10 +143,8 @@ copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(Targ
     <ClInclude Include="Source\Runtime\Function\Render\GridRenderer.h" />
     <ClInclude Include="Source\Runtime\Function\Camera\GamePadCamera.h" />
     <ClInclude Include="External\vox\ogt_vox.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\Particle.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleCommon.h" />
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleEditor.h" />
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSystem.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleAsset.h" />
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\PostEffect.h" />
     <ClInclude Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.h" />
     <ClInclude Include="Source\Editor\ImGuiCommon.h" />
@@ -253,9 +251,8 @@ copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(Targ
     <ClCompile Include="Source\Runtime\Function\Audio\Audio.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\GridRenderer.cpp" />
     <ClCompile Include="Source\Runtime\Function\Camera\GamePadCamera.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Render\Particle\Particle.cpp" />
-    <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleSystem.cpp" />
+    <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleComponentEditor.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\PostEffect.cpp" />
     <ClCompile Include="Source\Runtime\Function\Render\RenderPasses\OverlayPass.cpp" />
     <ClCompile Include="Source\Editor\ImGuiCommon.cpp" />
@@ -746,8 +743,6 @@ copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(Targ
     <None Include="Asset\Shaders\Light\FillLightGridCS.hlsli" />
     <None Include="Asset\Shaders\Light\LightGrid.hlsli" />
     <None Include="Asset\Shaders\Light\Lighting.hlsli" />
-    <None Include="Asset\Shaders\Particle\ParticleFinalDispatchIndirectArgsCS.hlsli" />
-    <None Include="Asset\Shaders\Particle\ParticleUpdateCommon.hlsli" />
     <None Include="Asset\Shaders\PostEffects\SSAO\AoBlurAndUpsampleCS.hlsli" />
     <None Include="Asset\Shaders\PostEffects\SSAO\AoRender.hlsli" />
     <None Include="Asset\Shaders\PostEffects\MotionBlur\PixelPacking_Velocity.hlsli" />
@@ -980,5 +975,17 @@ copy "$(ProjectDir)Source\Runtime\Platform\DirectX12\Shader\LightData.h" "$(Targ
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tests\ProjectWorkflowSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleComponentEditor.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSettings.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSettingsCodec.h" />
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleEmitterRuntime.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shaders\ParticleV2.hlsli" />
+    <None Include="Asset\Shaders\ParticleV2CS.hlsl" />
+    <None Include="Asset\Shaders\ParticleV2VS.hlsl" />
+    <None Include="Asset\Shaders\ParticleV2PS.hlsl" />
   </ItemGroup>
 </Project>

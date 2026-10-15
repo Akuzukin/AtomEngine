@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Prefab version="1" root="Telegraph">
+  <Object id="Telegraph" name="Telegraph" active="true">
+    <Transform>
+      <Position x="0" y="-100" z="0" />
+      <Rotation x="0" y="0" z="0" w="1" />
+      <Scale x="1" y="1" z="1" />
+    </Transform>
+    <Mesh primitive="2" asset="" visible="false" />
+    <Material metallic=".2" roughness=".7" normalScale="1" ao="1" useLight="1" shadingModel="0">
+      <BaseColor x="1" y="0.06" z="0.08" alpha="1" />
+      <Emissive x="1" y="0.06" z="0.08" />
+    </Material>
+    <Script assembly="Scripts/AtomScripts.dll" type="StarOutpost.TelegraphController" enabled="true" />
+  </Object>
+</Prefab>

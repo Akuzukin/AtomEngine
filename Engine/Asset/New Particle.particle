@@ -1,0 +1,41 @@
+{
+  "billboard": true,
+  "blend": 1,
+  "burst": 32,
+  "capacity": 512,
+  "colorEnd": [
+    1.0,
+    0.10000000149011612,
+    0.0,
+    0.0
+  ],
+  "colorStart": [
+    1.0,
+    0.6000000238418579,
+    0.10000000149011612,
+    1.0
+  ],
+  "coneAngle": 25.0,
+  "drag": 0.0,
+  "duration": 1.0,
+  "extent": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "gravity": [
+    0.0,
+    -1.0,
+    0.0
+  ],
+  "lifetime": 1.5,
+  "loop": false,
+  "radius": 1.0,
+  "rate": 80.0,
+  "shape": 0,
+  "sizeEnd": 0.0,
+  "sizeStart": 0.11999999731779099,
+  "speed": 2.0,
+  "texture": "",
+  "version": 2
+}

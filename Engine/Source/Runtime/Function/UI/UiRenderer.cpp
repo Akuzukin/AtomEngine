@@ -211,7 +211,7 @@ void UiRenderer::Render(GraphicsContext &ctx, World &w)
             ctx.SetDynamicVB(0, 6, sizeof(SpriteVertex), vertices);
             ctx.Draw(6);
         };
-        if(c.interactable || c.progressBar)draw(white.GetSRV(),e==w.uiFocus?Color(.3f,.5f,.8f,1):c.background);
+        if(c.interactable || c.progressBar || c.background.a>0)draw(white.GetSRV(),e==w.uiFocus && c.interactable?Color(.3f,.5f,.8f,1):c.background);
         if(c.progressBar){auto full=c.size.x;c.size.x*=std::clamp(c.progress,0.f,1.f);draw(white.GetSRV(),c.color);c.size.x=full;}
         if (!c.texture.empty())
         {

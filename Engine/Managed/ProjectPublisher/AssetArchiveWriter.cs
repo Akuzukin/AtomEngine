@@ -17,8 +17,9 @@ static class AssetArchiveWriter
         {
             using (var stream = File.Create(payload))
             {
-                foreach (string path in paths) {
-                    string file = Path.Combine(stage,path);
+                foreach (string path in paths)
+                {
+                    string file = Path.Combine(stage, path);
                     if (new FileInfo(file).Length > 512L * 1024 * 1024) throw new Exception("Asset exceeds 512 MiB: " + path);
                     Add(path, File.ReadAllBytes(file));
                 }
@@ -49,9 +50,9 @@ static class AssetArchiveWriter
             // 临时发行目录由发布工具创建；明文资产不会进入最终目录或 ZIP。
             foreach (string path in paths)
             {
-                string file = Path.Combine(stage,path); File.Delete(file);
+                string file = Path.Combine(stage, path); File.Delete(file);
                 string? directory = Path.GetDirectoryName(file);
-                while (directory != null && !directory.Equals(stage,StringComparison.OrdinalIgnoreCase) && !Directory.EnumerateFileSystemEntries(directory).Any())
+                while (directory != null && !directory.Equals(stage, StringComparison.OrdinalIgnoreCase) && !Directory.EnumerateFileSystemEntries(directory).Any())
                 { Directory.Delete(directory); directory = Path.GetDirectoryName(directory); }
             }
         }

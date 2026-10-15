@@ -56,6 +56,8 @@ class World
     SceneSettings settings = ProjectSceneDefaults;
     std::string skyTextureError; // 渲染诊断，不保存到场景或撤销历史。
     Vector2 uiViewportSize{1920,1080}, uiRenderSize{1920,1080};
+    Vector2 gameplayPointer{};
+    bool gameplayPointerValid=false;
     Entity uiFocus=entt::null;
     Entity FindById(const std::string &id);
     bool IsActive(Entity entity);

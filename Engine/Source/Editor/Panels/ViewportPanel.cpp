@@ -6,7 +6,7 @@ namespace AtomEngine
 	{
         if (ImGui::GetFrameCount() == EditorDefaultPanelFocusFrame) ImGui::SetNextWindowFocus();
 		ImGui::Begin(EditorLocalization::Label("Viewport"));
-		s.GetCamera().SetAspectRatio(float(gSceneColorBuffer.GetHeight()) / std::max(1u, gSceneColorBuffer.GetWidth()));
+		s.GetCamera().SetAspectRatio(float(gOverlayBuffer.GetHeight()) / std::max(1u, gOverlayBuffer.GetWidth()));
 		editor.mViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 		editor.PlayToolbar(s);
 		const char* names[] = { "Move [T]", "Rotate [R]", "Scale [S]" };
@@ -31,7 +31,7 @@ namespace AtomEngine
 			ImGuiSliderFlags_AlwaysClamp);
 		ImGui::Separator();
 		auto available = ImGui::GetContentRegionAvail();
-		float aspect = float(gSceneColorBuffer.GetWidth()) / std::max(1u, gSceneColorBuffer.GetHeight());
+		float aspect = float(gOverlayBuffer.GetWidth()) / std::max(1u, gOverlayBuffer.GetHeight());
 		ImVec2 size(available.x, available.x / aspect);
 		if (size.y > available.y)
 			size = ImVec2(available.y * aspect, available.y);
@@ -46,9 +46,11 @@ namespace AtomEngine
 			ImGuiCommon::ImageDisplayEncoded((ImTextureID)editor.mViewportTexture, size);
 			editor.mViewportHovered = ImGui::IsItemHovered();
 			auto mouse = ImGui::GetMousePos();
-			s.GetWorld().uiViewportSize = Vector2(size.x, size.y); s.GetWorld().uiRenderSize = Vector2(float(gSceneColorBuffer.GetWidth()), float(gSceneColorBuffer.GetHeight()));
-			editor.mRuntimePointer = Vector2((mouse.x - cursor.x) * gSceneColorBuffer.GetWidth() / size.x,
-				(mouse.y - cursor.y) * gSceneColorBuffer.GetHeight() / size.y);
+			s.GetWorld().uiViewportSize = Vector2(size.x, size.y); s.GetWorld().uiRenderSize = Vector2(float(gOverlayBuffer.GetWidth()), float(gOverlayBuffer.GetHeight()));
+			auto scenePointer = Vector2((mouse.x - cursor.x) * gSceneColorBuffer.GetWidth() / size.x,
+                (mouse.y - cursor.y) * gSceneColorBuffer.GetHeight() / size.y);
+            editor.mRuntimePointer = Vector2((mouse.x - cursor.x) * gOverlayBuffer.GetWidth() / size.x,
+                (mouse.y - cursor.y) * gOverlayBuffer.GetHeight() / size.y);
 			if (!editor.mPlaying && ImGui::BeginDragDropTarget())
 			{
 				if (auto payload = ImGui::AcceptDragDropPayload("ATOM_ASSET"))
@@ -58,8 +60,8 @@ namespace AtomEngine
 					if (ext == ".mat")
 						editor.Run([&]
 							{
-								auto target = SelectionRenderer::Pick(s.GetWorld(), s.GetCamera(), editor.mRuntimePointer.x,
-									editor.mRuntimePointer.y, float(gSceneColorBuffer.GetWidth()),
+								auto target = SelectionRenderer::Pick(s.GetWorld(), s.GetCamera(), scenePointer.x,
+                                    scenePointer.y, float(gSceneColorBuffer.GetWidth()),
 									float(gSceneColorBuffer.GetHeight()));
 								editor.ApplyMaterial(s.GetWorld(), target, UTF8ToWString(path));
 								editor.Select(s.GetWorld(), target);
@@ -116,7 +118,7 @@ namespace AtomEngine
 			if (editor.mViewportHovered && !editor.mGizmoActive && !editor.mPlaying && !editor.mModal && ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
 				!ImGui::GetIO().KeyAlt)
 				editor.Select(s.GetWorld(),
-					SelectionRenderer::Pick(s.GetWorld(), s.GetCamera(), editor.mRuntimePointer.x, editor.mRuntimePointer.y,
+					SelectionRenderer::Pick(s.GetWorld(), s.GetCamera(), scenePointer.x, scenePointer.y,
 						float(gSceneColorBuffer.GetWidth()), float(gSceneColorBuffer.GetHeight())));
 		}
 		ImGui::End();
@@ -137,13 +139,15 @@ namespace AtomEngine
 		editor.mGizmoActive = false;
 		if (editor.mViewportTexture && size.x > 1 && size.y > 1)
 		{
-			// Keep rendering and runtime UI coordinates consistent with the expanded image.
+			// Layout and input use the UI composite buffer, which can differ from scene resolution.
+            scene.GetWorld().uiViewportSize=Vector2(size.x,size.y);
+            scene.GetWorld().uiRenderSize=Vector2(float(gOverlayBuffer.GetWidth()),float(gOverlayBuffer.GetHeight()));
 			scene.GetCamera().SetAspectRatio(size.y / size.x);
 			ImGuiCommon::ImageDisplayEncoded((ImTextureID)editor.mViewportTexture, size);
 			editor.mViewportHovered = ImGui::IsItemHovered();
 			auto mouse = ImGui::GetMousePos();
-			editor.mRuntimePointer = Vector2((mouse.x - cursor.x) * gSceneColorBuffer.GetWidth() / size.x,
-				(mouse.y - cursor.y) * gSceneColorBuffer.GetHeight() / size.y);
+			editor.mRuntimePointer = Vector2((mouse.x - cursor.x) * gOverlayBuffer.GetWidth() / size.x,
+                (mouse.y - cursor.y) * gOverlayBuffer.GetHeight() / size.y);
 		}
 		ImGui::End();
 	}

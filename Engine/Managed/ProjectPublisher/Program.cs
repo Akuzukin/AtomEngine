@@ -33,7 +33,7 @@ sealed class Publisher
     {
         value = value.Replace('\\', '/');
         if (string.IsNullOrWhiteSpace(value) || Path.IsPathRooted(value) || value.Split('/').Contains("..") || value.Contains(':')) throw new Exception("Invalid project asset path: " + value);
-        return value.TrimStart('.','/');
+        return value.TrimStart('.', '/');
     }
     static string Run(string exe, string work, params string[] args)
     {
@@ -70,10 +70,11 @@ sealed class Publisher
     void Reference(string value)
     {
         value = value.Trim();
-        if (Path.IsPathRooted(value) && File.Exists(value)) {
+        if (Path.IsPathRooted(value) && File.Exists(value))
+        {
             if (Path.GetExtension(value) == ".dll" && files.ContainsKey("Scripts/" + Path.GetFileName(value))) Add("Scripts/" + Path.GetFileName(value));
-            else if (Inside(value, root)) Add(Path.GetRelativePath(root, value).Replace('\\','/'), value);
-            else if (Inside(value, Path.Combine(engine, "Asset"))) Add("Asset/" + Path.GetRelativePath(Path.Combine(engine, "Asset"), value).Replace('\\','/'), value);
+            else if (Inside(value, root)) Add(Path.GetRelativePath(root, value).Replace('\\', '/'), value);
+            else if (Inside(value, Path.Combine(engine, "Asset"))) Add("Asset/" + Path.GetRelativePath(Path.Combine(engine, "Asset"), value).Replace('\\', '/'), value);
             else throw new Exception("Non-portable absolute asset reference: " + value);
             return;
         }
@@ -108,7 +109,7 @@ sealed class Publisher
         if (!scanned.Add(path)) return;
         var file = files[path]; var extension = Path.GetExtension(path).ToLowerInvariant();
         if (extension is ".scene" or ".prefab" or ".mat" or ".xml") XmlRefs(XDocument.Load(file).Root!);
-        if (extension == ".json") { using var json = JsonDocument.Parse(File.ReadAllText(file)); JsonRefs(json.RootElement); }
+        if (extension is ".json" or ".particle") { using var json = JsonDocument.Parse(File.ReadAllText(file)); JsonRefs(json.RootElement); }
         if (extension is ".hlsl" or ".hlsli" or ".h")
         {
             foreach (Match include in Regex.Matches(Regex.Replace(File.ReadAllText(file), @"(?ms)^\s*#ifdef __cplusplus\b.*?^\s*#endif[^\r\n]*", ""), "#\\s*include\\s*\"([^\"]+)\""))
@@ -116,7 +117,7 @@ sealed class Publisher
                 var name = include.Groups[1].Value;
                 var nearby = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, name));
                 var target = Path.GetFullPath(Path.Combine(root, Path.GetDirectoryName(path)!, name));
-                if (File.Exists(nearby)) Add(Path.GetRelativePath(root, target).Replace('\\','/'), nearby);
+                if (File.Exists(nearby)) Add(Path.GetRelativePath(root, target).Replace('\\', '/'), nearby);
                 else
                 {
                     var shader = Path.Combine(engine, "Asset/Shaders", name);
@@ -144,7 +145,7 @@ sealed class Publisher
                 var physical = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, name));
                 var destination = Path.GetFullPath(Path.Combine(root, Path.GetDirectoryName(path)!, name));
                 if (!Inside(destination, root)) throw new Exception("Model dependency leaves project: " + name);
-                Add(Path.GetRelativePath(root, destination).Replace('\\','/'), physical);
+                Add(Path.GetRelativePath(root, destination).Replace('\\', '/'), physical);
             }
         }
     }
@@ -172,7 +173,7 @@ sealed class Publisher
         int windowWidth = (int?)data.Attribute("width") ?? 1280, windowHeight = (int?)data.Attribute("height") ?? 720;
         if (string.IsNullOrEmpty(gameName) || System.Text.Encoding.UTF8.GetByteCount(gameName) > 128) throw new Exception("Invalid project name");
         if (windowWidth < 320 || windowWidth > 7680 || windowHeight < 240 || windowHeight > 4320) throw new Exception("Invalid game window size");
-        foreach (string scene in scenes) if (Path.GetExtension(scene) != ".scene" || !File.Exists(Path.Combine(root,scene))) throw new Exception("Missing project scene: " + scene);
+        foreach (string scene in scenes) if (Path.GetExtension(scene) != ".scene" || !File.Exists(Path.Combine(root, scene))) throw new Exception("Missing project scene: " + scene);
         if (data.Element("Scene")?.Element("Object") != null) throw new Exception("Project defaults cannot contain scene objects");
         // 输出只能覆盖本工具创建的发行目录，不能覆盖项目、源码、资源或任意现有目录。
         if (output.Equals(root, StringComparison.OrdinalIgnoreCase) || Inside(root, output) || output.Equals(engine, StringComparison.OrdinalIgnoreCase) || Inside(engine, output)
@@ -193,9 +194,11 @@ sealed class Publisher
         if (data.Element("Scene") is { } defaults) XmlRefs(defaults);
         foreach (var item in data.Element("Include")?.Elements("Asset") ?? []) Add((string?)item.Attribute("path") ?? "");
         // 从运行代码实际引用的着色器入口开始，再递归收集 include。编辑器入口不参与。
-        foreach (var source in Directory.EnumerateFiles(Path.Combine(engine, "Source/Runtime"), "*", SearchOption.AllDirectories).Where(p => Path.GetExtension(p) is ".cpp" or ".h" or ".hpp" or ".inl")) {
-            if (Path.GetFileName(source) is "SelectionRenderer.cpp" or "GridRenderer.cpp" or "ParticleEditor.cpp") continue;
-            foreach (Match shader in Regex.Matches(File.ReadAllText(source), "\"([^\"]+\\.hlsli?)\"")) {
+        foreach (var source in Directory.EnumerateFiles(Path.Combine(engine, "Source/Runtime"), "*", SearchOption.AllDirectories).Where(p => Path.GetExtension(p) is ".cpp" or ".h" or ".hpp" or ".inl"))
+        {
+            if (Path.GetFileName(source) is "SelectionRenderer.cpp" or "GridRenderer.cpp" or "ParticleComponentEditor.cpp") continue;
+            foreach (Match shader in Regex.Matches(File.ReadAllText(source), "\"([^\"]+\\.hlsli?)\""))
+            {
                 var name = shader.Groups[1].Value;
                 if (!EditorShaders.Contains(Path.GetFileName(name))) Add("Asset/Shaders/" + name);
             }
@@ -207,16 +210,22 @@ sealed class Publisher
         var stage = output + ".staging-" + Guid.NewGuid().ToString("N"); Directory.CreateDirectory(stage);
         try
         {
-            foreach (var pair in files) { var target = Path.Combine(stage, pair.Key); Directory.CreateDirectory(Path.GetDirectoryName(target)!); if (Path.GetExtension(target).ToLowerInvariant() is ".scene" or ".prefab" or ".mat" or ".xml") {
+            foreach (var pair in files)
+            {
+                var target = Path.Combine(stage, pair.Key); Directory.CreateDirectory(Path.GetDirectoryName(target)!); if (Path.GetExtension(target).ToLowerInvariant() is ".scene" or ".prefab" or ".mat" or ".xml")
+                {
                     var scene = XDocument.Load(pair.Value); scene.Root?.Element("EditorCamera")?.Remove();
-                    foreach (var attr in scene.Root!.DescendantsAndSelf().Attributes()) {
+                    foreach (var attr in scene.Root!.DescendantsAndSelf().Attributes())
+                    {
                         if (!Path.IsPathRooted(attr.Value) || !File.Exists(attr.Value)) continue;
                         if (Path.GetExtension(attr.Value) == ".dll" && files.ContainsKey("Scripts/" + Path.GetFileName(attr.Value))) attr.Value = "Scripts/" + Path.GetFileName(attr.Value);
-                        else if (Inside(attr.Value, root)) attr.Value = Path.GetRelativePath(root, attr.Value).Replace('\\','/');
-                        else if (Inside(attr.Value, Path.Combine(engine, "Asset"))) attr.Value = "Asset/" + Path.GetRelativePath(Path.Combine(engine, "Asset"), attr.Value).Replace('\\','/');
+                        else if (Inside(attr.Value, root)) attr.Value = Path.GetRelativePath(root, attr.Value).Replace('\\', '/');
+                        else if (Inside(attr.Value, Path.Combine(engine, "Asset"))) attr.Value = "Asset/" + Path.GetRelativePath(Path.Combine(engine, "Asset"), attr.Value).Replace('\\', '/');
                     }
                     scene.Save(target);
-                } else File.Copy(pair.Value, target); }
+                }
+                else File.Copy(pair.Value, target);
+            }
             foreach (var name in new[] { "AtomGame.exe", "assimp-vc143-mt.dll", "dxcompiler.dll", "dxil.dll", "nethost.dll" }) File.Copy(Path.Combine(native, name), Path.Combine(stage, name));
             // dotnet run 使用项目 apphost；以已安装的 x64 Microsoft.NETCore.App 列表定位可再分发运行时。
             var runtimes = Run("dotnet", engine, "--list-runtimes");
@@ -234,14 +243,22 @@ sealed class Publisher
             Directory.CreateDirectory(Path.Combine(stage, "Licenses"));
             foreach (var (source, name) in notices) if (File.Exists(Path.Combine(engine, source))) File.Copy(Path.Combine(engine, source), Path.Combine(stage, "Licenses", name));
             foreach (var name in new[] { "LICENSE.txt", "ThirdPartyNotices.txt" }) if (File.Exists(Path.Combine(dotnetRoot, name))) File.Copy(Path.Combine(dotnetRoot, name), Path.Combine(stage, "Licenses", "Runtime-" + name));
-            var runtimeDefaults = new XElement(data.Element("Scene") ?? new XElement("Scene", new XAttribute("version",1)));
+            var runtimeDefaults = new XElement(data.Element("Scene") ?? new XElement("Scene", new XAttribute("version", 1)));
             runtimeDefaults.Element("EditorCamera")?.Remove();
-            AssetArchiveWriter.Write(stage, JsonSerializer.Serialize(new { version = 1, name = gameName, startupScene = startup, scenes,
-                width = windowWidth, height = windowHeight, fullscreen = (bool?)data.Attribute("fullscreen") ?? false,
-                defaults = runtimeDefaults.ToString(SaveOptions.DisableFormatting) }), files.Keys.Where(path => !path.StartsWith("Scripts/",StringComparison.OrdinalIgnoreCase)));
-            Run(Path.Combine(stage,"AtomGame.exe"), stage, "--inspect-package");
+            AssetArchiveWriter.Write(stage, JsonSerializer.Serialize(new
+            {
+                version = 1,
+                name = gameName,
+                startupScene = startup,
+                scenes,
+                width = windowWidth,
+                height = windowHeight,
+                fullscreen = (bool?)data.Attribute("fullscreen") ?? false,
+                defaults = runtimeDefaults.ToString(SaveOptions.DisableFormatting)
+            }), files.Keys.Where(path => !path.StartsWith("Scripts/", StringComparison.OrdinalIgnoreCase)));
+            Run(Path.Combine(stage, "AtomGame.exe"), stage, "--inspect-package");
             File.WriteAllText(Path.Combine(stage, ".atom-publish"), "AtomEngine publisher v2\n");
-            var report = Directory.EnumerateFiles(stage, "*", SearchOption.AllDirectories).Select(file => new { Path = Path.GetRelativePath(stage, file).Replace('\\','/'), Bytes = new FileInfo(file).Length, SHA256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file))) }).ToArray();
+            var report = Directory.EnumerateFiles(stage, "*", SearchOption.AllDirectories).Select(file => new { Path = Path.GetRelativePath(stage, file).Replace('\\', '/'), Bytes = new FileInfo(file).Length, SHA256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file))) }).ToArray();
             File.WriteAllText(Path.Combine(stage, "build-manifest.json"), JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
             string? zipStage = null;
             if (archive) { zipStage = stage + ".zip"; ZipFile.CreateFromDirectory(stage, zipStage, CompressionLevel.Optimal, false); }

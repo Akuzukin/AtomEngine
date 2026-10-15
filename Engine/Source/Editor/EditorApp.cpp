@@ -1,3 +1,4 @@
+#include "Runtime/Function/Render/Particle/ParticleComponentEditor.h"
 #include "EditorApp.h"
 #include "External/tinyxml2/tinyxml2.h"
 #include "Runtime/Core/LogSystem/LogSystem.h"
@@ -103,6 +104,7 @@ namespace AtomEngine
 
 	void EditorApp::Update(float deltaTime)
 	{
+		mParticlePreviewDelta = deltaTime;
 		if (ImGui::IsKeyPressed(ImGuiKey_F11, false) && !ImGui::GetIO().WantTextInput)
 		{
 			auto window = gContext.windowManager;
@@ -147,9 +149,11 @@ namespace AtomEngine
 			else
 				mCameraController->ResetInputTracking();
 		}
+        ParticleComponentEditor::Draw();
 	}
 	void EditorApp::Render()
 	{
+        ParticleComponentEditor::Render(mParticlePreviewDelta);
 		if (auto scene = mSceneManager.GetCurrentScene())
 		{
 			mEditor.RenderMaterialPreview(*scene);
@@ -158,6 +162,7 @@ namespace AtomEngine
 	}
 	void EditorApp::Shutdown()
 	{
+        ParticleComponentEditor::Shutdown();
 		gContext.input->SetGameplayInputEnabled(true);
 		mEditor.Shutdown();
 		mCameraController.reset();

@@ -1,6 +1,12 @@
 # 引擎功能与使用说明
 
-当前能力总览及编辑器使用说明；最后核对：2026-10-14。后文扩展小节解释各能力的边界。Demo 见 [幸存者使用说明](DEMO_SURVIVORS.md)。
+## GPU 粒子组件 v2
+
+支持从 Assets 工具栏或空白处右键新建 `.particle` 资产，双击在独立预览窗口编辑，保存/另存为和未保存提示。场景组件可导出、绑定资产，脚本字段可接收 `.particle` 拖拽。保存参数校验、原子替换及资产纹理发行依赖检查已接通。
+
+独立 ECS ParticleComponent 与 GPU 固定容量模拟；Point/Box/Sphere/Cone/Ring 发射形状，Burst/Smoke/Fountain/Rain/Ring 常用预设；独立预览窗口编辑、旋转、缩放与重播。支持可选广告牌、可选纹理、纯色及颜色/尺寸渐变，Alpha/Additive/Multiply/Opaque 混色。公开脚本 ParticleComponent 字段支持拖入组件或粒子 prefab；预制体直接拖入会实例化并绑定组件。查询、播放、停止、持久引用重映射与 GPU fence 回收说明见 [GPU_PARTICLES.md](GPU_PARTICLES.md)，完整脚本接口见 [SCRIPT_REFERENCE.md](SCRIPT_REFERENCE.md)。
+
+当前能力总览及编辑器使用说明；最后核对：2026-10-14。后文扩展小节解释各能力的边界。示例游戏已移除；引擎能力由独立回归夹具验证。
 
 ## 构建与运行
 
@@ -226,7 +232,7 @@ ScriptSystem 每帧先创建/同步本 World 的所有脚本实例，清理失�
 
 当前脚本接口的操作示例及边界统一见 [SCRIPT_API.md](SCRIPT_API.md)。本次新增 Atom.Mathf 常用标量/向量/旋转函数、SpawnRequest 延迟 Create/InstantiatePrefab、子树 Destroy 和 World 代次有效性保护。
 
-Audio Source 组件支持文件拖拽、音量、循环、启动播放、试听、XML 持久化及撤销。Assets 双击 MP3/WAV 可试听；脚本可以 PlayAudio、StopAudio 或 PlaySound。死亡效果支持独立声部重叠，暂停/Stop/销毁同步清理。Demo 的 HUD 使用 Asset/Sounds/se.mp3 作为死亡音效。
+Audio Source 组件支持文件拖拽、音量、循环、启动播放、试听、XML 持久化及撤销。Assets 双击 MP3/WAV 可试听；脚本可以 PlayAudio、StopAudio 或 PlaySound。死亡效果支持独立声部重叠，暂停/Stop/销毁同步清理。Asset/Sounds/se.mp3 保留为通用音频接口及回归样本。
 
 --play-workflow-smoke-test 同时检查托管/原生数学对照、延迟创建/预制体/子树销毁、旧 World 引用失效、音频源保存/撤销/复制、MP3 缓存与重叠播放、暂停/自动播放/销毁及实际 Demo 击杀后的音频声部。
 
@@ -238,7 +244,7 @@ File → New from template 从 Asset/Templates/*.scene 创建未保存副本；�
 
 公开字段类型、生命周期、参数覆盖/暂停/Stop 语义、热重载失败策略和代码示例以 [SCRIPT_API.md](SCRIPT_API.md) 为统一来源。
 
-本轮验证：Debug/Release x64 完整构建成功，两种配置的 --play-workflow-smoke-test 通过；Release --runtime-smoke-test 与 --enhancement-smoke-test 通过；SurvivorsLogic 九项检查通过。原生构建日志为 generated/demo-engine-{debug,release}-build.log；新增工具断言位于 Tests/EngineCompletionSmokeChecks.h。真实设备验收范围见 DEMO_SURVIVORS.md。
+本轮验证：Debug/Release x64 完整构建成功，两种配置的 --play-workflow-smoke-test 通过；Release --runtime-smoke-test 与 --enhancement-smoke-test 通过。原生构建日志为 generated/demo-engine-{debug,release}-build.log；新增工具断言位于 Tests/EngineCompletionSmokeChecks.h。真实手柄及多屏 DPI 仍需设备人工验证。
 
 ## 具名输入、音频资源与 IDE 提示
 

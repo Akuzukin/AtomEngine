@@ -1,5 +1,15 @@
 # C# 脚本 API
 
+## 《碎星哨站》新增接口（2026-10-14）
+
+- `Object.Pointer` 返回 `PointerState(Valid, Position, ViewportSize)`，以UI合成缓冲像素为单位；原生独立窗口与编辑器视口均使用对应坐标，移出视口或失焦时Valid为false。
+- `Object.SetTint(Vector3 color, float glow=0)` 修改全部材质槽的RGB颜色与自发光倍数。颜色必须有限且非负，glow范围0～10。对象需已有Material组件。
+- `Object.SetPose(Vector3 position, Quaternion rotation, Vector3 scale)` 一次提交完整局部变换，避免逐属性写入时反复读取变换；原生接口保持有限值、非零四元数、正缩放校验。
+
+这些接口沿用桥ABI7；使用更新后的Atom.Managed.dll仍需重启编辑器。游戏制作中的原生UI缩放、普通UI背景和隐藏对象池优化记录见 [ENGINE_ISSUES.md](../Games/StarOutpost/ENGINE_ISSUES.md)。
+
+多对象脚本优化：宿主缓存OnUpdate/OnFixedUpdate/OnCollision是否实际重写；继承重写仍执行，热重载刷新该缓存。基类空回调不再跨托管桥分派。OnUpdate复用每帧发布的Time快照，固定更新和碰撞仍收到各自步长；生命周期、输入焦点和回调顺序保持原有语义。
+
 以 `Managed/Atom.Managed` 与原生 `ScriptSystem` 为实现来源；托管桥 ABI 为 **7**。本次升级需要完整构建并重启编辑器，游戏程序集热重载不能替换宿主接口 DLL。
 
 ## VS Code 与自动补全
@@ -215,13 +225,57 @@ ApplyPrefab 为普通 GameObject 覆盖预制体中存在的组件属性并挂�
 
 ## 验证
 
-回归入口：--play-workflow-smoke-test（包含 Tests/EngineCompletionSmokeChecks.h）、--enhancement-smoke-test、--runtime-smoke-test，以及 Tests/SurvivorsLogic。覆盖反射/类型校验、实时字段及默认值恢复、查询及双向碰撞过滤、Active 子树/组件状态、布局/命中/焦点切换、热重载状态及失败保留、模板/对象池撤销重做、脚本创建及预制体附加。真实手柄按键和多屏 DPI 的显示效果仍需设备人工验证。
+回归入口：--play-workflow-smoke-test（包含 Tests/EngineCompletionSmokeChecks.h）、--enhancement-smoke-test、--runtime-smoke-test。覆盖反射/类型校验、实时字段及默认值恢复、查询及双向碰撞过滤、Active 子树/组件状态、布局/命中/焦点切换、热重载状态及失败保留、模板/对象池撤销重做、脚本创建及预制体附加。真实手柄按键和多屏 DPI 的显示效果仍需设备人工验证。
 
 本轮接口验证（2026-10-14）：Tests/ScriptApi 的实际托管接口检查覆盖命名输入状态、焦点、预设与对角归一化、资源播放路由、类型字段解析、原生键码一致性；Roslyn 验证键名/函数/引擎类/音频成员补全及 XML 提示。资源生成检查覆盖中文名称、冲突、扩展名过滤、内容不变时不重写、删除后刷新。原生工作流增加真实音频声部、反射、实时按键/音频字段、XML 往返和枚举控件检查。
 
-验证结果：Debug/Release 原生构建及两种配置的工作流回归通过；Release 独立运行回归通过；ScriptApi 接口/资源目录/Roslyn 补全测试和 SurvivorsLogic 九项检查通过。构建未产生原生或 C# 编译警告。日志为 generated/script-api-{build,tests}.log 与 generated/demo-engine-{debug,release}-build.log。
+验证结果：Debug/Release 原生构建及两种配置的工作流回归通过；Release 独立运行回归通过；ScriptApi 接口/资源目录/Roslyn 补全测试通过。构建未产生原生或 C# 编译警告。日志为 generated/script-api-{build,tests}.log 与 generated/demo-engine-{debug,release}-build.log。
 
 
 ## 项目场景接口
 
 Behaviour 的 SceneManager 属性或 Object.SceneManager 提供 Scenes、CurrentScene、LoadScene、IsLoading、LastLoadError。LoadScene 仅加载 .atproj 清单内的场景，在脚本回调结束后的下一帧处理；失败保留旧世界和原脚本实例，成功后重置 Time 并使旧 GameObject 句柄失效。中文 XML 文档和 Roslyn 补全覆盖新接口。示例及发布说明见 [PROJECT_WORKFLOW.md](PROJECT_WORKFLOW.md)。
+
+## C++ ECS 对象与组件接口
+
+GameObject 是原生实体的带版本引用。以下查询直接遍历当前 World 的 C++ ECS 组件视图，不扫描托管脚本实例。结果是查询时的快照，长期缓存后应检查 IsValid；场景切换后旧引用失效。
+
+```csharp
+GameObject? player = Object.FindById("Player"); // 唯一持久 ID
+GameObject? camera = Object.FindByName("Camera"); // 精确、区分大小写；含未激活对象
+GameObject? other = Object.GetObject(otherEntity); // 当前世界的碰撞/查询实体句柄
+GameObject[] meshes = Object.Query(ComponentKind.Mesh); // 层级激活且网格组件启用
+GameObject[] allMeshes = Object.Query(ComponentKind.Mesh, activeOnly: false);
+bool hasCamera = camera?.HasComponent(ComponentKind.Camera) == true;
+if (player != null && camera != null)
+    Object.SetActiveBatch([new(player, false), new(camera, true)]);
+```
+
+FindByName 重名时返回句柄最小者，需要唯一引用时优先使用 FindById。Query 返回按实体句柄排序的对象数组，MeshSource 与运行时 Mesh 去重。HasComponent 检查实际组件存在，IsComponentEnabled 只检查启用标记。SetActiveBatch 在原生层先验证全部实体，再批量写入 ObjectStateComponent；托管层拒绝其他世界或旧世界对象，空批次不跨 ABI，重复对象以最后一项为准。实体创建/销毁仍使用安全点命令队列。
+
+Transform 的 SetPose 通过直接函数指针写入原生 TransformComponent；Visible、SetTint 和组件激活状态操作原生组件。脚本负责玩法逻辑与调用时机，原生 World 负责场景对象、组件数据和渲染/物理。业务生命值、奖励等状态不会因调用 Query 自动变成原生组件。
+
+## 通用引擎服务（2026-10-15）
+
+完整公开成员与参数见 [SCRIPT_REFERENCE.md](SCRIPT_REFERENCE.md)。新 API 必须提供中文 XML 注释并运行 `python Engine/Tools/Generate-ScriptReference.py`；规则见 AGENTS.md。
+
+- UI 以1920×1080参考画布等比例缩放；Inspector提供角点、中心及拉伸锚点预设。脚本设置AnchorMin/AnchorMax会启用响应式布局；之后可显式设置Responsive=false。层级布局、绘制和命中使用同一Resolve结果。
+- `new SaveStore("GameId")` 按游戏标识和槽位隔离，`Save<T>/Load<T>` 支持游戏自定义类型和公开字段，JSON损坏抛出异常并保留文件；序列化完成后同目录临时文件原子替换，旧槽位备份为.bak。版本与迁移由游戏定义。
+- `Object.AudioMixer.MasterVolume` 为全局音量；Effects/Music/UI 三条总线由GetVolume/SetVolume控制，立即影响现有及新增声部。AudioSource在Inspector/XML中保存bus。
+- 添加 GPU particle component，在独立粒子编辑窗口设置发射形状、常用预设、颜色、尺寸、速度、重力、纹理、广告牌与混色。公开 `ParticleComponent` 字段支持拖入场景对象或预制体实例组件，保存持久ID并在当前世界解析。`Object.GetParticleComponent()` / `Object.FindParticleComponent(idOrName)` 查询组件，`Play(worldPosition)` / `Stop()` 控制发射；实体销毁和场景重置按GPU fence回收资源。旧 `Object.Particles` 接口已移除，新预设采用 version 2 JSON。详情见 [GPU_PARTICLES.md](GPU_PARTICLES.md)。
+- `Application.Quit()` 请求正常退出当前进程（编辑器中也会退出编辑器）。`Application.SetWindow(width,height,fullscreen)` 设置客户区或无边框全屏，渲染资源在下一帧安全点更新。
+
+```csharp
+var saves = new SaveStore("MyGame");
+saves.Save("profile", myProfile);
+var restored = saves.Load<MyProfile>("profile");
+Object.AudioMixer.MasterVolume = .8f;
+Object.AudioMixer.SetVolume(AudioBus.Music, .5f);
+Object.GetParticleComponent()?.Play(Object.Position);
+Application.SetWindow(1280, 720);
+// 点击退出按钮时：Application.Quit();
+```
+
+编辑器视口UI坐标（2026-10-15修正）：普通和放大Play视口使用实际UI合成缓冲尺寸计算布局与点击，3D场景分辨率与其不同也不会改变UI锚点位置。3D拾取单独使用场景像素坐标。Standalone窗口尺寸诊断不能代替编辑器视口回归。
+
+底层Overlay资源约束（2026-10-15）：主Overlay跟随交换链输出大小，重建3D native resolution时不会改变UI尺寸。离屏视图的Overlay跟随该视图目标。Composite按输出像素读取主Overlay，故必须保证两者尺寸一致；仅检查世界的uiRenderSize不足以验收，应检查最终GPU合成像素。

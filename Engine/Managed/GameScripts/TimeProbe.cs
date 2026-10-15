@@ -21,10 +21,17 @@ public sealed class TimeProbe : Behaviour
     public override string CaptureReloadState() => "time-probe";
     public override void RestoreReloadState(string state) { }
     public override void OnReload() => Report();
-    private void Report() => Object.Text = JsonSerializer.Serialize(new {
-        delta=Time.DeltaTime, frameDelta=Time.FrameDeltaTime, fixedDelta=Time.FixedDeltaTime,
-        elapsed=Time.ElapsedTime, fixedElapsed=Time.FixedTime, frames=Time.FrameCount,
-        fixedFrames=Time.FixedFrameCount, fps=Time.FramesPerSecond,
-        paused=Time.IsPaused, fixedStep=Time.IsFixedUpdate
+    private void Report() => Object.Text = JsonSerializer.Serialize(new
+    {
+        delta = Time.DeltaTime,
+        frameDelta = Time.FrameDeltaTime,
+        fixedDelta = Time.FixedDeltaTime,
+        elapsed = Time.ElapsedTime,
+        fixedElapsed = Time.FixedTime,
+        frames = Time.FrameCount,
+        fixedFrames = Time.FixedFrameCount,
+        fps = Time.FramesPerSecond,
+        paused = Time.IsPaused,
+        fixedStep = Time.IsFixedUpdate
     });
 }

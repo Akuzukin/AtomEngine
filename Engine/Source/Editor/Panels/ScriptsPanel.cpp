@@ -56,7 +56,7 @@ namespace AtomEngine
 			ImGui::EndPopup();
 		}
 	}
-	void ScriptsPanel::DrawFields(EditorLayer& editor, ScriptAttachment& s, const std::string& live)
+	void ScriptsPanel::DrawFields(EditorLayer& editor, World& world, ScriptAttachment& s, const std::string& live)
 	{
 		using Json = nlohmann::json;
 		wchar_t exe[32768]{}; GetModuleFileNameW(nullptr, exe, DWORD(std::size(exe)));
@@ -94,7 +94,7 @@ namespace AtomEngine
 			{
 				if (overridden && current.is_object() && current.contains(name))s.fields[name] = current.at(name).get<std::string>();
 				else if (overridden)s.fields[name] = kind == "bool" ? "false" : kind == "enum" ? field.at("choices").at(0).get<std::string>() :
-					(kind == "string" || kind == "audioClip") ? "" : kind == "vector2" ? "[0,0]" : kind == "vector3" ? "[0,0,0]" : kind == "vector4" ? "[0,0,0,0]" : kind == "quaternion" ? "[0,0,0,1]" : "0";
+					(kind == "string" || kind == "audioClip" || kind == "particleComponent") ? "" : kind == "vector2" ? "[0,0]" : kind == "vector3" ? "[0,0,0]" : kind == "vector4" ? "[0,0,0,0]" : kind == "quaternion" ? "[0,0,0,1]" : "0";
 				else s.fields.erase(name);
 			}
 			ImGui::SameLine(); ImGui::TextUnformatted(name.c_str());
@@ -102,7 +102,22 @@ namespace AtomEngine
 			auto& value = s.fields[name]; bool changed = false;
 			try
 			{
-				if (kind == "audioClip") { changed = AssetPath("Audio clip", value, "|.mp3|.wav|"); }
+				if(kind=="particleComponent") {
+                    ImGui::Button(value.empty()?"Drop component, .particle or prefab":value.c_str());
+                    if(ImGui::BeginDragDropTarget()) {
+                        Entity target=entt::null;
+                        if(auto payload=ImGui::AcceptDragDropPayload("ATOM_ENTITY"))target=*static_cast<const Entity*>(payload->Data);
+                        if(auto payload=ImGui::AcceptDragDropPayload("ATOM_ASSET")) {
+                            auto path=std::filesystem::path(UTF8ToWString(static_cast<const char*>(payload->Data)));
+                            try {if(path.extension()==L".prefab"||path.extension()==L".particle")target=SceneSerializer::InstantiateParticlePrefab(world,path);}
+                            catch(...){ImGui::EndDragDropTarget();throw;}
+                        }
+                        if(world.IsValid(target)&&world.HasComponent<ParticleComponent>(target)){value="particle:"+world.GetComponent<PersistentIdComponent>(target).value;changed=true;}
+                        ImGui::EndDragDropTarget();
+                    }
+                    ImGui::SameLine();if(ImGui::SmallButton("Clear")){value="";changed=true;}
+                }
+                else if (kind == "audioClip") { changed = AssetPath("Audio clip", value, "|.mp3|.wav|"); }
 				else if (kind == "bool") { bool v = _stricmp(value.c_str(), "true") == 0; changed = ImGui::Checkbox("##value", &v); if (changed)value = v ? "true" : "false"; }
 				else if (kind == "enum")
 				{

@@ -8,6 +8,6 @@ namespace AtomEngine
 	{
 	public:
 		void Draw(EditorLayer& editor, World& world);
-		void DrawFields(EditorLayer& editor, ScriptAttachment& s, const std::string& live);
+		void DrawFields(EditorLayer& editor, World& world, ScriptAttachment& s, const std::string& live);
 	};
 }

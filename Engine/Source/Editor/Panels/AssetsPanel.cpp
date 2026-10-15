@@ -1,5 +1,6 @@
 #include "../EditorPanelSupport.h"
 #include "../ScriptFieldEditor.h"
+#include "Runtime/Function/Render/Particle/ParticleComponentEditor.h"
 namespace AtomEngine
 {
 	void AssetsPanel::Draw(EditorLayer& editor, Scene& s)
@@ -41,6 +42,9 @@ namespace AtomEngine
 		ImGui::SameLine();
 		if (ImGui::Button(EditorLocalization::Label("Refresh")))
 			editor.mRefreshAssets = true;
+		ImGui::SameLine();
+		if(ImGui::Button(EditorLocalization::Label("New particle")))
+			editor.Run([&]{auto path=ParticleComponentEditor::CreateAsset(editor.mAssetDirectory,&editor);editor.mAssetSelection=PathText(path);});
 		if (ImGui::GetContentRegionAvail().x > 280)
 			ImGui::SameLine();
 		editor.ScriptCreation(s.GetWorld());
@@ -238,6 +242,7 @@ namespace AtomEngine
 					editor.mAssetDirectory = entry;
 					editor.mRefreshAssets = true;
 				}
+				else if(Extension(entry)==".particle")editor.Run([&]{ParticleComponentEditor::OpenAsset(entry,&editor);});
 				else if ((Extension(entry) == ".mp3" || Extension(entry) == ".wav") && !editor.mPlaying)
 					editor.Run([&]
 						{
@@ -256,6 +261,10 @@ namespace AtomEngine
 		}
 		if (grid)
 			ImGui::EndTable();
+		if(ImGui::BeginPopupContextWindow("Create particle asset",ImGuiPopupFlags_MouseButtonRight|ImGuiPopupFlags_NoOpenOverItems)) {
+			if(ImGui::MenuItem(EditorLocalization::Label("New particle")))editor.Run([&]{auto path=ParticleComponentEditor::CreateAsset(editor.mAssetDirectory,&editor);editor.mAssetSelection=PathText(path);});
+			ImGui::EndPopup();
+		}
 		ImGui::EndChild();
 		if (!editor.mAssetSelection.empty())
 		{
@@ -264,6 +273,10 @@ namespace AtomEngine
 			ImGui::TextWrapped("%s", editor.mAssetSelection.c_str());
 			if (ImGui::Button(EditorLocalization::Label("Copy path")))
 				ImGui::SetClipboardText(editor.mAssetSelection.c_str());
+			if(std::filesystem::path(UTF8ToWString(editor.mAssetSelection)).extension()==L".particle") {
+				if(ImGui::Button("Edit particle asset"))editor.Run([&]{ParticleComponentEditor::OpenAsset(UTF8ToWString(editor.mAssetSelection),&editor);});
+				if(ImGui::Button("Create particle object"))editor.Run([&]{editor.Select(s.GetWorld(),SceneSerializer::InstantiateParticlePrefab(s.GetWorld(),UTF8ToWString(editor.mAssetSelection)));editor.mHistoryPending=true;});
+			}
 			if (editor.mAssetPreview.IsValid())
 			{
 				float width = std::min(180.f, ImGui::GetContentRegionAvail().x);

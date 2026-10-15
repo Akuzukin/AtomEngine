@@ -17,6 +17,8 @@ class SceneSerializer
     static void SavePrefab(World &world, Entity root, const std::filesystem::path &path);
     static void AttachPrefab(World &world,Entity target,const std::filesystem::path &path);
     static Entity InstantiatePrefab(World &world, const std::filesystem::path &path);
+    // Used by .particle/prefab field drops: create a component asset instance or resolve the prefab particle.
+    static Entity InstantiateParticlePrefab(World &world, const std::filesystem::path &path);
     static void RefreshPrefabs(World &world, const std::filesystem::path &source = {});
     static void RevertPrefab(World &world, Entity instance);
     static void ApplyPrefab(World &world, Entity instance);

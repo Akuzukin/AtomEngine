@@ -1,6 +1,6 @@
 # AtomEngine
 
-AtomEngine 是面向 Windows x64 的 Direct3D 12 3D 引擎与场景编辑器，提供项目管理、场景编辑、PBR 渲染、物理模拟、C# 脚本和独立游戏发布。仓库包含可运行的幸存者示例项目。
+AtomEngine 是面向 Windows x64 的 Direct3D 12 3D 引擎与场景编辑器，提供项目管理、场景编辑、PBR 渲染、物理模拟、C# 脚本和独立游戏发布。仓库保留引擎、编辑器及独立回归夹具。
 
 ---
 ## 功能概览
@@ -43,18 +43,16 @@ msbuild Engine/AtomEngine.sln /m /p:Configuration=Release /p:Platform=x64
 - 在 **Hierarchy** 中选择或创建场景对象，在 **Inspector** 编辑变换、网格、材质、碰撞体、刚体、脚本和 UI 组件。
 - 在 **Viewport** 使用鼠标选择对象，并用移动、旋转、缩放工具调整变换；`Alt + 左键` 旋转相机，中键平移，右键缩放。`F` 聚焦选中对象，`Escape` 取消选择。
 - 使用 **Play** 运行场景，Pause 暂停，Step 单步推进，Stop 恢复开始运行前的编辑快照。Stop 不会把模拟结果写回编辑状态。
-- 在 **Inspector** 添加 C# Script，Assembly 默认路径为 `Scripts/AtomScripts.dll`，Class 填写完整类型名（例如 `Game.Survivor`）。推荐使用 VS Code，打开 `Engine/Managed/AtomScripts.code-workspace`；新项目也会生成脚本工程和工作区。完整构建或编辑器脚本构建操作负责部署程序集并触发热重载，原生解决方案仍由 Visual Studio 使用。
+- 在 **Inspector** 添加 C# Script，Assembly 默认路径为 `Scripts/AtomScripts.dll`，Class 填写完整类型名（例如 `Game.KeyboardMover`）。推荐使用 VS Code，打开 `Engine/Managed/AtomScripts.code-workspace`；新项目也会生成脚本工程和工作区。完整构建或编辑器脚本构建操作负责部署程序集并触发热重载，原生解决方案仍由 Visual Studio 使用。
 - 场景通过 Scene 面板保存为 `.scene`；选中对象可保存为 `.prefab` 并实例化。快捷键包括 `Ctrl+S` 保存、`Ctrl+Z` 撤销、`Ctrl+Y` 重做、`Ctrl+D` 复制和 `Delete` 删除。
 ---
-## 幸存者示例与独立发布
-
-打开 `Engine/Survivors.atproj` 并点击 Play。Enter 或“开始”按钮进入游戏，Escape 返回标题；WASD / 手柄左摇杆移动，自动向附近敌人发射弹丸，生存 120 秒获胜。敌人死亡播放 `Asset/Sounds/se.mp3`。项目包含标题和游戏两个场景，原始场景与模板仍保留。
+## 独立游戏发布
 
 编辑器“构建游戏”生成 Release 运行目录，“构建并发布”额外生成 ZIP。从仓库根目录执行相同流程：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Engine/Tools/Publish-Project.ps1 `
-  -Project Engine/Survivors.atproj -Output generated/published/Survivors
+  -Project "D:/Games/MyGame/MyGame.atproj" -Output "D:/Games/MyGame/Build/Windows"
 ```
 
 解压 ZIP 后运行 `AtomGame.exe`。发行包包含 .NET 10 和 VC 运行库，玩家无需安装开发 SDK，仍需要 Windows x64 与 D3D12 显卡。
@@ -74,7 +72,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Engine/Tools/Publish-Project
 - 编辑器 `--play-workflow-smoke-test`：视口尺寸、全屏预览及多视窗输入。
 - 发行游戏 `--smoke-test`：独立运行和场景往返；`--inspect-package` 校验包内资源。
 - `Engine/Tests/ProjectPublisherSmoke.ps1`：依赖收集、内存加载、篡改/错误密钥/缺包拒绝和输出保护。
-- `Engine/Tests/ScriptApi`、`Engine/Tests/SurvivorsLogic`：脚本接口/补全与 Demo 逻辑检查。
+- `Engine/Tests/ScriptApi`：脚本接口、资源目录生成与 IDE 补全检查。
 
 ## 第三方库与平台组件
 
@@ -99,8 +97,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Engine/Tools/Publish-Project
 
 - [功能与使用说明](Engine/FEATURES.md)：当前能力、操作步骤和已知限制的统一来源。
 - [架构](Engine/ARCHITECTURE.md)：模块职责与工程边界。
-- [幸存者 Demo](Engine/DEMO_SURVIVORS.md)：玩法、运行方法和验证记录。
-- [Demo 制作问题](Engine/DEMO_ISSUES.md)：制作过程中的问题与跟进。
+- [引擎改造记录](Engine/DEMO_ISSUES.md)：制作过程中的问题与跟进。
 - [脚本 API](Engine/SCRIPT_API.md)：时间、数学、输入、参数、对象、预制体、音频与场景接口。
 - [项目与发布](Engine/PROJECT_WORKFLOW.md)：项目、场景切换、构建、加密资产包及验证记录。
 

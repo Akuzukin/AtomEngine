@@ -9,18 +9,24 @@ RWTexture2DArray<float4> Output : register(u0);
 float3 CubeDirection(uint face, float2 uv)
 {
     float2 p = uv * 2 - 1;
-    if (face == 0) return normalize(float3(1, -p.y, -p.x));
-    if (face == 1) return normalize(float3(-1, -p.y, p.x));
-    if (face == 2) return normalize(float3(p.x, 1, p.y));
-    if (face == 3) return normalize(float3(p.x, -1, -p.y));
-    if (face == 4) return normalize(float3(p.x, -p.y, 1));
+    if (face == 0)
+        return normalize(float3(1, -p.y, -p.x));
+    if (face == 1)
+        return normalize(float3(-1, -p.y, p.x));
+    if (face == 2)
+        return normalize(float3(p.x, 1, p.y));
+    if (face == 3)
+        return normalize(float3(p.x, -1, -p.y));
+    if (face == 4)
+        return normalize(float3(p.x, -p.y, 1));
     return normalize(float3(-p.x, -p.y, -1));
 }
 
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= (uint)Filter.x || id.y >= (uint)Filter.x || id.z >= 6) return;
+    if (id.x >= (uint) Filter.x || id.y >= (uint) Filter.x || id.z >= 6)
+        return;
     float3 n = CubeDirection(id.z, (id.xy + 0.5) / Filter.x);
     float3 color = 0;
     if (Filter.z < 0.5)

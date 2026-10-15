@@ -1,0 +1,4 @@
+<AtomProject version="1" name="碎星哨站 · 自动诊断" startupScene="Asset/Scenes/RuntimeCheck.scene" scriptProject="Managed/GameScripts/GameScripts.csproj" width="1280" height="720" fullscreen="false">
+  <Scenes><Scene path="Asset/Scenes/RuntimeCheck.scene"/></Scenes>
+  <Include><Asset path="Asset/Sounds"/><Asset path="Asset/Prefabs"/></Include>
+</AtomProject>

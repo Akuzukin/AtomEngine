@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "capacity": 128,
+  "burst": 32,
+  "rate": 160,
+  "duration": 0.45,
+  "lifetime": 0.45,
+  "sizeStart": 0.04,
+  "sizeEnd": 0,
+  "shape": 0,
+  "blend": 1,
+  "billboard": true,
+  "loop": false,
+  "texture": "Asset/Textures/Particle.png",
+  "colorStart": [
+    0.1,
+    1,
+    0.3,
+    1
+  ],
+  "colorEnd": [
+    0.1,
+    1,
+    0.3,
+    0
+  ],
+  "gravity": [
+    0,
+    0,
+    0
+  ],
+  "extent": [
+    0.2,
+    0.1,
+    0.2
+  ],
+  "speed": 2
+}

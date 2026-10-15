@@ -16,9 +16,9 @@
     <PostBuildEvent><Command></Command></PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Remove="Source\Editor\**\*.cpp;External\imgui\**\*.cpp;Source\Runtime\Function\Render\Particle\ParticleEditor.cpp" />
+    <ClCompile Remove="Source\Editor\**\*.cpp;External\imgui\**\*.cpp;Source\Runtime\Function\Render\Particle\ParticleComponentEditor.cpp" />
     <ClCompile Include="Source\Runtime\Application\GameMain.cpp" />
-    <ClInclude Remove="Source\Editor\**\*.h;Tests\**\*.h;External\imgui\**\*.h;Source\Runtime\Function\Render\Particle\ParticleEditor.h" />
+    <ClInclude Remove="Source\Editor\**\*.h;Tests\**\*.h;External\imgui\**\*.h;Source\Runtime\Function\Render\Particle\ParticleComponentEditor.h" />
     <ClCompile Remove="Source\Runtime\Function\Render\SelectionRenderer.cpp;Source\Runtime\Function\Render\GridRenderer.cpp" />
   </ItemGroup>
   <Target Name="CopyGameNativeRuntime" AfterTargets="Build">

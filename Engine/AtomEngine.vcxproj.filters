@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="External">
@@ -324,12 +324,6 @@
     <ClCompile Include="Source\Runtime\Function\Render\PostEffect\SSAO.cpp">
       <Filter>Source\Runtime\Function\Render\PostEffect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Render\Particle\Particle.cpp">
-      <Filter>Source\Runtime\Function\Render\Particle</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleEditor.cpp">
-      <Filter>Source\Runtime\Function\Render\Particle</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleSystem.cpp">
       <Filter>Source\Runtime\Function\Render\Particle</Filter>
     </ClCompile>
@@ -648,15 +642,6 @@
     <ClInclude Include="Source\Runtime\Function\Render\PostEffect\SSAO.h">
       <Filter>Source\Runtime\Function\Render\PostEffect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\Particle.h">
-      <Filter>Source\Runtime\Function\Render\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleCommon.h">
-      <Filter>Source\Runtime\Function\Render\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleEditor.h">
-      <Filter>Source\Runtime\Function\Render\Particle</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSystem.h">
       <Filter>Source\Runtime\Function\Render\Particle</Filter>
     </ClInclude>
@@ -904,12 +889,6 @@
     <None Include="Asset\Shaders\Light\Lighting.hlsli">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Asset\Shaders\Particle\ParticleFinalDispatchIndirectArgsCS.hlsli">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Asset\Shaders\Particle\ParticleUpdateCommon.hlsli">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Asset\Shaders\Utility.hlsli">
       <Filter>Shader</Filter>
     </None>
@@ -1026,99 +1005,162 @@
     <ClInclude Include="Tests\GameplayToolsSmokeChecks.h" />
     <None Include="Tests\BuildReloadFixtures.ps1" />
   </ItemGroup>
-
   <ItemGroup>
     <ClInclude Include="Source\Editor\ScriptFieldEditor.h" />
     <ClInclude Include="Source\Runtime\Function\Scene\SceneAuthoring.h" />
     <ClInclude Include="Tests\EngineCompletionSmokeChecks.h" />
   </ItemGroup>
-  <ItemGroup><ClInclude Include="Source\Runtime\Function\Input\KeyCode.h" /></ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\EditorPanels.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Input\KeyCode.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\EditorPanelSupport.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\EditorPanels.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\AssetsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClInclude Include="Source\Editor\EditorPanelSupport.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ConsolePanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\AssetsPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\HelpPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ConsolePanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\HierarchyPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\HelpPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\InspectorPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\HierarchyPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\MaterialsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\InspectorPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\SceneSettingsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\MaterialsPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ScriptsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\SceneSettingsPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ShadersPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ScriptsPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ToolbarPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ShadersPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ViewportPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ToolbarPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\WorkspacePanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ViewportPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\AssetsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClCompile Include="Source\Editor\Panels\WorkspacePanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\AssetsPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\HelpPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\ConsolePanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\HelpPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\MaterialsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\SceneSettingsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\MaterialsPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\ScriptsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\SceneSettingsPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\ShadersPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\ScriptsPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\ToolbarPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\ShadersPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\ToolbarPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Panels\WorkspacePanel.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Panels\ProjectSettingsPanel.cpp"><Filter>Source\Editor</Filter></ClCompile>
-    <ClInclude Include="Source\Editor\Panels\ProjectSettingsPanel.h"><Filter>Source\Editor</Filter></ClInclude>
-    <ClInclude Include="Source\Runtime\Function\Scene\ProjectSettings.h"><Filter>Source\Editor</Filter></ClInclude>
+    <ClInclude Include="Source\Editor\Panels\WorkspacePanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\EditorBackgroundTasks.cpp"><Filter>Source\Editor</Filter></ClCompile>
-    <ClCompile Include="Source\Editor\EditorPreferences.cpp"><Filter>Source\Editor</Filter></ClCompile>
+    <ClCompile Include="Source\Editor\Panels\ProjectSettingsPanel.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Editor\Panels\ProjectSettingsPanel.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Scene\ProjectSettings.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Editor\EditorBackgroundTasks.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\EditorPreferences.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Runtime\Function\Scene\GameProject.cpp" />
@@ -1133,5 +1175,43 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tests\ProjectWorkflowSmokeChecks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleComponentEditor.h">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSettings.h">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleSettingsCodec.h">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleEmitterRuntime.h">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shaders\ParticleV2.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Asset\Shaders\ParticleV2CS.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Asset\Shaders\ParticleV2VS.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Asset\Shaders\ParticleV2PS.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Runtime\Function\Render\Particle\ParticleComponentEditor.cpp">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Runtime\Function\Render\Particle\ParticleAsset.h">
+      <Filter>Source\Runtime\Function\Render\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

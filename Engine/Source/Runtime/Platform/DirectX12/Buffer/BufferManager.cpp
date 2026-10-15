@@ -74,7 +74,13 @@ void InitializeBuffers(uint32_t bufferWidth, uint32_t bufferHeight)
     gViewLightShadowTemp.Create(L"View Light Shadow Temp", 512, 512);
     gSceneDepthBuffer.Create(L"Scene Depth Buffer", bufferWidth, bufferHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    gOverlayBuffer.Create(L"UI Overlay", bufferWidth, bufferHeight, 1, DXGI_FORMAT_R8G8B8A8_UNORM);
+    // The primary composite reads Overlay by swap-chain pixel coordinates.
+    // Rebuilding the 3D resolution must not resize this buffer to the scene dimensions.
+    // Offscreen views still own an overlay matching their own render target.
+    bool primaryView=std::addressof(GetViewBuffers())==std::addressof(GetPrimaryViewBuffers());
+    auto overlayWidth=primaryView && DX12Core::gBackBufferWidth ? DX12Core::gBackBufferWidth : bufferWidth;
+    auto overlayHeight=primaryView && DX12Core::gBackBufferHeight ? DX12Core::gBackBufferHeight : bufferHeight;
+    gOverlayBuffer.Create(L"UI Overlay", overlayWidth, overlayHeight, 1, DXGI_FORMAT_R8G8B8A8_UNORM);
 
     gShadowBuffer.Create(L"Shadow Map", 2048, 2048);
     gRayTracedShadowBuffer.Create(L"Ray Traced Shadow Map", bufferWidth, bufferHeight);
@@ -191,7 +197,7 @@ void DestroyBuffers()
 void ResizeBuffers(uint32_t Width, uint32_t Height)
 {
     if (DX12Core::gBackBufferWidth != 0 && DX12Core::gBackBufferHeight != 0)
-        gOverlayBuffer.Create(L"UI Overlay", DX12Core::gBackBufferWidth, DX12Core::gBackBufferHeight, 1,
+        GetPrimaryViewBuffers().overlayBuffer.Create(L"UI Overlay", DX12Core::gBackBufferWidth, DX12Core::gBackBufferHeight, 1,
                               DXGI_FORMAT_R8G8B8A8_UNORM);
 }
 } // namespace AtomEngine

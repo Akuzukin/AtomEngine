@@ -8,6 +8,9 @@
 #include "External/dotnet/coreclr_delegates.h"
 #include "json.hpp"
 #include "Runtime/Function/Audio/Audio.h"
+#include "Runtime/Function/Global/GlobalContext.h"
+#include "Runtime/Function/Render/WindowManager.h"
+#include "Runtime/Function/Render/Particle/ParticleEmitterRuntime.h"
 #include "Runtime/Function/Scene/SceneSerializer.h"
 #include "Runtime/Function/Scene/GameProject.h"
 #include "Runtime/Function/Framework/ECS/GameObject.h"
@@ -76,6 +79,7 @@ struct ScriptSystem::Impl
         bool created = true;
         bool enabled=false;
         std::map<std::string,std::string> fields;
+        bool updateCallback=true,fixedCallback=true,collisionCallback=true;
     };
     std::map<std::pair<Entity, size_t>, Instance> instances;
     struct WatchedAssembly
@@ -91,6 +95,42 @@ struct ScriptSystem::Impl
     double elapsed = 0, fixedElapsed = 0;
     uint64_t frames = 0, fixedFrames = 0;
     bool paused = false;
+    static bool HasEcsComponent(World &w, Entity e, ComponentKind kind)
+    {
+        switch(kind) {
+        case ComponentKind::Mesh: return w.HasComponent<MeshComponent>(e) || w.HasComponent<MeshSourceComponent>(e);
+        case ComponentKind::Collider: return w.HasComponent<ColliderComponent>(e);
+        case ComponentKind::RigidBody: return w.HasComponent<RigidBodyComponent>(e);
+        case ComponentKind::Script: return w.HasComponent<ScriptComponent>(e);
+        case ComponentKind::UI: return w.HasComponent<UiElementComponent>(e);
+        case ComponentKind::Audio: return w.HasComponent<AudioSourceComponent>(e);
+        case ComponentKind::Camera: return w.HasComponent<CameraComponent>(e);
+        case ComponentKind::Light: return w.HasComponent<DirectionalLightComponent>(e);
+        case ComponentKind::Joint: return w.HasComponent<JointComponent>(e);
+        case ComponentKind::Particle: return w.HasComponent<ParticleComponent>(e);
+        }
+        return false;
+    }
+    static Json QueryEcs(World &w, ComponentKind kind, bool activeOnly)
+    {
+        std::vector<uint32_t> entities;
+        auto append=[&](auto view) {for(auto e:view)if(!activeOnly || w.IsEnabled(e,kind))entities.push_back(uint32_t(e));};
+        switch(kind) {
+        case ComponentKind::Mesh: append(w.View<MeshComponent>());append(w.View<MeshSourceComponent>());break;
+        case ComponentKind::Collider: append(w.View<ColliderComponent>());break;
+        case ComponentKind::RigidBody: append(w.View<RigidBodyComponent>());break;
+        case ComponentKind::Script: append(w.View<ScriptComponent>());break;
+        case ComponentKind::UI: append(w.View<UiElementComponent>());break;
+        case ComponentKind::Audio: append(w.View<AudioSourceComponent>());break;
+        case ComponentKind::Camera: append(w.View<CameraComponent>());break;
+        case ComponentKind::Light: append(w.View<DirectionalLightComponent>());break;
+        case ComponentKind::Joint: append(w.View<JointComponent>());break;
+        case ComponentKind::Particle: append(w.View<ParticleComponent>());break;
+        }
+        std::sort(entities.begin(),entities.end());
+        entities.erase(std::unique(entities.begin(),entities.end()),entities.end());
+        return Json(entities);
+    }
     Impl()
     {
         api.get = [](void *p, uint32_t e, NativeTransform *out) -> int {
@@ -217,7 +257,28 @@ struct ScriptSystem::Impl
                 auto vector=[](const Json &v){if(!v.is_array() || v.size()!=3)throw std::runtime_error("Expected vector3");return Vector3(v.at(0).get<float>(),v.at(1).get<float>(),v.at(2).get<float>());};
                 auto mask=j.value("mask",0xffffffffu);auto triggers=j.value("triggers",false);auto ignore=Entity(j.value("ignore",uint32_t(entt::null)));
                 Json out=nullptr;auto op=j.at("op").get<std::string>();
-                if(op=="scene") {
+                if(op=="particles") {
+                    auto e=Entity(j.at("entity").get<uint32_t>());auto emitter=c.world->TryGet<ParticleComponent>(e);if(!emitter)throw std::runtime_error("Object has no particle component");
+                    auto action=j.at("action").get<std::string>();
+                    if(action=="emit"){auto pos=vector(j.at("position"));if(!std::isfinite(pos.x)||!std::isfinite(pos.y)||!std::isfinite(pos.z))throw std::runtime_error("Invalid particle position");EmitSceneParticle(*c.world,e,pos);out=true;}
+                    else if(action=="stop"){ParticleSystem::StopParticle(emitter->runtimeId);out=true;}
+                    else throw std::runtime_error("Invalid particle action");
+                }
+                else if(op=="mixer") {
+                    auto audio=Audio::GetInstance();auto action=j.at("action").get<std::string>();
+                    if(action=="master"){if(j.contains("value"))audio->SetMasterVolume(j.at("value").get<float>());out=audio->GetMasterVolume();}
+                    else if(action=="bus"){int bus=j.at("bus").get<int>();if(j.contains("value"))audio->SetBusVolume(bus,j.at("value").get<float>());out=audio->GetBusVolume(bus);}
+                    else if(action=="play"){audio->PlayClip(j.at("path").get<std::string>(),j.value("volume",1.f),false,uint64_t(j.at("entity").get<uint32_t>())+1,j.at("bus").get<int>());out=true;}
+                    else throw std::runtime_error("Invalid mixer action");
+                }
+                else if(op=="application") {
+                    if(!c.acceptCommands)throw std::runtime_error("Application requests require gameplay callbacks");
+                    auto action=j.at("action").get<std::string>();
+                    if(action=="quit")PostQuitMessage(0);
+                    else if(action=="window") {auto width=j.at("width").get<int>(),height=j.at("height").get<int>();if(width<320||width>16384||height<240||height>16384)throw std::runtime_error("Invalid window size");auto window=gContext.windowManager;bool full=j.value("fullscreen",false);window->SetFullscreen(full);if(!full){auto handle=window->GetWindowHandle();RECT rect{0,0,width,height};AdjustWindowRect(&rect,GetWindowLongW(handle,GWL_STYLE),FALSE);SetWindowPos(handle,nullptr,0,0,rect.right-rect.left,rect.bottom-rect.top,SWP_NOMOVE|SWP_NOZORDER);}}
+                    else throw std::runtime_error("Invalid application request");out=true;
+                }
+                else if(op=="scene") {
                     auto action=j.at("action").get<std::string>();
                     if(action=="current")out=ActiveProject.currentScene;
                     else if(action=="error")out=ActiveProject.lastLoadError;
@@ -227,6 +288,38 @@ struct ScriptSystem::Impl
                         if(!c.acceptCommands)throw std::runtime_error("Scene loading is only available during gameplay callbacks");
                         ActiveProject.RequestScene(j.at("scene").get<std::string>());out=true;
                     } else throw std::runtime_error("Unknown scene operation");
+                }
+                else if(op=="ecsId") {
+                    auto e=Entity(j.at("entity").get<uint32_t>());if(!c.world->IsValid(e))throw std::runtime_error("Destroyed object");out=c.world->GetComponent<PersistentIdComponent>(e).value;
+                }
+                else if(op=="ecsFind") {
+                    auto name=j.at("name").get<std::string>();uint32_t found=uint32_t(entt::null);
+                    for(auto e:c.world->View<NameComponent>())
+                        if(c.world->GetComponent<NameComponent>(e).value==name && uint32_t(e)<found)found=uint32_t(e);
+                    if(found!=uint32_t(entt::null))out=found;
+                }
+                else if(op=="ecsQuery" || op=="ecsHas") {
+                    auto kind=j.at("kind").get<int>();if(kind<0 || kind>9)throw std::runtime_error("Invalid component kind");
+                    if(op=="ecsQuery")out=QueryEcs(*c.world,ComponentKind(kind),j.value("activeOnly",true));
+                    else {auto e=Entity(j.at("entity").get<uint32_t>());if(!c.world->IsValid(e))throw std::runtime_error("Destroyed object");out=HasEcsComponent(*c.world,e,ComponentKind(kind));}
+                }
+                else if(op=="ecsActiveBatch") {
+                    auto &changes=j.at("changes");if(!changes.is_array() || changes.size()>16384)throw std::runtime_error("Invalid ECS batch size");
+                    std::vector<std::pair<Entity,bool>> updates;updates.reserve(changes.size());
+                    for(auto &change:changes) {auto e=Entity(change.at("entity").get<uint32_t>());if(!c.world->IsValid(e))throw std::runtime_error("Destroyed object in ECS batch");updates.emplace_back(e,change.at("active").get<bool>());}
+                    for(auto [e,active]:updates) {if(!c.world->HasComponent<ObjectStateComponent>(e))c.world->AddComponent<ObjectStateComponent>(e);c.world->GetComponent<ObjectStateComponent>(e).activeSelf=active;}
+                    out=true;
+                }
+                else if(op=="tint") {
+                    auto e=Entity(j.at("entity").get<uint32_t>());auto m=c.world->TryGet<MaterialComponent>(e);
+                    if(!m)throw std::runtime_error("Object has no material");
+                    auto color=vector(j.at("color"));if(!std::isfinite(color.x)||!std::isfinite(color.y)||!std::isfinite(color.z)||color.x<0||color.y<0||color.z<0)throw std::runtime_error("Invalid material color");
+                    float glow=j.value("glow",0.f);if(!std::isfinite(glow)||glow<0||glow>10)throw std::runtime_error("Invalid material glow");
+                    for(auto &v:m->mMaterials){v.mBaseColor=Color(color.x,color.y,color.z,1);v.mEmissive=color*glow;}out=true;
+                }
+                else if(op=="pointer") {
+                    auto &w=*c.world;
+                    out={{"valid",w.gameplayPointerValid},{"position",{w.gameplayPointer.x,w.gameplayPointer.y}},{"size",{w.uiRenderSize.x,w.uiRenderSize.y}}};
                 }
                 else if(op=="input") {
                     auto device=j.at("device").get<int>(),code=j.at("code").get<int>(),state=j.at("state").get<int>();
@@ -243,13 +336,14 @@ struct ScriptSystem::Impl
                     auto e=Entity(j.at("entity").get<uint32_t>());auto component=c.world->TryGet<UiElementComponent>(e);if(!component)throw std::runtime_error("Object has no UI element");auto candidate=*component;
                     auto vec=[](const Json &v){if(!v.is_array()||v.size()!=2)throw std::runtime_error("Expected vector2");auto x=v[0].get<float>(),y=v[1].get<float>();if(!std::isfinite(x)||!std::isfinite(y))throw std::runtime_error("UI vector must be finite");return Vector2(x,y);};
                     if(j.contains("position"))candidate.position=vec(j["position"]);if(j.contains("size"))candidate.size=vec(j["size"]);if(j.contains("anchorMin"))candidate.anchorMin=vec(j["anchorMin"]);if(j.contains("anchorMax"))candidate.anchorMax=vec(j["anchorMax"]);if(j.contains("pivot"))candidate.pivot=vec(j["pivot"]);
+                    if(j.contains("anchorMin")||j.contains("anchorMax"))candidate.responsive=true;
                     if(j.contains("progress"))candidate.progress=j["progress"].get<float>();if(j.contains("visible"))candidate.visible=j["visible"].get<bool>();if(j.contains("interactable"))candidate.interactable=j["interactable"].get<bool>();if(j.contains("responsive"))candidate.responsive=j["responsive"].get<bool>();
                     if(!std::isfinite(candidate.progress)||candidate.progress<0||candidate.progress>1||candidate.size.x<=0||candidate.size.y<=0||candidate.size.x>4096||candidate.size.y>4096||candidate.anchorMin.x<0||candidate.anchorMin.y<0||candidate.anchorMax.x>1||candidate.anchorMax.y>1||candidate.anchorMin.x>candidate.anchorMax.x||candidate.anchorMin.y>candidate.anchorMax.y||candidate.pivot.x<0||candidate.pivot.x>1||candidate.pivot.y<0||candidate.pivot.y>1)throw std::runtime_error("Invalid UI layout values");
                     *component=candidate;out={{"position",{candidate.position.x,candidate.position.y}},{"size",{candidate.size.x,candidate.size.y}},{"progress",candidate.progress},{"anchorMin",{candidate.anchorMin.x,candidate.anchorMin.y}},{"anchorMax",{candidate.anchorMax.x,candidate.anchorMax.y}},{"pivot",{candidate.pivot.x,candidate.pivot.y}},{"visible",candidate.visible},{"responsive",candidate.responsive},{"interactable",candidate.interactable}};
                 }
                 else if(op=="active" || op=="activeHierarchy" || op=="component") {
                     auto e=Entity(j.at("entity").get<uint32_t>());if(!c.world->IsValid(e))throw std::runtime_error("Destroyed object");
-                    if(op=="component"){auto kind=j.at("kind").get<int>();if(kind<0 || kind>8)throw std::runtime_error("Invalid component kind");if(j.contains("value"))c.world->SetComponentEnabled(e,ComponentKind(kind),j.at("value").get<bool>());auto state=c.world->TryGet<ObjectStateComponent>(e);out=!state || !(state->disabledComponents & (1u<<kind));}
+                    if(op=="component"){auto kind=j.at("kind").get<int>();if(kind<0 || kind>9)throw std::runtime_error("Invalid component kind");if(j.contains("value"))c.world->SetComponentEnabled(e,ComponentKind(kind),j.at("value").get<bool>());auto state=c.world->TryGet<ObjectStateComponent>(e);out=!state || !(state->disabledComponents & (1u<<kind));}
                     else {if(!c.world->HasComponent<ObjectStateComponent>(e))c.world->AddComponent<ObjectStateComponent>(e);auto &state=c.world->GetComponent<ObjectStateComponent>(e);if(j.contains("value"))state.activeSelf=j.at("value").get<bool>();out=op=="active"?state.activeSelf:c.world->IsActive(e);}
                 }
                 else if(op=="raycast"){if(!c.physics)throw std::runtime_error("Physics runtime unavailable");PhysicsHit hit;if(c.physics->Raycast(*c.world,vector(j.at("origin")),vector(j.at("direction")),j.at("distance").get<float>(),hit,mask,triggers,ignore))out={{"entity",uint32_t(hit.entity)},{"point",{hit.point.x,hit.point.y,hit.point.z}},{"normal",{hit.normal.x,hit.normal.y,hit.normal.z}},{"distance",hit.distance}};}
@@ -270,7 +364,7 @@ struct ScriptSystem::Impl
                 if (!w->IsEnabled(Entity(e),ComponentKind::Audio))return 0;
                 if (operation == 2 && path) { audio->PlayClip(path, volume, false, owner); return 1; }
                 if (auto source = w->TryGet<AudioSourceComponent>(Entity(e)); operation == 0 && source && !source->clip.empty()) {
-                    audio->PlayClip(source->clip, source->volume, source->loop, owner); return 1;
+                    audio->PlayClip(source->clip, source->volume, source->loop, owner,source->bus); return 1;
                 }
             } catch (const std::exception &error) { WriteLog(LogLevel::Warning, "Audio", error.what()); }
             return 0;
@@ -326,11 +420,20 @@ struct ScriptSystem::Impl
         if (!dispatch)
             return false;
         auto op = j.value("op", std::string{});
-        if (op != "inspect" && op != "validate")
+        // Update() already publishes the shared frame clock before invoking any script.
+        // Avoid serializing/parsing the identical clock once per actor; fixed/collision
+        // callbacks still receive their own fixed-step context.
+        if (op != "inspect" && op != "validate" && op != "update")
             j["time"] = {{"delta", frameDelta}, {"fixedDelta", fixedDelta}, {"elapsed", elapsed},
                          {"fixedElapsed", fixedElapsed}, {"frames", frames}, {"fixedFrames", fixedFrames}, {"paused", paused}};
         auto text = j.dump();
         return dispatch(text.c_str(), &api, &context) == 0;
+    }
+    void ReadCallbacks(Instance &instance,const Json &flags)
+    {
+        instance.updateCallback=flags.value("update",true);
+        instance.fixedCallback=flags.value("fixedUpdate",true);
+        instance.collisionCallback=flags.value("collision",true);
     }
     ~Impl()
     { /* hostfxr and nethost stay resident while CoreCLR is running. */
@@ -478,6 +581,11 @@ bool ScriptSystem::ReloadAssembly(const std::filesystem::path &file)
             ++it;
         }
     }
+    i.context.response.clear();
+    if(i.Call({{"op","callbacks"}})&&!i.context.response.empty()){
+        auto callbacks=Json::parse(i.context.response);
+        for(auto &[key,instance]:i.instances){auto id=std::to_string(instance.id);if(callbacks.contains(id))i.ReadCallbacks(instance,callbacks[id]);}
+    }
     i.context.error.clear();
     return true;
 }
@@ -561,8 +669,10 @@ void ScriptSystem::Update(World &w, float dt)
                 definition["id"] = id;
                 definition["entity"] = uint32_t(e);
                 definition["assembly"] = path.generic_string();
+                i.context.response.clear();
                 bool ok = i.Call(definition);
                 it = i.instances.emplace(key, Impl::Instance{id, signature, !ok, path, ok, false, s.fields}).first;
+                if(ok&&!i.context.response.empty())i.ReadCallbacks(it->second,Json::parse(i.context.response));
             }
             if(it->second.created && it->second.fields!=s.fields){
                 if(i.Call({{"op","patchFields"},{"id",it->second.id},{"fields",s.fields}})){it->second.fields=s.fields;i.context.error.clear();}
@@ -590,7 +700,7 @@ void ScriptSystem::Update(World &w, float dt)
         auto e=key.first;auto component=w.TryGet<ScriptComponent>(e);
         bool enabled=component && key.second<component->scripts.size() && component->scripts[key.second].enabled && w.IsEnabled(e,ComponentKind::Script);
         if(it->second.created && it->second.enabled!=enabled){it->second.enabled=enabled;if(!i.Call({{"op",enabled?"enable":"disable"},{"id",it->second.id}}))it->second.failed=true;}
-        if (enabled && !it->second.failed &&
+        if (enabled && it->second.updateCallback && !it->second.failed &&
             !i.Call({{"op", "update"}, {"id", it->second.id}, {"dt", dt}}))
             it->second.failed = true;
     }
@@ -655,7 +765,7 @@ void ScriptSystem::FixedUpdate(World &w, float dt)
     i.Call({{"op", "time"}});
     i.context.world = &w;
     for (auto &[key, instance] : i.instances)
-        if (instance.enabled && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && !i.Call({{"op", "fixed"}, {"id", instance.id}, {"dt", dt}}))
+        if (instance.enabled && instance.fixedCallback && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && !i.Call({{"op", "fixed"}, {"id", instance.id}, {"dt", dt}}))
             instance.failed = true;
 }
 
@@ -679,7 +789,7 @@ void ScriptSystem::Collision(World &w, const PhysicsContact &c)
     auto &i = *mImpl;
     i.context.world = &w;
     for (auto &[key, instance] : i.instances)
-        if (instance.enabled && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && (key.first == c.first || key.first == c.second))
+        if (instance.enabled && instance.collisionCallback && w.IsEnabled(key.first,ComponentKind::Script) && !instance.failed && (key.first == c.first || key.first == c.second))
             if (!i.Call({{"op", "collision"},
                          {"id", instance.id},
                          {"other", uint32_t(key.first == c.first ? c.second : c.first)},

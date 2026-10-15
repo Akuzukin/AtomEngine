@@ -1,11 +1,12 @@
 #pragma once
+#include "Runtime/Function/Render/Particle/ParticleSettings.h"
 #include "Runtime/Core/Math/MathInclude.h"
 #include <map>
 #include <string>
 #include <vector>
 namespace AtomEngine
 {
-	enum class ComponentKind { Mesh, Collider, RigidBody, Script, UI, Audio, Camera, Light, Joint };
+	enum class ComponentKind { Mesh, Collider, RigidBody, Script, UI, Audio, Camera, Light, Joint, Particle };
 	struct ObjectStateComponent { bool activeSelf = true; uint32_t disabledComponents = 0; };
 	struct CameraComponent
 	{
@@ -113,6 +114,14 @@ namespace AtomEngine
 		std::string clip;
 		float volume = 1;
 		bool loop = false, playOnAwake = false;
+        int bus=0;
+	};
+	struct ParticleComponent
+	{
+		std::string preset;
+        ParticleSettings settings;
+		bool playOnAwake=false;
+		uint32_t runtimeId=0xffffffff;
 	};
 	struct ScriptAttachment
 	{

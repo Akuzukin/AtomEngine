@@ -1,28 +1,38 @@
 {
-    "MinStartColor": [0.6,0.9,1.0,0.2],
-    "MaxStartColor": [0.6,0.95,1.0,0.3],
-    "MinEndColor": [0.6,0.9,1.0,0.0],
-    "MaxEndColor": [0.6,0.95,1.0,0.0],
-    "Velocity": [-1.0,1.0,0.2,1.0],
-    "Size": [2.0,6.0,1.0,3.0],
-    "Spread": [15.0,10.0,15.0],
-    "EmitRate": 80.0,
-    "LifeMinMax": [4.0,8.0],
-    "MassMinMax": [0.0,0.05],
-    "TotalActiveLifetime": 0.0,
-    "EmitProperties": {
-      "EmitPosW": [0.0,0.0,0.0],
-      "EmitSpeed": 1.0,
-      "Gravity": [0.0,0.3,0.0],
-      "MaxParticles": 1500,
-      "LastEmitPosW": [0.0,0.0,0.0],
-      "FloorHeight": -0.7,
-      "EmitDirW": [0.0,1.0,0.0],
-      "Restitution": 0.6,
-      "EmitRightW": [1.0,0.0,0.0],
-      "EmitUpW": [0.0,1.0,0.0],
-      "EmitterVelocitySensitivity": 0.0,
-      "EmissiveColor": [0.5,0.7,1.0]
-    },
-    "TexturePath": "Asset/Textures/bubbles.png"
-  }
+  "version": 2,
+  "capacity": 1500,
+  "burst": 32,
+  "rate": 80.0,
+  "duration": 1,
+  "lifetime": 8.0,
+  "sizeStart": 2.0,
+  "sizeEnd": 1.0,
+  "shape": 0,
+  "blend": 1,
+  "billboard": true,
+  "loop": false,
+  "texture": "Asset/Textures/bubbles.png",
+  "colorStart": [
+    0.6,
+    0.9,
+    1.0,
+    0.2
+  ],
+  "colorEnd": [
+    0.6,
+    0.95,
+    1.0,
+    0.0
+  ],
+  "gravity": [
+    0.0,
+    0.3,
+    0.0
+  ],
+  "extent": [
+    15.0,
+    10.0,
+    15.0
+  ],
+  "speed": 2
+}

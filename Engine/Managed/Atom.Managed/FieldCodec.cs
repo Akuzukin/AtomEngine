@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace Atom.Managed;
 internal static class FieldCodec
 {
-    internal static string Kind(Type type) => type==typeof(AudioClip)?"audioClip":type.IsEnum ? "enum" : type == typeof(bool) ? "bool" :
+    internal static string Kind(Type type) => type==typeof(ParticleComponent)?"particleComponent":type==typeof(AudioClip)?"audioClip":type.IsEnum ? "enum" : type == typeof(bool) ? "bool" :
         type == typeof(string) ? "string" : type == typeof(float) ? "float" : type == typeof(double) ? "double" :
         type == typeof(int) ? "int" : type == typeof(uint) ? "uint" : type == typeof(long) ? "long" : type == typeof(ulong) ? "ulong" :
         type == typeof(Vector2) ? "vector2" : type == typeof(Vector3) ? "vector3" : type == typeof(Vector4) ? "vector4" :
@@ -16,6 +16,7 @@ internal static class FieldCodec
     {
         var kind=Kind(type);
         if (kind=="unsupported") throw new InvalidOperationException("Unsupported field type: " + type.Name);
+        if(type==typeof(ParticleComponent))return new ParticleComponent(value.StartsWith("particle:")?value[9..]:value);
         if(type==typeof(AudioClip))return new AudioClip(value);
         if (type.IsEnum) {
             if (!Enum.GetNames(type).Contains(value)) throw new ArgumentException("Unknown enum value: " + value);
@@ -33,10 +34,12 @@ internal static class FieldCodec
         return result;
     }
     internal static string Format(object? value) => value switch {
+        ParticleComponent particle=>string.IsNullOrEmpty(particle.PersistentId)?"":"particle:"+particle.PersistentId,
         AudioClip clip=>clip.Path,
         Vector2 v => JsonSerializer.Serialize(new[]{v.X,v.Y}), Vector3 v=>JsonSerializer.Serialize(new[]{v.X,v.Y,v.Z}),
         Vector4 v=>JsonSerializer.Serialize(new[]{v.X,v.Y,v.Z,v.W}), Quaternion q=>JsonSerializer.Serialize(new[]{q.X,q.Y,q.Z,q.W}),
         bool v=>v?"true":"false", IFormattable v=>v.ToString(null,CultureInfo.InvariantCulture), _=>value?.ToString()??"" };
+    internal static void BindReferences(Behaviour script){foreach(var field in Fields(script.GetType()))if(field.FieldType==typeof(ParticleComponent))field.SetValue(script,((ParticleComponent)field.GetValue(script)!).Bind(script.Object));}
     internal static List<(FieldInfo Field,object Value)> Prepare(Type type, JsonElement fields)
     {
         var result=new List<(FieldInfo,object)>();

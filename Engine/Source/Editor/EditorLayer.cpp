@@ -140,7 +140,7 @@ void EditorLayer::Materials(Scene& scene){ mMaterialsPanel.Draw(*this, scene); }
 void EditorLayer::Workspace(Scene &s){ mWorkspacePanel.Draw(*this, s); }
 void EditorLayer::PlayToolbar(Scene &scene){ mToolbarPanel.Draw(*this, scene); }
 void EditorLayer::ScriptCreation(World &world){ mScriptsPanel.Draw(*this, world); }
-void EditorLayer::ScriptFields(ScriptAttachment &s,const std::string &live){ mScriptsPanel.DrawFields(*this, s,live); }
+void EditorLayer::ScriptFields(World &world,ScriptAttachment &s,const std::string &live){ mScriptsPanel.DrawFields(*this,world,s,live); }
 } // namespace AtomEngine
 
 #include "ScriptFieldEditor.h"

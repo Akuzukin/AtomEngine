@@ -1,3 +1,5 @@
+#include "Runtime/Function/Render/Particle/ParticleComponentEditor.h"
+#include "Runtime/Function/Render/Particle/ParticleEmitterRuntime.h"
 #include "../EditorPanelSupport.h"
 #include "../ScriptFieldEditor.h"
 namespace AtomEngine {
@@ -61,9 +63,9 @@ void InspectorPanel::Draw(EditorLayer &editor, Scene &s)
 		}
         ImGui::EndDisabled();
         auto state=w.TryGet<ObjectStateComponent>(e);if(state){ImGui::Checkbox(EditorLocalization::Label("Active self"),&state->activeSelf);ImGui::Text(EditorLocalization::Text("Active in hierarchy: %s"),w.IsActive(e)?"Yes":"No");
-            const char *names[]={"Mesh enabled","Collider enabled","Rigid body enabled","Scripts enabled","UI enabled","Audio enabled","Camera enabled","Light enabled","Joint enabled"};
-            bool present[]={w.HasComponent<MeshSourceComponent>(e),w.HasComponent<ColliderComponent>(e),w.HasComponent<RigidBodyComponent>(e),w.HasComponent<ScriptComponent>(e),w.HasComponent<UiElementComponent>(e),w.HasComponent<AudioSourceComponent>(e),w.HasComponent<CameraComponent>(e),w.HasComponent<DirectionalLightComponent>(e),w.HasComponent<JointComponent>(e)};
-            for(int kind=0;kind<9;++kind){if(!present[kind])continue;bool enabled=!(state->disabledComponents & (1u<<kind));if(ImGui::Checkbox(EditorLocalization::Label(names[kind]),&enabled))w.SetComponentEnabled(e,ComponentKind(kind),enabled);}}
+            const char *names[]={"Mesh enabled","Collider enabled","Rigid body enabled","Scripts enabled","UI enabled","Audio enabled","Camera enabled","Light enabled","Joint enabled","Particles enabled"};
+            bool present[]={w.HasComponent<MeshSourceComponent>(e),w.HasComponent<ColliderComponent>(e),w.HasComponent<RigidBodyComponent>(e),w.HasComponent<ScriptComponent>(e),w.HasComponent<UiElementComponent>(e),w.HasComponent<AudioSourceComponent>(e),w.HasComponent<CameraComponent>(e),w.HasComponent<DirectionalLightComponent>(e),w.HasComponent<JointComponent>(e),w.HasComponent<ParticleComponent>(e)};
+            for(int kind=0;kind<10;++kind){if(!present[kind])continue;bool enabled=!(state->disabledComponents & (1u<<kind));if(ImGui::Checkbox(EditorLocalization::Label(names[kind]),&enabled))w.SetComponentEnabled(e,ComponentKind(kind),enabled);}}
         ImGui::BeginDisabled(editor.mPlaying);
 		editor.SceneObjectInspector(s);
 		if (auto source = w.TryGet<MeshSourceComponent>(e);
@@ -236,13 +238,14 @@ void InspectorPanel::Draw(EditorLayer &editor, Scene &s)
 			audio && ImGui::CollapsingHeader(EditorLocalization::Label("Audio Source"), ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			AssetPath("Audio clip", audio->clip, "|.mp3|.wav|");
+            ImGui::Combo("Audio bus",&audio->bus,"Effects\0Music\0UI\0");
 			ImGui::SliderFloat(EditorLocalization::Label("Audio volume"), &audio->volume, 0, 1);
 			ImGui::Checkbox(EditorLocalization::Label("Audio loop"), &audio->loop);
 			ImGui::Checkbox(EditorLocalization::Label("Play on awake"), &audio->playOnAwake);
 			if (ImGui::Button(EditorLocalization::Label("Preview audio"))) editor.Run([&]
 				{
 					Audio::GetInstance()->StopOwner(UINT64_MAX);
-					Audio::GetInstance()->PlayClip(audio->clip, audio->volume, audio->loop, UINT64_MAX);
+					Audio::GetInstance()->PlayClip(audio->clip, audio->volume, audio->loop, UINT64_MAX,audio->bus);
 				});
 			ImGui::SameLine();
 			if (ImGui::Button(EditorLocalization::Label("Stop audio"))) Audio::GetInstance()->StopOwner(UINT64_MAX);
@@ -258,7 +261,7 @@ void InspectorPanel::Draw(EditorLayer &editor, Scene &s)
 				ImGui::Checkbox(EditorLocalization::Label("Enabled"), &s.enabled);
 				AssetPath("Assembly", s.assembly, "|.dll|");
                 ImGui::EndDisabled();
-                editor.ScriptFields(s,editor.mPlaying && gContext.readScriptFields?gContext.readScriptFields(w,e,i):"{}");
+                editor.ScriptFields(w,s,editor.mPlaying && gContext.readScriptFields?gContext.readScriptFields(w,e,i):"{}");
                 ImGui::BeginDisabled(editor.mPlaying);
 				ImGui::SameLine();
 				if (ImGui::Button(EditorLocalization::Label("Remove script")))
@@ -276,6 +279,11 @@ void InspectorPanel::Draw(EditorLayer &editor, Scene &s)
 			ui && ImGui::CollapsingHeader(EditorLocalization::Label("UI"), ImGuiTreeNodeFlags_DefaultOpen))
 		{
             ImGui::Checkbox(EditorLocalization::Label("Responsive layout"),&ui->responsive);
+            int anchorPreset=0;
+            if(ImGui::Combo("Anchor preset",&anchorPreset,"Custom\0Top left\0Top right\0Bottom left\0Bottom right\0Center\0Stretch\0")) {
+                const Vector2 anchors[]={{0,0},{0,0},{1,0},{0,1},{1,1},{.5f,.5f},{0,0}};
+                ui->anchorMin=anchors[anchorPreset];ui->anchorMax=anchorPreset==6?Vector2(1,1):ui->anchorMin;ui->pivot=anchorPreset==6?Vector2(0,0):ui->anchorMin;ui->responsive=true;
+            }
             Float2("Anchor min",&ui->anchorMin.x,.01f,0,1,"%.2f",ImGuiSliderFlags_AlwaysClamp);Float2("Anchor max",&ui->anchorMax.x,.01f,0,1,"%.2f",ImGuiSliderFlags_AlwaysClamp);
             ui->anchorMax.x=std::max(ui->anchorMin.x,ui->anchorMax.x);ui->anchorMax.y=std::max(ui->anchorMin.y,ui->anchorMax.y);
             Float2("Pivot",&ui->pivot.x,.01f,0,1,"%.2f",ImGuiSliderFlags_AlwaysClamp);
@@ -293,10 +301,41 @@ void InspectorPanel::Draw(EditorLayer &editor, Scene &s)
 			ImGui::InputInt(EditorLocalization::Label("UI layer"), &ui->layer);
 			Color4("Background", ui->background.ptr());
 		}
+        if (auto particle = w.TryGet<ParticleComponent>(e))
+        {
+            bool expanded = ImGui::CollapsingHeader("GPU particle component");
+            if (ImGui::BeginDragDropSource())
+            {
+                ImGui::SetDragDropPayload("ATOM_ENTITY", &e, sizeof(e));
+                ImGui::TextUnformatted("Particle component");
+                ImGui::EndDragDropSource();
+            }
+            if (expanded)
+            {
+                ImGui::Button(particle->preset.empty()?"Drop .particle asset here":particle->preset.c_str());
+                if(ImGui::BeginDragDropTarget()) {
+                    if(auto payload=ImGui::AcceptDragDropPayload("ATOM_ASSET")) {
+                        auto path=std::filesystem::path(UTF8ToWString(static_cast<const char*>(payload->Data)));
+                        if(path.extension()==L".particle")editor.Run([&]{auto settings=ReadParticleSettings(ReadAssetText(path));ParticleSystem::ReleaseParticle(particle->runtimeId);particle->runtimeId=0xffffffff;particle->preset=WStringToUTF8(path.generic_wstring());particle->settings=settings;editor.mHistoryPending=true;});
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+                if(!particle->preset.empty()&&std::filesystem::path(UTF8ToWString(particle->preset)).extension()==L".particle") {
+                    if(ImGui::Button("Edit linked .particle asset"))editor.Run([&]{ParticleComponentEditor::OpenAsset(UTF8ToWString(particle->preset),&editor);});
+                    ImGui::SameLine();if(ImGui::SmallButton("Detach asset"))editor.Run([&]{auto settings=ReadParticleSettings(ReadAssetText(UTF8ToWString(particle->preset)));particle->settings=settings;particle->preset.clear();editor.mHistoryPending=true;});
+                }
+                ImGui::Text("Capacity: %u", particle->settings.capacity);
+                if (ImGui::Button("Edit in particle preview window"))
+                    editor.Run([&]{ParticleComponentEditor::Open(w, e, &editor);});
+            }
+        }
 		if (ImGui::Button(EditorLocalization::Label("Add component")))
 			ImGui::OpenPopup(EditorLocalization::Label("Components"));
 		if (ImGui::BeginPopup(EditorLocalization::Label("Components")))
 		{
+            if(!w.HasComponent<ParticleComponent>(e)&&ImGui::MenuItem("GPU particle component"))editor.Run([&]{w.AddComponent<ParticleComponent>(e);});
+            if(w.HasComponent<ParticleComponent>(e)&&ImGui::MenuItem("Remove particle emitter"))editor.Run([&]{auto &p=w.GetComponent<ParticleComponent>(e);ParticleSystem::ReleaseParticle(p.runtimeId);w.RemoveComponent<ParticleComponent>(e);});
+
 			if (!w.HasComponent<MeshSourceComponent>(e) && ImGui::MenuItem(EditorLocalization::Label("Mesh")))
 			{
 				editor.Run([&]

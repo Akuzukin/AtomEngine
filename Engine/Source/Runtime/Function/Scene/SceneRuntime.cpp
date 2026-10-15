@@ -1,4 +1,6 @@
 #include "SceneRuntime.h"
+#include "Runtime/Function/Render/Particle/ParticleEmitterRuntime.h"
+#include "Runtime/Function/Framework/Component/TransformComponent.h"
 #include "SceneSerializer.h"
 #include <algorithm>
 #include "json.hpp"
@@ -15,6 +17,9 @@ void SceneRuntime::Update(World &w, float dt, bool playing, bool allowUiInput, c
     {
         if (mPlaying)
             Reset();
+        if(mAudioLifetime.lock()!=w.GetLifetime().lock()){Reset();mAudioLifetime=w.GetLifetime();}
+        for(auto e:w.View<ParticleComponent>()){auto &emitter=w.GetComponent<ParticleComponent>(e);if(emitter.runtimeId!=0xffffffff)mParticleEmitters[e]=emitter.runtimeId;}
+        for(auto it=mParticleEmitters.begin();it!=mParticleEmitters.end();)if(!w.IsValid(it->first)||!w.HasComponent<ParticleComponent>(it->first)){bool reused=false;for(auto owner:w.View<ParticleComponent>())if(w.GetComponent<ParticleComponent>(owner).runtimeId==it->second){reused=true;break;}if(!reused)ParticleSystem::ReleaseParticle(it->second);it=mParticleEmitters.erase(it);}else ++it;
         return;
     }
     if (mAudioLifetime.lock() != w.GetLifetime().lock())
@@ -26,14 +31,19 @@ void SceneRuntime::Update(World &w, float dt, bool playing, bool allowUiInput, c
     if(paused){mScripts.PauseTime();mScripts.SynchronizeParameters(w);return;}
     for (auto e : w.View<AudioSourceComponent>()) {
         auto &source = w.GetComponent<AudioSourceComponent>(e);
-        auto signature=nlohmann::json{{"clip",source.clip},{"volume",source.volume},{"loop",source.loop},{"awake",source.playOnAwake}}.dump();
         auto previous=mAudioStarted.find(e);
-        if(previous!=mAudioStarted.end() && previous->second!=signature){audio->StopOwner(uint64_t(uint32_t(e))+1);mAudioStarted.erase(previous);}
-        if (w.IsEnabled(e,ComponentKind::Audio) && mAudioStarted.emplace(e,signature).second)
+        if(previous!=mAudioStarted.end()) {
+            const auto &old=previous->second;
+            if(old.clip!=source.clip||old.volume!=source.volume||old.loop!=source.loop||old.playOnAwake!=source.playOnAwake||old.bus!=source.bus) {
+                audio->StopOwner(uint64_t(uint32_t(e))+1);mAudioStarted.erase(previous);
+            }
+        }
+        if (w.IsEnabled(e,ComponentKind::Audio) && !mAudioStarted.contains(e))
         {
+            mAudioStarted.emplace(e,source);
             if (!source.clip.empty()) try {
                 Audio::Load(source.clip);
-                if (source.playOnAwake) audio->PlayClip(source.clip, source.volume, source.loop, uint64_t(uint32_t(e)) + 1);
+                if (source.playOnAwake) audio->PlayClip(source.clip, source.volume, source.loop, uint64_t(uint32_t(e)) + 1,source.bus);
             } catch (const std::exception &error) { WriteLog(LogLevel::Warning, "Audio", source.clip + ": " + error.what()); }
         }
     }
@@ -46,8 +56,22 @@ void SceneRuntime::Update(World &w, float dt, bool playing, bool allowUiInput, c
     if (!mPhysics)
         mPhysics = std::make_unique<PhysicsWorld>();
     mScripts.SetPhysics(mPhysics.get());
+    auto &pointerMouse=Input::GetInstance()->GetMouseState();
+    w.gameplayPointer=pointer?*pointer:Vector2(float(pointerMouse.positionX),float(pointerMouse.positionY));
+    w.gameplayPointerValid=allowUiInput && Input::GetInstance()->GameplayInputEnabled() &&
+        w.gameplayPointer.x>=0 && w.gameplayPointer.y>=0 && w.gameplayPointer.x<w.uiRenderSize.x && w.gameplayPointer.y<w.uiRenderSize.y;
     mScripts.Update(w, dt);
     mScripts.FlushCommands(w);
+    for(auto e:w.View<ParticleComponent>()) {
+        auto &p=w.GetComponent<ParticleComponent>(e);
+        if(ParticleSystem::GetCurrentLife(p.runtimeId)<0)p.runtimeId=0xffffffff;
+        if(p.playOnAwake&&p.runtimeId==0xffffffff&&w.IsEnabled(e,ComponentKind::Particle)) {
+            try {auto t=w.TryGet<TransformComponent>(e);EmitSceneParticle(w,e,t?t->GetWorldPosition():Vector3::ZERO);}catch(const std::exception &error){WriteLog(LogLevel::Warning,"Particles",error.what());}
+        }
+        if(p.runtimeId!=0xffffffff){mParticleEmitters[e]=p.runtimeId;if(!w.IsEnabled(e,ComponentKind::Particle))ParticleSystem::StopParticle(p.runtimeId);}
+    }
+    for(auto it=mParticleEmitters.begin();it!=mParticleEmitters.end();)if(!w.IsValid(it->first)||!w.HasComponent<ParticleComponent>(it->first)){bool reused=false;for(auto owner:w.View<ParticleComponent>())if(w.GetComponent<ParticleComponent>(owner).runtimeId==it->second){reused=true;break;}if(!reused)ParticleSystem::ReleaseParticle(it->second);it=mParticleEmitters.erase(it);}else ++it;
+
     for(auto e:w.View<PersistentIdComponent>())audio->SetOwnerPaused(uint64_t(uint32_t(e))+1,!w.IsEnabled(e,ComponentKind::Audio));
     if (allowUiInput && Input::GetInstance()->IsTriggerMouse(0))
     {
@@ -81,6 +105,8 @@ void SceneRuntime::Update(World &w, float dt, bool playing, bool allowUiInput, c
 void SceneRuntime::Reset()
 {
     mScripts.Reset();
+    for(auto [e,id]:mParticleEmitters)ParticleSystem::ReleaseParticle(id);
+    mParticleEmitters.clear();
     Audio::GetInstance()->StopAll();
     mAudioStarted.clear(); mAudioLifetime.reset();
     mPhysics.reset();

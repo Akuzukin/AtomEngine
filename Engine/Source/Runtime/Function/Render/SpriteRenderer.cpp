@@ -1,6 +1,7 @@
 #include "SpriteRenderer.h"
 #include "Runtime/Platform/DirectX12/Shader/ShaderCompiler.h"
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
+#include "Runtime/Platform/DirectX12/Buffer/BufferManager.h"
 
 namespace AtomEngine
 {
@@ -147,8 +148,8 @@ namespace AtomEngine
 			};
 
 		Matrix4x4 viewProj = Math::MakeOrthographicProjectionMatrix(
-			0.0f, (float)DX12Core::gBackBufferWidth,
-			(float)DX12Core::gBackBufferHeight, 0.0f,
+            0.0f, (float)gOverlayBuffer.GetWidth(),
+            (float)gOverlayBuffer.GetHeight(), 0.0f,
 			0.0f, 1.0f
 		);
 

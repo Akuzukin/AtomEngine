@@ -9,6 +9,7 @@
 #include "Runtime/Function/Scene/SceneSerializer.h"
 #include "Runtime/Resource/MaterialPreset.h"
 #include "Runtime/Function/Audio/Audio.h"
+#include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
 #include <fstream>
 #include <shellapi.h>
 #include <assimp/Importer.hpp>
@@ -39,9 +40,18 @@ public:
         window->SetFullscreen(project.fullscreen);
         mSceneManager.LoadScene(UTF8ToWString(project.startupScene)); mSceneManager.Update(0);
         ApplySceneCamera(GetWorld(), GetCamera());
+        if(smoke)gContext.capturePresented=[this](ColorBuffer &buffer){
+            if(frame==20||frame==100||frame==600){
+                auto directory=EngineDirectory()/"Diagnostics";std::filesystem::create_directories(directory);
+                buffer.ExportToFile((directory/("frame-"+std::to_string(frame)+".raw")).wstring());
+                auto &ctx=GraphicsContext::Begin(L"Restore smoke capture");ctx.TransitionResource(buffer,D3D12_RESOURCE_STATE_PRESENT);ctx.Finish();
+            }
+        };
     }
     void Update(float dt) override
     {
+        GetWorld().uiViewportSize=Vector2(float(DX12Core::gBackBufferWidth),float(DX12Core::gBackBufferHeight));
+        GetWorld().uiRenderSize=Vector2(float(gOverlayBuffer.GetWidth()),float(gOverlayBuffer.GetHeight()));
         mSceneManager.Update(dt);
         if (!smoke) return;
         auto& project = *ActiveProject.game;
@@ -64,9 +74,15 @@ public:
             WriteLog(LogLevel::Info, "Game", "Published game scene switching and editor isolation passed");
         }
     }
+    Vector2 RuntimePointerPosition() const override
+    {
+        auto &m=Input::GetInstance()->GetMouseState();
+        return Vector2(float(m.positionX)*gOverlayBuffer.GetWidth()/std::max(1u,DX12Core::gBackBufferWidth),
+                       float(m.positionY)*gOverlayBuffer.GetHeight()/std::max(1u,DX12Core::gBackBufferHeight));
+    }
     void Render() override {}
     bool Exit() override { return false; }
-    void Shutdown() override { mSceneManager.Shutdown(); ActiveProject = {}; }
+    void Shutdown() override { gContext.capturePresented={};mSceneManager.Shutdown(); ActiveProject = {}; }
     void OnRuntimeError(const std::string& error) override
     {
         if (!error.empty()) throw std::runtime_error(error);
@@ -98,7 +114,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
             LocalFree(args); return 0;
         }
         bool inspect = false;
-        for (int i = 1; i < count; ++i) { if (std::wstring_view(args[i]) == L"--smoke-test") frames = 120; if (std::wstring_view(args[i]) == L"--inspect-package") inspect = true; }
+        for (int i = 1; i < count; ++i) {
+            if (std::wstring_view(args[i]) == L"--smoke-test") frames = 120;
+            if (std::wstring_view(args[i]) == L"--frames" && i+1<count) frames=std::clamp(uint32_t(std::stoul(args[++i])),1u,100000u);
+            if (std::wstring_view(args[i]) == L"--inspect-package") inspect = true;
+        }
         LocalFree(args);
         wchar_t executable[32768]{}; GetModuleFileNameW(nullptr, executable, DWORD(std::size(executable)));
         AtomEngine::MountGameArchive(executable, AtomEngine::EngineDirectory() / "game.atpak");

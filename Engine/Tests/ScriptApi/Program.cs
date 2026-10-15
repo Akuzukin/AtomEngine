@@ -24,6 +24,7 @@ static class Program
     private static byte[] response=[];
     private static string? played;
     private static int plays;
+    private static int exchanges;
     private static void Check(bool value,string message){if(!value)throw new Exception(message);Console.WriteLine("PASS "+message);}
     private static void Reject(Action action,string message){try{action();}catch(ArgumentException){Console.WriteLine("PASS "+message);return;}throw new Exception(message);}
     [UnmanagedCallersOnly(CallConvs=[typeof(CallConvCdecl)])]
@@ -37,7 +38,7 @@ static class Program
     [UnmanagedCallersOnly(CallConvs=[typeof(CallConvCdecl)])]
     private static unsafe int Exchange(nint context,byte* request,byte* output,int capacity)
     {
-        if(request!=null){using var doc=JsonDocument.Parse(Marshal.PtrToStringUTF8((nint)request)!);var r=doc.RootElement;
+        if(request!=null){exchanges++;using var doc=JsonDocument.Parse(Marshal.PtrToStringUTF8((nint)request)!);var r=doc.RootElement;
             bool value=focused && states[r.GetProperty("device").GetInt32(),r.GetProperty("code").GetInt32(),r.GetProperty("state").GetInt32()];
             response=Encoding.UTF8.GetBytes((value?"true":"false")+"\0");}
         if(output!=null && capacity>=response.Length)response.CopyTo(new Span<byte>(output,capacity));return response.Length;
@@ -46,6 +47,11 @@ static class Program
     {
         var unbound=new GameObject();Check(!unbound.IsValid,"unbound GameObject is invalid");bool rejected=false;try{unbound.Input.IsDown(KeyCode.Space);}catch(InvalidOperationException){rejected=true;}Check(rejected,"unbound typed input fails safely");
         var owner=new GameObject {Context=1,Entity=1,Generation=1,Api=new NativeApi {Epoch=&Epoch,Valid=&Valid,Axis=&Axis,Audio=&Audio,Exchange=&Exchange}};
+        Check(owner.GetObject(1)?.Entity==1&&owner.GetObject(uint.MaxValue)==null,"ECS entity handle resolution rejects invalid versions");
+        var foreign=new GameObject {Context=2,Entity=1,Generation=1,Api=owner.Api};int beforeBatch=exchanges;
+        Reject(()=>owner.SetActiveBatch([new(owner,false),new(foreign,true)]),"ECS batch rejects another World before native mutation");
+        Check(exchanges==beforeBatch,"rejected ECS batch sends no partial native update");
+        owner.SetActiveBatch([]);Check(exchanges==beforeBatch,"empty ECS batch avoids native exchange");
         states[0,(int)KeyCode.W,0]=states[0,(int)KeyCode.W,1]=true;
         Check(owner.Input.IsDown(KeyCode.W) && owner.Input.WasPressed(KeyCode.W) && !owner.Input.WasReleased(KeyCode.W),"typed key held/pressed/released");
         states[0,(int)KeyCode.W,0]=states[0,(int)KeyCode.W,1]=false;states[0,(int)KeyCode.W,2]=true;
@@ -68,9 +74,28 @@ static class Program
         var values=FieldCodec.Prepare(typeof(Settings),doc.RootElement);var settings=new Settings();foreach(var (field,value) in values)field.SetValue(settings,value);
         Check(settings.Clip==AudioAssets.SeMp3 && settings.Key==KeyCode.Space && settings.Controls==InputPreset.ArrowKeys,"typed audio and input fields deserialize");
         Check(FieldCodec.Kind(typeof(AudioClip))=="audioClip" && FieldCodec.Format(AudioClip.None)=="","audio field metadata and default reset encoding");
+        Check(FieldCodec.Kind(typeof(ParticleComponent))=="particleComponent" && FieldCodec.Format(ParticleComponent.None)=="" && ParticleComponent.None.PersistentId=="", "particle component field metadata and empty reference");
+        var particle=(ParticleComponent)FieldCodec.Parse(typeof(ParticleComponent),"particle:Emitter-A");
+        Check(particle.PersistentId=="Emitter-A" && FieldCodec.Format(particle)=="particle:Emitter-A" && !particle.IsValid, "particle reference encoding roundtrip and unbound safety");
         var header=File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(),"Engine/Source/Runtime/Function/Input/KeyCode.h"));
         Check(Enum.GetValues<KeyCode>().All(key=>Regex.IsMatch(header,@"\b"+key+@"\s*=\s*0x"+((int)key).ToString("X2")+@"\b")),"all native/managed key codes match");
     }
+    private static void SaveChecks()
+    {
+        string gameId="SdkTest_"+Guid.NewGuid().ToString("N");var store=new SaveStore(gameId);
+        try {
+            Check(!store.Exists("profile")&&store.Load<Dictionary<string,int>>("profile")==null,"missing save slot");
+            store.Save("profile",new Dictionary<string,int>{{"gold",123},{"version",2}});
+            store.Save("settings",new SaveFixture{Title="中文",Value=7});
+            Check(store.Load<Dictionary<string,int>>("profile")!["gold"]==123&&store.Load<SaveFixture>("settings")!.Value==7,"different save types and field serialization");
+            bool failed=false;try{store.Save("profile",float.NaN);}catch(ArgumentException){failed=true;}
+            Check(failed&&store.Load<Dictionary<string,int>>("profile")!["gold"]==123,"serialization failure preserves old save");
+            Reject(()=>store.Save("../escape",1),"save traversal rejected");
+            Reject(()=>new SaveStore("../outside"),"save namespace traversal rejected");
+            store.Delete("settings");Check(!store.Exists("settings"),"single save slot deletion");
+        } finally {store.Delete("profile");store.Delete("settings");}
+    }
+    public sealed class SaveFixture {public string Title="";public int Value;}
     public sealed class Settings {public AudioClip Clip=AudioClip.None;public KeyCode Key=KeyCode.None;public InputPreset Controls=InputPreset.Wasd;}
     private static async Task Complete(string expression,string[] expected,string? documentation=null)
     {
@@ -110,7 +135,8 @@ static class Program
     }
     private static async Task Main()
     {
-        RuntimeApiChecks();
+        RuntimeApiChecks();SaveChecks();
+        CallbackChecks();
         DocumentationChecks();
         await CatalogChecks();
         await Complete("KeyCode.$$",["W","Space","Escape","F11"]);
@@ -120,6 +146,10 @@ static class Program
         await Complete("Time.$$",["DeltaTime","FrameCount","FixedDeltaTime","ElapsedTime","FixedFrameCount","FramesPerSecond"],"当前回调的时间间隔");
         await Complete("Object.Input.$$",["Movement"],"组合键盘方向");
         await Complete("SceneManager.$$",["LoadScene","Scenes","CurrentScene","LastLoadError","IsLoading"]);
+        await Complete("Object.$$",["FindByName","GetObject","HasComponent","Query","SetActiveBatch"],"C++ ECS");
+        await Complete("Object.AudioMixer.$$",["MasterVolume","SetVolume","GetVolume","Play"],"全局音量");
+        await Complete("Object.GetParticleComponent().Value.$$",["Play","Stop","IsValid"],"世界位置");
+        await Complete("Application.$$",["Quit","SetWindow"],"正常退出");
         Console.WriteLine("All typed script API and Roslyn completion checks passed.");
     }
     private static void DocumentationChecks()
@@ -141,5 +171,20 @@ static class Program
         Check(count>200,"all public script API declarations documented");
         var generated=XDocument.Load(Path.ChangeExtension(typeof(GameObject).Assembly.Location,".xml"));
         Check(generated.Descendants("member").Any(m=>(string?)m.Attribute("name")=="P:Atom.Time.DeltaTime" && m.Value.Contains("当前回调")),"compiled Time XML documentation");
+    }
+    private class FixedCallbackProbe:Behaviour {public override void OnFixedUpdate(float dt) {}}
+    private sealed class InheritedCallbackProbe:FixedCallbackProbe {}
+    private sealed class OverloadedCallbackProbe:Behaviour {public override void OnUpdate(float dt) {} public void OnUpdate() {}}
+    private static void CallbackChecks()
+    {
+        var inspect=typeof(Bridge).GetMethod("CallbackFlags",BindingFlags.NonPublic|BindingFlags.Static)!;
+        JsonElement Flags(Type type)=>JsonSerializer.SerializeToElement(inspect.Invoke(null,[type]));
+        var empty=Flags(typeof(Behaviour));
+        Check(!empty.GetProperty("update").GetBoolean()&&!empty.GetProperty("fixedUpdate").GetBoolean()&&!empty.GetProperty("collision").GetBoolean(),"base no-op callbacks are skipped");
+        var inherited=Flags(typeof(InheritedCallbackProbe));
+        Check(inherited.GetProperty("fixedUpdate").GetBoolean()&&!inherited.GetProperty("update").GetBoolean(),"inherited fixed override remains enabled");
+        var timed=Flags(typeof(Game.TimeProbe));
+        Check(timed.GetProperty("update").GetBoolean()&&timed.GetProperty("fixedUpdate").GetBoolean(),"time probe callbacks remain enabled");
+        Check(Flags(typeof(OverloadedCallbackProbe)).GetProperty("update").GetBoolean(),"overloaded callback names use exact lifecycle signature");
     }
 }

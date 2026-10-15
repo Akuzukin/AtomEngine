@@ -1,3 +1,4 @@
+#include "Runtime/Function/Render/Particle/ParticleSettingsCodec.h"
 #include "SceneSerializer.h"
 #include "Runtime/Function/Framework/ECS/GameObject.h"
 #include "Runtime/Function/Framework/Component/SceneComponents.h"
@@ -194,11 +195,14 @@ void WriteObject(World &w, Entity id, XMLElement *e)
         n->SetAttribute("minAngle", c->minAngle);
         n->SetAttribute("maxAngle", c->maxAngle);
     }
+    if(auto c=w.TryGet<ParticleComponent>(id)) {
+        auto n=Child(e,"ParticleComponent");n->SetAttribute("preset",c->preset.c_str());n->SetAttribute("playOnAwake",c->playOnAwake);Child(n,"Settings")->SetText(ParticleJson(c->settings).dump().c_str());
+    }
     if (auto c = w.TryGet<AudioSourceComponent>(id))
     {
         auto n = Child(e, "AudioSource");
         n->SetAttribute("clip", c->clip.c_str()); n->SetAttribute("volume", c->volume);
-        n->SetAttribute("loop", c->loop); n->SetAttribute("playOnAwake", c->playOnAwake);
+        n->SetAttribute("loop", c->loop); n->SetAttribute("playOnAwake", c->playOnAwake);n->SetAttribute("bus",c->bus);
     }
     if (auto c = w.TryGet<ScriptComponent>(id))
         for (auto &s : c->scripts)
@@ -361,10 +365,12 @@ Entity ReadObject(World &w, const XMLElement *e, bool freshId)
         if (c.mass <= 0 || c.friction < 0 || c.restitution < 0 || c.restitution > 1)
             throw std::runtime_error("Invalid rigid body settings");
     }
+    if(auto n=e->FirstChildElement("ParticleComponent")) {ParticleComponent c;c.preset=Str(n,"preset");c.playOnAwake=n->BoolAttribute("playOnAwake",false);if(auto settings=n->FirstChildElement("Settings");settings&&settings->GetText())c.settings=ReadParticleSettings(settings->GetText());o->AddComponent<ParticleComponent>(c);}
+    else if(auto n=e->FirstChildElement("ParticleEmitter")){ParticleComponent c;c.preset=Str(n,"effect");c.settings.duration=Float(n,"duration",.5f);c.settings.rate=Float(n,"rate",128);c.playOnAwake=n->BoolAttribute("playOnAwake",false);o->AddComponent<ParticleComponent>(c);}
     if (auto n = e->FirstChildElement("AudioSource"))
     {
         AudioSourceComponent c; c.clip = Str(n, "clip"); c.volume = Float(n, "volume", 1);
-        c.loop = n->BoolAttribute("loop", false); c.playOnAwake = n->BoolAttribute("playOnAwake", false);
+        c.bus=n->IntAttribute("bus",0);if(c.bus<0||c.bus>2)throw std::runtime_error("Invalid audio bus");c.loop = n->BoolAttribute("loop", false); c.playOnAwake = n->BoolAttribute("playOnAwake", false);
         if (c.volume < 0 || c.volume > 1) throw std::runtime_error("Invalid audio volume");
         o->AddComponent<AudioSourceComponent>(c);
     }
@@ -683,6 +689,7 @@ Entity SceneSerializer::Duplicate(World &w, Entity source)
                 h->parentId = remap.at(h->parentId);
         for (auto e : created)
         {
+            if(auto scripts=w.TryGet<ScriptComponent>(e))for(auto &script:scripts->scripts)for(auto &[field,value]:script.fields)if(value.starts_with("particle:")&&remap.contains(value.substr(9)))value="particle:"+remap.at(value.substr(9));
             if (auto j = w.TryGet<JointComponent>(e); j && remap.contains(j->connectedBody))
                 j->connectedBody = remap.at(j->connectedBody);
             if (auto p = w.TryGet<PrefabInstanceComponent>(e))
@@ -889,6 +896,12 @@ Entity SceneSerializer::InstantiatePrefab(World &w, const std::filesystem::path 
         for (auto e : created)
             if (auto j = w.TryGet<JointComponent>(e); j && ids.contains(j->connectedBody))
                 j->connectedBody = ids.at(j->connectedBody);
+        for (auto e : created)
+            if (auto scripts = w.TryGet<ScriptComponent>(e))
+                for (auto &script : scripts->scripts)
+                    for (auto &[field, value] : script.fields)
+                        if (value.starts_with("particle:") && ids.contains(value.substr(9)))
+                            value = "particle:" + ids.at(value.substr(9));
         ResolveHierarchy(w);
         return result;
     }
@@ -957,6 +970,13 @@ void StripLink(XMLElement *object)
 }
 void RemapObject(XMLElement *object, const std::map<std::string, std::string> &ids)
 {
+    for (auto script = object->FirstChildElement("Script"); script; script = script->NextSiblingElement("Script"))
+        for (auto field = script->FirstChildElement("Field"); field; field = field->NextSiblingElement("Field"))
+        {
+            auto value = Str(field, "value");
+            if (value.starts_with("particle:") && ids.contains(value.substr(9)))
+                field->SetAttribute("value", ("particle:" + ids.at(value.substr(9))).c_str());
+        }
     if (auto parent = object->Attribute("parent"); parent && ids.contains(parent))
         object->SetAttribute("parent", ids.at(parent).c_str());
     if (auto joint = object->FirstChildElement("Joint"))
@@ -964,6 +984,31 @@ void RemapObject(XMLElement *object, const std::map<std::string, std::string> &i
             joint->SetAttribute("connectedBody", ids.at(target).c_str());
 }
 } // namespace
+Entity SceneSerializer::InstantiateParticlePrefab(World &w, const std::filesystem::path &path)
+{
+	if(path.extension()==L".particle") {
+		auto settings=ReadParticleSettings(ReadAssetText(path));
+		auto object=w.CreateGameObject(WStringToUTF8(path.stem().wstring()));
+		try {object->AddComponent<TransformComponent>();object->AddComponent<ParticleComponent>();auto &component=object->GetComponent<ParticleComponent>();component.settings=settings;component.preset=WStringToUTF8(path.generic_wstring());return object->GetHandle();}
+		catch(...){w.DestroyGameObject(object->GetHandle());throw;}
+	}
+    tinyxml2::XMLDocument document;
+    auto xml=ReadAssetText(path);
+    if(document.Parse(xml.c_str(),xml.size())!=XML_SUCCESS)throw std::runtime_error("Invalid particle prefab");
+    auto root=document.FirstChildElement("Prefab");
+    if(!root)throw std::runtime_error("Particle field expects a prefab asset");
+    std::string selected;size_t count=0;
+    for(auto object=root->FirstChildElement("Object");object;object=object->NextSiblingElement("Object"))
+        if(object->FirstChildElement("ParticleComponent")||object->FirstChildElement("ParticleEmitter"))
+        {
+            selected=Str(object,"id");++count;
+            if(selected==Str(root,"root")){count=1;break;}
+        }
+    if(count!=1)throw std::runtime_error("Prefab needs a root particle component or exactly one child particle component");
+    auto instance=InstantiatePrefab(w,path);
+    auto &members=w.GetComponent<PrefabInstanceComponent>(instance).members;
+    return w.FindById(members.at(selected));
+}
 size_t SceneSerializer::PrefabOverrideCount(World &w, Entity e)
 {
     return PrefabOverrides(w, e).size();
@@ -1271,9 +1316,14 @@ void SceneSerializer::AttachPrefab(World &w,Entity target,const std::filesystem:
     std::vector<Entity> created;for(auto e:w.View<PrefabInstanceComponent>())if(w.GetComponent<PrefabInstanceComponent>(e).instanceId==temporaryId)created.push_back(e);
     try {
         if(w.HasComponent<MeshSourceComponent>(source)){OverlayProperty<MeshSourceComponent>(w,target,source);RebuildMesh(w,target);}
-        OverlayProperty<MaterialComponent>(w,target,source);OverlayProperty<ColliderComponent>(w,target,source);OverlayProperty<RigidBodyComponent>(w,target,source);OverlayProperty<JointComponent>(w,target,source);OverlayProperty<ScriptComponent>(w,target,source);OverlayProperty<AudioSourceComponent>(w,target,source);OverlayProperty<UiElementComponent>(w,target,source);OverlayProperty<CameraComponent>(w,target,source);OverlayProperty<DirectionalLightComponent>(w,target,source);OverlayProperty<PrefabInstanceComponent>(w,target,source);
+        OverlayProperty<MaterialComponent>(w,target,source);OverlayProperty<ColliderComponent>(w,target,source);OverlayProperty<RigidBodyComponent>(w,target,source);OverlayProperty<JointComponent>(w,target,source);OverlayProperty<ScriptComponent>(w,target,source);OverlayProperty<AudioSourceComponent>(w,target,source);OverlayProperty<ParticleComponent>(w,target,source);OverlayProperty<UiElementComponent>(w,target,source);OverlayProperty<CameraComponent>(w,target,source);OverlayProperty<DirectionalLightComponent>(w,target,source);OverlayProperty<PrefabInstanceComponent>(w,target,source);
         for(auto e:created){if(auto h=w.TryGet<HierarchyComponent>(e);h && h->parentId==temporaryId)h->parentId=targetId;if(auto j=w.TryGet<JointComponent>(e);j && j->connectedBody==temporaryId)j->connectedBody=targetId;}
         if(auto j=w.TryGet<JointComponent>(target);j && j->connectedBody==temporaryId)j->connectedBody=targetId;
+        created.push_back(target);
+        for(auto e:created)if(auto scripts=w.TryGet<ScriptComponent>(e))
+            for(auto &script:scripts->scripts)for(auto &[field,value]:script.fields)
+                if(value=="particle:"+temporaryId)value="particle:"+targetId;
+        created.pop_back();
         for(auto e:created)if(auto link=w.TryGet<PrefabInstanceComponent>(e)){link->instanceId=targetId;for(auto &[id,value]:link->members)if(value==temporaryId)value=targetId;}
         auto &link=w.GetComponent<PrefabInstanceComponent>(target);link.instanceId=targetId;for(auto &[id,value]:link.members)if(value==temporaryId)value=targetId;
         w.DestroyGameObject(source);ResolveHierarchy(w);

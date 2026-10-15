@@ -28,6 +28,11 @@ public static unsafe class Bridge
     private static readonly Dictionary<ulong,HashSet<string>> Overrides=new();
     private static readonly Dictionary<ulong, string> InstancePaths = new();
     private static readonly Dictionary<string, LoadedAssembly> Assemblies = new(StringComparer.OrdinalIgnoreCase);
+    private static object CallbackFlags(Type type)=>new {
+        update=type.GetMethod(nameof(Behaviour.OnUpdate),[typeof(float)])?.DeclaringType!=typeof(Behaviour),
+        fixedUpdate=type.GetMethod(nameof(Behaviour.OnFixedUpdate),[typeof(float)])?.DeclaringType!=typeof(Behaviour),
+        collision=type.GetMethod(nameof(Behaviour.OnCollision),[typeof(uint),typeof(bool)])?.DeclaringType!=typeof(Behaviour)
+    };
     private static LoadedAssembly LoadAssembly(string path)
     {
         var context = new ScriptLoadContext(path);
@@ -61,7 +66,7 @@ public static unsafe class Bridge
                     if (value == null || target.FieldType.IsInstanceOfType(value)) target.SetValue(fresh, value);
                 }
                 var state=old.CaptureReloadState();
-                if(state!=null)fresh.RestoreReloadState(state);
+                FieldCodec.BindReferences(fresh);if(state!=null)fresh.RestoreReloadState(state);
                 states.Add(pair.Key,state);replacements.Add(pair.Key, fresh);
             }
         }
@@ -90,6 +95,10 @@ public static unsafe class Bridge
             string op = r.GetProperty("op").GetString()!;
             if (r.TryGetProperty("time", out var time)) Time.Apply(time, op is "fixed" or "collision");
             if (op == "time") return 0;
+            if(op=="callbacks") {
+                var bytes=Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Instances.ToDictionary(p=>p.Key.ToString(CultureInfo.InvariantCulture),p=>CallbackFlags(p.Value.GetType())))+"\0");
+                fixed(byte* p=bytes)api.Reply(context,p);return 0;
+            }
             if (op is "inspect" or "validate") {
                 var loaded=LoadAssembly(Path.GetFullPath(r.GetProperty("assembly").GetString()!));
                 try {
@@ -120,7 +129,8 @@ public static unsafe class Bridge
                 var script = (Behaviour)Activator.CreateInstance(type)!; script.Object = new GameObject { Context = context, Entity = r.GetProperty("entity").GetUInt32(), Api = api, Generation = api.Epoch(context) };
                 var initial=FieldCodec.Fields(type).Where(f=>FieldCodec.Kind(f.FieldType)!="unsupported").ToDictionary(f=>f.Name,f=>FieldCodec.Format(f.GetValue(script)));
                 foreach(var item in FieldCodec.Prepare(type,r.GetProperty("fields"))) item.Field.SetValue(script,item.Value);
-                script.OnCreate(); Instances.Add(id, script); InstancePaths.Add(id, path);Defaults.Add(id,initial);Overrides.Add(id,r.GetProperty("fields").EnumerateObject().Select(p=>p.Name).ToHashSet());
+                FieldCodec.BindReferences(script);script.OnCreate(); Instances.Add(id, script); InstancePaths.Add(id, path);Defaults.Add(id,initial);Overrides.Add(id,r.GetProperty("fields").EnumerateObject().Select(p=>p.Name).ToHashSet());
+                if(api.Reply!=null){var bytes=Encoding.UTF8.GetBytes(JsonSerializer.Serialize(CallbackFlags(type))+"\0");fixed(byte* p=bytes)api.Reply(context,p);}
             }
             else if (Instances.TryGetValue(id, out var script))
             {
@@ -131,7 +141,7 @@ public static unsafe class Bridge
                 if(op=="patchFields") {
                     var fields=r.GetProperty("fields");var converted=FieldCodec.Prepare(script.GetType(),fields);var names=fields.EnumerateObject().Select(p=>p.Name).ToHashSet();
                     foreach(var name in Overrides[id].Except(names)) {var field=script.GetType().GetField(name);if(field!=null && Defaults[id].TryGetValue(name,out var value))converted.Add((field,FieldCodec.Parse(field.FieldType,value)));}
-                    foreach(var value in converted)value.Field.SetValue(script,value.Value);Overrides[id]=names;return 0;
+                    foreach(var value in converted)value.Field.SetValue(script,value.Value);Overrides[id]=names;FieldCodec.BindReferences(script);return 0;
                 }
                 switch (op) { case "enable":Enabled.Add(id);script.OnEnable();break;case "disable":Enabled.Remove(id);script.OnDisable();break;case "update": script.OnUpdate(r.GetProperty("dt").GetSingle()); break; case "fixed": script.OnFixedUpdate(r.GetProperty("dt").GetSingle()); break; case "uiClick": script.OnUiClick(); break; case "collision": script.OnCollision(r.GetProperty("other").GetUInt32(), r.GetProperty("trigger").GetBoolean()); break; case "destroy": try { script.OnDestroy(); } finally { Instances.Remove(id); InstancePaths.Remove(id);Enabled.Remove(id);Defaults.Remove(id);Overrides.Remove(id); } break; }
             }

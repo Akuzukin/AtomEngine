@@ -42,7 +42,7 @@ void PostProcessPass::Shutdown()
 
 void PostProcessPass::Update(GraphicsContext &Context, float deltaTime)
 {
-    ParticleSystem::Update(Context.GetComputeContext(), deltaTime);
+    // Particle simulation advances once in Renderer::Update, independent of view count.
 #if !defined(RELEASE) && !defined(ATOM_GAME_RUNTIME)
 
     if (ImGui::GetCurrentContext() && gContext.showRenderDiagnostics)

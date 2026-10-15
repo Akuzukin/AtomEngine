@@ -106,7 +106,11 @@ void Audio::SetVolume(uint32_t handle, float volume) {
     if (s.pSourceVoice) ThrowIfFailed(s.pSourceVoice->SetVolume(s.volume));
 }
 float Audio::GetVolume(uint32_t handle) { std::lock_guard lock(audioMutex); auto it=soundDatas.find(handle); return it==soundDatas.end() ? 0 : it->second.volume; }
-void Audio::PlayClip(const std::string &path, float volume, bool loop, uint64_t owner) {
+void Audio::SetMasterVolume(float volume) {if(!std::isfinite(volume)||volume<0||volume>1)throw std::runtime_error("Invalid master volume");std::lock_guard lock(audioMutex);masterVolume=volume;if(masterVoice)ThrowIfFailed(masterVoice->SetVolume(volume));}
+float Audio::GetBusVolume(int bus) const {if(bus<0||bus>=3)throw std::runtime_error("Invalid audio bus");return busVolumes[bus];}
+void Audio::SetBusVolume(int bus,float volume) {if(bus<0||bus>=3||!std::isfinite(volume)||volume<0||volume>1)throw std::runtime_error("Invalid bus volume");std::lock_guard lock(audioMutex);busVolumes[bus]=volume;for(auto &v:voices)if(v.bus==bus)ThrowIfFailed(v.voice->SetVolume(v.gain*volume));}
+void Audio::PlayClip(const std::string &path, float volume, bool loop, uint64_t owner, int bus) {
+    if(bus<0||bus>=3)throw std::runtime_error("Invalid audio bus");
     if (!std::isfinite(volume)) throw std::runtime_error("Invalid audio volume");
     std::lock_guard lock(audioMutex); if (!xAudio2) throw std::runtime_error("Audio is not initialized");
     Update(); auto id=Load(path); auto &s=soundDatas.at(id);
@@ -120,11 +124,11 @@ void Audio::PlayClip(const std::string &path, float volume, bool loop, uint64_t 
     IXAudio2SourceVoice *voice=nullptr;
     ThrowIfFailed(xAudio2->CreateSourceVoice(&voice, reinterpret_cast<WAVEFORMATEX *>(s.format.data())));
     try {
-        ThrowIfFailed(voice->SetVolume(std::clamp(volume,0.f,1.f)));
+        ThrowIfFailed(voice->SetVolume(std::clamp(volume,0.f,1.f)*busVolumes[bus]));
         XAUDIO2_BUFFER buffer{}; buffer.pAudioData=s.pBuffer.get(); buffer.AudioBytes=s.bufferSize;
         buffer.Flags=XAUDIO2_END_OF_STREAM; buffer.LoopCount=loop ? XAUDIO2_LOOP_INFINITE : 0;
         ThrowIfFailed(voice->SubmitSourceBuffer(&buffer)); if (!paused) ThrowIfFailed(voice->Start());
-        voices.push_back({voice,id,owner,loop});
+        voices.push_back({voice,id,owner,loop,false,bus,std::clamp(volume,0.f,1.f)});
     } catch (...) { voice->DestroyVoice(); throw; }
 }
 void Audio::Update() {

@@ -20,7 +20,9 @@ void OverlayPass::Render(GraphicsContext &gfxContext)
     UiContext.SetViewportAndScissor(0, 0, gOverlayBuffer.GetWidth(), gOverlayBuffer.GetHeight());
 
     SpriteRenderer::Render(UiContext);
-    if (mWorld)
+    if (mWorld) {
+        mWorld->uiRenderSize=Vector2(float(gOverlayBuffer.GetWidth()),float(gOverlayBuffer.GetHeight()));
         UiRenderer::Render(UiContext, *mWorld);
+    }
 }
 } // namespace AtomEngine

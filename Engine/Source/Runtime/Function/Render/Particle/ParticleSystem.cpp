@@ -1,428 +1,78 @@
-#include "ParticleSystem.h"
 #include "Runtime/Platform/DirectX12/Buffer/ReadbackBuffer.h"
+#include "ParticleSettingsCodec.h"
+#include "ParticleSystem.h"
 #include "Runtime/Platform/DirectX12/Core/DirectX12Core.h"
-#include "Runtime/Platform/DirectX12/Buffer/BufferManager.h"
 #include "Runtime/Platform/DirectX12/Shader/ShaderCompiler.h"
 #include "Runtime/Resource/AssetManager.h"
-#include "Runtime/Core/Utility/Utility.h"
-
-#include "imgui.h"
-#include <json.hpp>
-#include <fstream>
-#include <sstream>
+#include "Runtime/Platform/DirectX12/Buffer/BufferManager.h"
+#include <vector>
+#include <cmath>
+#include <array>
 #include <algorithm>
-#include <mutex>
-
 namespace AtomEngine
 {
-	using json = nlohmann::json;
-
-	RootSignature ParticleSystem::mParticleSig;
-	std::vector<GraphicsPSO> ParticleSystem::mParticlePSOs;
-	StructuredBuffer ParticleSystem::sParticleBuffer;
-	DescriptorHandle ParticleSystem::sParticleGpuHandle;
-
-	ComputePSO ParticleSystem::sParticleEmitCS;
-	ComputePSO ParticleSystem::sParticleUpdateCS;
-	ComputePSO ParticleSystem::sParticleDispatchIndirectArgsCS;
-	ComputePSO ParticleSystem::sParticleFinalDispatchIndirectArgsCS;
-
-	IndirectArgsBuffer ParticleSystem::sDrawIndirectArgs;
-	IndirectArgsBuffer ParticleSystem::sDispatchIndirectArgs;
-	IndirectArgsBuffer ParticleSystem::sFinalDispatchIndirectArgs;
-
-	std::vector<std::unique_ptr<Particle>> ParticleSystem::sParticlePool;
-	std::vector<Particle*> ParticleSystem::sParticlesActive;
-	BlendMode ParticleSystem::sBlendMode = BlendMode::kBlendAlphaAdd;
-	PrewView ParticleSystem::sPrewView;
-
-	std::vector<std::pair<DescriptorHandle, TextureRef>> ParticleSystem::sTextures;
-	std::map<std::wstring, uint32_t> ParticleSystem::sTextureArrayLookup;
-	DescriptorHeap ParticleSystem::sTextureArrayHeap;
-
-	bool ParticleSystem::sInitComplete = false;
-
-	std::vector<ParticleProperty> ParticleSystem::sParticlePrefabs;
-	struct InputVertex
+	namespace
 	{
-		Vector3 position;
-		Vector2 uv;
-	};
+		struct GpuParticle { Vector4 positionAge, velocityLife, colorSize; };
+		struct alignas(16) Parameters
+		{
+			Matrix4x4 viewProj; Vector4 right, up, originDt, gravityLife, startColor, endColor, extentRadius, controls;
+			uint32_t capacity, spawnStart, spawnCount, shape; float speed, drag, cone, time; uint32_t billboard, textured, pad0, pad1;
+		};
+		struct Instance { ParticleSettings settings; StructuredBuffer buffer; TextureRef texture; Vector3 position{}; float elapsed = 0, remainder = 0; uint32_t cursor = 0, pending = 0; bool emitting = false, preview = false; };
+		static_assert(sizeof(GpuParticle)==48 && sizeof(Parameters)==240, "Particle HLSL layout mismatch");
+		struct Slot { std::unique_ptr<Instance> value; uint32_t generation = 1; };
+		struct Retired { std::unique_ptr<Instance> value; std::array<uint64_t,3> fences; };
+		std::vector<Retired> retired;
+		void CollectRetired()
+		{
+			std::erase_if(retired, [](const Retired &item) {
+				return std::all_of(item.fences.begin(),item.fences.end(), [](uint64_t fence) {
+					return DX12Core::gCommandManager.IsFenceComplete(fence);
+				});
+			});
+		}
+		std::vector<Slot> slots; RootSignature root; ComputePSO simulation; GraphicsPSO renderers[4][2]; bool initialized = false;
+		Instance* Get(uint32_t id) { uint32_t index = id & 65535, generation = id >> 16; return index < slots.size() && slots[index].generation == generation ? slots[index].value.get() : nullptr; }
+		Parameters Constants(Instance& e) { Parameters p{}; p.originDt = { e.position.x,e.position.y,e.position.z,0 }; p.gravityLife = { e.settings.gravity.x,e.settings.gravity.y,e.settings.gravity.z,e.settings.lifetime }; p.startColor = e.settings.colorStart; p.endColor = e.settings.colorEnd; p.extentRadius = { e.settings.extent.x,e.settings.extent.y,e.settings.extent.z,e.settings.radius }; p.controls = { e.settings.sizeStart,e.settings.sizeEnd,float(e.settings.blend),0 }; p.capacity = e.settings.capacity; p.shape = uint32_t(e.settings.shape); p.speed = e.settings.speed; p.drag = e.settings.drag; p.cone = e.settings.coneAngle; p.time = e.elapsed; p.billboard = e.settings.billboard; p.textured = !e.settings.texture.empty(); return p; }
+		void Advance(ComputeContext& ctx, Instance& e, float dt)
+		{
+			if (dt <= 0)return; dt = std::min(dt, .1f); auto p = Constants(e); p.originDt.w = dt;
+			double generated = 0; if (e.emitting && (e.settings.loop || e.elapsed < e.settings.duration))generated = e.settings.rate * (e.settings.loop ? dt : std::min(dt, std::max(0.f, e.settings.duration - e.elapsed))) + e.remainder;
+			uint32_t n = uint32_t(generated); e.remainder = float(generated - n); p.spawnCount = std::min(e.settings.capacity, n + e.pending); e.pending = 0; p.spawnStart = e.cursor; e.cursor = (e.cursor + p.spawnCount) % e.settings.capacity; e.elapsed += dt;
+			ctx.SetRootSignature(root); ctx.SetPipelineState(simulation); ctx.TransitionResource(e.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS); ctx.SetDynamicConstantBufferView(0, sizeof(p), &p); ctx.SetBufferUAV(1, e.buffer); ctx.Dispatch1D(e.settings.capacity, 64); ctx.InsertUAVBarrier(e.buffer);
+		}
+		void Draw(GraphicsContext& ctx, Instance& e, const Camera& camera, ColorBuffer& color, DepthBuffer& depth)
+		{
+			auto p = Constants(e); p.viewProj = camera.GetViewProjMatrix(); auto r = camera.GetRightVec(), u = camera.GetUpVec(); p.right = { r.x,r.y,r.z,0 }; p.up = { u.x,u.y,u.z,0 };
+			ctx.SetRootSignature(root); ctx.SetPipelineState(renderers[uint32_t(e.settings.blend)][color.GetFormat() == DXGI_FORMAT_R8G8B8A8_UNORM ? 1 : 0]); ctx.TransitionResource(e.buffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE); ctx.TransitionResource(color, D3D12_RESOURCE_STATE_RENDER_TARGET); ctx.TransitionResource(depth, D3D12_RESOURCE_STATE_DEPTH_READ); ctx.SetRenderTarget(color.GetRTV(), depth.GetDSV_DepthReadOnly()); ctx.SetViewportAndScissor(0, 0, color.GetWidth(), color.GetHeight()); ctx.SetDynamicConstantBufferView(0, sizeof(p), &p); ctx.SetBufferSRV(2, e.buffer); ctx.SetDynamicDescriptor(3, 0, e.settings.texture.empty() ? GetDefaultTexture(kWhiteOpaque2D) : e.texture.GetSRV()); ctx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); ctx.DrawInstanced(6, e.settings.capacity);
+		}
+	}
 	void ParticleSystem::Initialize()
 	{
-		D3D12_SAMPLER_DESC SamplerBilinearBorderDesc = SamplerPointBorderDesc;
-		SamplerBilinearBorderDesc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-
-		mParticleSig.Reset(5, 1);
-		mParticleSig.InitStaticSampler(0, SamplerPointBorderDesc);
-		mParticleSig[0].InitAsConstantBuffer(0);
-		mParticleSig[1].InitAsConstantBuffer(1);
-		mParticleSig[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 5);
-		mParticleSig[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 10);
-		mParticleSig[4].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 32, D3D12_SHADER_VISIBILITY_PIXEL, 1);
-
-		mParticleSig.Finalize(L"Particle RootSig", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
-
-		DXGI_FORMAT ColorFormat = gSceneColorBuffer.GetFormat();
-		DXGI_FORMAT DepthFormat = gSceneDepthBuffer.GetFormat();
-
-		auto vsBlob = ShaderCompiler::CompileBlob(L"/Particle/ParticleVS.hlsl", L"vs_6_2");
-		auto psBlob = ShaderCompiler::CompileBlob(L"/Particle/ParticlePS.hlsl", L"ps_6_2");
-
-		auto particleEmitBlob = ShaderCompiler::CompileBlob(L"/Particle/ParticleEmitCS.hlsl", L"cs_6_2");
-		auto particleUpdateBlob = ShaderCompiler::CompileBlob(L"/Particle/ParticleUpdateCS.hlsl", L"cs_6_2");
-		auto particleDispatchIndirectArgs = ShaderCompiler::CompileBlob(L"/Particle/ParticleDispatchIndirectArgs.hlsl", L"cs_6_2");
-		auto particleFinalDispatchIndirectArgs = ShaderCompiler::CompileBlob(L"/Particle/ParticleFinalDispatchIndirectArgsCS.hlsli", L"cs_6_2");
-		// PSO
-		mParticlePSOs.resize(kNumBlendModes);
-		for (uint32_t i = 0; i < kNumBlendModes; i++)
-		{
-			auto& pso = mParticlePSOs[i];
-
-			pso.SetRootSignature(mParticleSig);
-			pso.SetRasterizerState(RasterizerTwoSided);
-			pso.SetBlendState(gBlendModeTable[BlendMode(i)]);
-			pso.SetDepthStencilState(DepthStateReadOnly);
-			pso.SetInputLayout(_countof(inputLayout), inputLayout);
-			pso.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-			pso.SetRenderTargetFormats(1, &ColorFormat, DepthFormat);
-			pso.SetVertexShader(vsBlob.Get());
-			pso.SetPixelShader(psBlob.Get());
-			pso.Finalize();
-		}
-		//compute
-		sParticleEmitCS.SetRootSignature(mParticleSig);
-		sParticleEmitCS.SetComputeShader(particleEmitBlob.Get());
-		sParticleEmitCS.Finalize();
-
-		sParticleUpdateCS.SetRootSignature(mParticleSig);
-		sParticleUpdateCS.SetComputeShader(particleUpdateBlob.Get());
-		sParticleUpdateCS.Finalize();
-
-		sParticleDispatchIndirectArgsCS.SetRootSignature(mParticleSig);
-		sParticleDispatchIndirectArgsCS.SetComputeShader(particleDispatchIndirectArgs.Get());
-		sParticleDispatchIndirectArgsCS.Finalize();
-
-		sParticleFinalDispatchIndirectArgsCS.SetRootSignature(mParticleSig);
-		sParticleFinalDispatchIndirectArgsCS.SetComputeShader(particleFinalDispatchIndirectArgs.Get());
-		sParticleFinalDispatchIndirectArgsCS.Finalize();
-
-		sParticleBuffer.Create(L"Particles Buffer", kMaxParticles, sizeof(ParticleVertex));
-
-		__declspec(align(16)) UINT InitialDrawIndirectArgs[4] = { 6, 0, 0, 0 };
-		sDrawIndirectArgs.Create(L"ParticleEffectManager DrawIndirectArgs", 1, sizeof(D3D12_DRAW_ARGUMENTS), InitialDrawIndirectArgs);
-		__declspec(align(16)) UINT InitialDispatchIndirectArgs[6] = { 0, 1, 1, 0, 1, 1 };
-		sFinalDispatchIndirectArgs.Create(L"ParticleEffectManager FinalDispatchIndirectArgs", 1, sizeof(D3D12_DISPATCH_ARGUMENTS), InitialDispatchIndirectArgs);
-
-		sTextureArrayHeap.Create(L"ParticleSystem TextureArrayHeap", D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 32);
-
-		sParticleGpuHandle = sTextureArrayHeap.Alloc();
-		uint32_t count = 1;
-		uint32_t source[] = { 1 };
-		D3D12_CPU_DESCRIPTOR_HANDLE sourceTex[] = { sParticleBuffer.GetSRV() };
-		DX12Core::gDevice->CopyDescriptors(1, &sParticleGpuHandle,
-			&count, count, sourceTex, source, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-		sInitComplete = true;
+		root.Reset(4, 1); root.InitStaticSampler(0, SamplerLinearClampDesc, D3D12_SHADER_VISIBILITY_PIXEL); root[0].InitAsConstantBuffer(0); root[1].InitAsBufferUAV(0); root[2].InitAsBufferSRV(0); root[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL); root.Finalize(L"GPU particles v2");
+		simulation.SetRootSignature(root); simulation.SetComputeShader(ShaderCompiler::CompileBlob(L"ParticleV2CS.hlsl", L"cs_6_2").Get()); simulation.Finalize();
+		auto vs = ShaderCompiler::CompileBlob(L"ParticleV2VS.hlsl", L"vs_6_2"), ps = ShaderCompiler::CompileBlob(L"ParticleV2PS.hlsl", L"ps_6_2");
+		for (int blend = 0; blend < 4; blend++)for (int format = 0; format < 2; format++) { auto& p = renderers[blend][format]; p.SetRootSignature(root); p.SetRasterizerState(RasterizerTwoSided); auto b = BlendTraditional; if (blend == 1) { b.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA; b.RenderTarget[0].DestBlend = D3D12_BLEND_ONE; }if (blend == 2) { b.RenderTarget[0].SrcBlend = D3D12_BLEND_DEST_COLOR; b.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA; }if (blend == 3)b = BlendDisable; p.SetBlendState(b); p.SetDepthStencilState(DepthStateReadOnly); p.SetInputLayout(0, nullptr); p.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE); p.SetRenderTargetFormat(format ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R10G10B10A2_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT); p.SetVertexShader(vs.Get()); p.SetPixelShader(ps.Get()); p.Finalize(); }initialized = true;
 	}
-
-	void ParticleSystem::Update(ComputeContext& Context, float deltaTime)
+	uint32_t ParticleSystem::Create(const ParticleSettings& s, bool preview) { if (!initialized || s.capacity == 0 || s.capacity > 65536 || s.lifetime <= 0 || s.duration <= 0 || uint32_t(s.shape) > 4 || uint32_t(s.blend) > 3)throw std::runtime_error("Invalid particle settings"); auto validated = ReadParticleSettings(ParticleJson(s).dump()); auto e = std::make_unique<Instance>(); e->settings = validated; e->preview = preview; if (!s.texture.empty())e->texture = AssetManager::LoadCovertTexture(s.texture, kWhiteOpaque2D, true); std::vector<GpuParticle> zero(s.capacity); for (auto& p : zero)p.positionAge.w = -1; e->buffer.Create(L"Particle component storage", s.capacity, sizeof(GpuParticle), zero.data()); size_t i = 0; while (i < slots.size() && slots[i].value)++i; if (i >= 65535)throw std::runtime_error("Particle emitter limit"); if (i == slots.size())slots.emplace_back(); slots[i].value = std::move(e); return uint32_t(i) | (slots[i].generation << 16); }
+	void ParticleSystem::EmitParticle(uint32_t h, const Vector3& pos) { auto e = Get(h); if (!e)throw std::runtime_error("Stale particle handle"); e->position = pos; e->elapsed = 0; e->remainder = 0; e->pending = std::min(e->settings.burst, e->settings.capacity); e->emitting = true; }
+	void ParticleSystem::StopParticle(uint32_t h) { if (auto e = Get(h)) { e->emitting = false; e->pending = 0; } }
+	void ParticleSystem::ReleaseParticle(uint32_t h)
 	{
-		if (!sInitComplete || sParticlesActive.size() == 0)return;
-
-		sPrewView.deltaTime = deltaTime;
-		sPrewView.time += deltaTime;
-
-		Context.ResetCounter(sParticleBuffer);
-		if (sParticlesActive.size() == 0)return;
-		Context.SetRootSignature(mParticleSig);
-		Context.TransitionResource(sParticleBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		Context.SetDynamicConstantBufferView(0, sizeof(sPrewView), &sPrewView);
-		Context.SetDynamicDescriptor(2, 0, sParticleBuffer.GetUAV());
-
-		for (uint32_t i = 0; i < sParticlesActive.size(); ++i)
-		{
-			sParticlesActive[i]->Update(Context, deltaTime);
-
-			if (sParticlesActive[i]->GetLifetime() <= sParticlesActive[i]->GetElapsedTime())
-			{
-				//Erase from vector
-				auto iter = sParticlesActive.begin() + i;
-				static std::mutex s_EraseEffectMutex;
-				s_EraseEffectMutex.lock();
-				sParticlesActive.erase(iter);
-				s_EraseEffectMutex.unlock();
-			}
-		}
-
-		SetFinalBuffers(Context);
+		if (!Get(h)) return;
+		auto &manager=DX12Core::gCommandManager;
+		auto &slot=slots[h & 65535];
+		// The last submitted commands keep their storage until all queues finish using it.
+		retired.push_back({std::move(slot.value),{manager.GetGraphicsQueue().GetNextFenceValue()-1,
+			manager.GetComputeQueue().GetNextFenceValue()-1,manager.GetCopyQueue().GetNextFenceValue()-1}});
+		slot.generation=(slot.generation % 65534)+1;
 	}
-
-	void ParticleSystem::Render(GraphicsContext& gfxContext, const Camera& camera, ColorBuffer& ColorTarget, DepthBuffer& DepthTarget)
-	{
-		if (!sInitComplete || sParticlesActive.size() == 0)return;
-
-		sPrewView.ViewProj = camera.GetViewProjMatrix();
-		sPrewView.billboardMat = Matrix4x4(
-			camera.GetRightVec(),
-			camera.GetUpVec(),
-			camera.GetForwardVec());
-
-		D3D12_RECT scissor;
-		scissor.left = 0;
-		scissor.top = 0;
-		scissor.right = (LONG)gSceneColorBuffer.GetWidth();
-		scissor.bottom = (LONG)gSceneColorBuffer.GetHeight();
-
-		D3D12_VIEWPORT viewport;
-		viewport.TopLeftX = 0.0;
-		viewport.TopLeftY = 0.0;
-		viewport.Width = (float)gSceneColorBuffer.GetWidth();
-		viewport.Height = (float)gSceneColorBuffer.GetHeight();
-		viewport.MinDepth = 0.0;
-		viewport.MaxDepth = 1.0;
-
-
-		gfxContext.SetRootSignature(mParticleSig);
-		gfxContext.SetPipelineState(mParticlePSOs[sBlendMode]);
-		gfxContext.TransitionResource(sParticleBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		gfxContext.TransitionResource(sDrawIndirectArgs, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
-
-		static const InputVertex verteices[6] = {
-			{{-0.5f,-0.5f,0.0f},{0.0f,1.0f}},
-			{{-0.5f,0.5f, 0.0f},{ 0.0f,0.0f}},
-			{{0.5f,-0.5f, 0.0f},{ 1.0f,1.0f}},
-			{{0.5f,-0.5f, 0.0f},{ 1.0f,1.0f}},
-			{{-0.5f,0.5f, 0.0f},{ 0.0f,0.0f}},
-			{{0.5f,0.5f,0.0f},{1.0f,0.0f}}
-		};
-		gfxContext.SetDynamicVB(0, _countof(verteices), sizeof(InputVertex), verteices);
-		ID3D12DescriptorHeap* heaps[] = { sTextureArrayHeap.GetHeapPointer() };
-		gfxContext.SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, *heaps);
-
-		gfxContext.SetDynamicConstantBufferView(0, sizeof(sPrewView), &sPrewView);
-		gfxContext.SetDescriptorTable(3, sParticleGpuHandle);
-		gfxContext.SetDescriptorTable(4, sTextureArrayHeap.GetHeapPointer()->GetGPUDescriptorHandleForHeapStart());
-
-		gfxContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		gfxContext.TransitionResource(ColorTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		gfxContext.TransitionResource(DepthTarget, D3D12_RESOURCE_STATE_DEPTH_READ);
-		gfxContext.SetRenderTarget(ColorTarget.GetRTV(), DepthTarget.GetDSV_DepthReadOnly());
-		gfxContext.SetViewportAndScissor(viewport, scissor);
-
-		gfxContext.DrawIndirect(sDrawIndirectArgs);
-	}
-
-	void ParticleSystem::Shutdown()
-	{
-		sParticlePool.clear();
-		sParticlesActive.clear();
-		sTextures.clear();
-
-		sTextureArrayHeap.Destroy();
-		sParticleBuffer.Destroy();
-		sDrawIndirectArgs.Destroy();
-		sDispatchIndirectArgs.Destroy();
-		sFinalDispatchIndirectArgs.Destroy();
-	}
-
-	uint32_t ParticleSystem::CreateParticle(ParticleProperty& props)
-	{
-		if (!sInitComplete)
-			return 0xffffffff;
-
-		props.EmitProperties.TextureID = GetTextureIndex(props.TexturePath);
-
-
-		static std::mutex s_InstantiateNewEffectMutex;
-		s_InstantiateNewEffectMutex.lock();
-		Particle* newEffect = new Particle(props);
-		sParticlePool.emplace_back(newEffect);
-		sParticlesActive.push_back(newEffect);
-		s_InstantiateNewEffectMutex.unlock();
-
-		uint32_t index = (uint32_t)sParticlesActive.size() - 1;
-		sParticlesActive[index]->Initialize();
-		return index;
-	}
-
-	uint32_t ParticleSystem::CreateParticlePrefab(const ParticleProperty& props)
-	{
-		if (!sInitComplete) return 0xffffffff;
-
-		ParticleProperty p = props;
-		// テクスチャは先に登録しておく
-		p.EmitProperties.TextureID = GetTextureIndex(p.TexturePath);
-
-		sParticlePrefabs.push_back(std::move(p));
-		return (uint32_t)sParticlePrefabs.size() - 1;
-	}
-
-	uint32_t ParticleSystem::EmitPrefab(uint32_t prefabId, const Vector3& emitPosW)
-	{
-		if (!sInitComplete || prefabId >= sParticlePrefabs.size()) return 0xffffffff;
-
-		ParticleProperty props = sParticlePrefabs[prefabId];
-		props.EmitProperties.EmitPosW = emitPosW;
-		props.EmitProperties.LastEmitPosW = emitPosW;
-
-		static std::mutex s_emit_mutex;
-		s_emit_mutex.lock();
-		Particle* newEffect = new Particle(props);
-		sParticlePool.emplace_back(newEffect);
-		sParticlesActive.push_back(newEffect);
-		s_emit_mutex.unlock();
-
-		uint32_t index = (uint32_t)sParticlesActive.size() - 1;
-		sParticlesActive[index]->Initialize();
-		return index;
-	}
-	void ParticleSystem::ResetParticle(uint32_t particleId)
-	{
-		if (!sInitComplete || sParticlesActive.size() == 0 || particleId >= sParticlesActive.size())
-			return;
-
-		sParticlesActive[particleId]->Reset();
-	}
-
-	float ParticleSystem::GetCurrentLife(uint32_t particleId)
-	{
-		if (!sInitComplete || sParticlesActive.size() == 0 || particleId >= sParticlesActive.size())
-			return -1.0;
-
-		return sParticlesActive[particleId]->GetElapsedTime();
-	}
-
-	void ParticleSystem::EmitParticle(uint32_t particleId, const Vector3& emitPosW)
-	{
-		if (!sInitComplete || sParticlesActive.size() == 0 || particleId >= sParticlesActive.size())
-			return;
-
-		
-	}
-
-	void ParticleSystem::SetFinalBuffers(ComputeContext& CompContext)
-	{
-		CompContext.SetPipelineState(sParticleFinalDispatchIndirectArgsCS);
-		CompContext.TransitionResource(sParticleBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
-		CompContext.TransitionResource(sFinalDispatchIndirectArgs, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		CompContext.TransitionResource(sDrawIndirectArgs, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		CompContext.SetDynamicDescriptor(2, 0, sFinalDispatchIndirectArgs.GetUAV());
-		CompContext.SetDynamicDescriptor(2, 1, sDrawIndirectArgs.GetUAV());
-		CompContext.SetDynamicDescriptor(3, 0, sParticleBuffer.GetCounterSRV(CompContext));
-
-		CompContext.Dispatch(1, 1, 1);
-	}
-
-	uint32_t ParticleSystem::GetTextureIndex(const std::wstring& name)
-	{
-		if (sTextureArrayLookup.contains(name))
-		{
-			return sTextureArrayLookup[name];
-		}
-
-		auto handle = sTextureArrayHeap.Alloc();
-
-		TextureRef texture = AssetManager::LoadCovertTexture(name, kMagenta2D, true);
-		texture.CopyGPU(sTextureArrayHeap.GetHeapPointer(), handle);
-		sTextures.push_back(std::make_pair(handle, texture));
-		uint32_t index = sTextureArrayHeap.GetOffsetOfHandle(handle);
-		sTextureArrayLookup[name] = index;
-
-		return index;
-	}
-
-	static Vector4 json_to_vec4_local(const json& j)
-	{
-		Vector4 v;
-		if (j.is_array() && j.size() >= 4) { v.x = j[0].get<float>(); v.y = j[1].get<float>(); v.z = j[2].get<float>(); v.w = j[3].get<float>(); }
-		return v;
-	}
-	static Vector3 json_to_vec3_local(const json& j)
-	{
-		Vector3 v;
-		if (j.is_array() && j.size() >= 3) { v.x = j[0].get<float>(); v.y = j[1].get<float>(); v.z = j[2].get<float>(); }
-		return v;
-	}
-	static Vector2 json_to_vec2_local(const json& j)
-	{
-		Vector2 v;
-		if (j.is_array() && j.size() >= 2) { v.x = j[0].get<float>(); v.y = j[1].get<float>(); }
-		return v;
-	}
-
-	bool ParticleSystem::ParseParticlePropertyFromJson(const std::string& text, ParticleProperty& out)
-	{
-		try
-		{
-			auto j = json::parse(text);
-
-			if (j.contains("MinStartColor")) out.MinStartColor = json_to_vec4_local(j["MinStartColor"]);
-			if (j.contains("MaxStartColor")) out.MaxStartColor = json_to_vec4_local(j["MaxStartColor"]);
-			if (j.contains("MinEndColor")) out.MinEndColor = json_to_vec4_local(j["MinEndColor"]);
-			if (j.contains("MaxEndColor")) out.MaxEndColor = json_to_vec4_local(j["MaxEndColor"]);
-
-			if (j.contains("Velocity")) out.Velocity = json_to_vec4_local(j["Velocity"]);
-			if (j.contains("Size")) out.Size = json_to_vec4_local(j["Size"]);
-			if (j.contains("Spread")) out.Spread = json_to_vec3_local(j["Spread"]);
-			if (j.contains("EmitRate")) out.EmitRate = j["EmitRate"].get<float>();
-			if (j.contains("LifeMinMax")) out.LifeMinMax = json_to_vec2_local(j["LifeMinMax"]);
-			if (j.contains("MassMinMax")) out.MassMinMax = json_to_vec2_local(j["MassMinMax"]);
-			if (j.contains("TotalActiveLifetime")) out.TotalActiveLifetime = j["TotalActiveLifetime"].get<float>();
-
-			if (j.contains("EmitProperties"))
-			{
-				auto e = j["EmitProperties"];
-				if (e.contains("LastEmitPosW")) out.EmitProperties.LastEmitPosW = json_to_vec3_local(e["LastEmitPosW"]);
-				if (e.contains("EmitSpeed")) out.EmitProperties.EmitSpeed = e["EmitSpeed"].get<float>();
-				if (e.contains("EmitPosW")) out.EmitProperties.EmitPosW = json_to_vec3_local(e["EmitPosW"]);
-				if (e.contains("FloorHeight")) out.EmitProperties.FloorHeight = e["FloorHeight"].get<float>();
-				if (e.contains("EmitDirW")) out.EmitProperties.EmitDirW = json_to_vec3_local(e["EmitDirW"]);
-				if (e.contains("Restitution")) out.EmitProperties.Restitution = e["Restitution"].get<float>();
-				if (e.contains("EmitRightW")) out.EmitProperties.EmitRightW = json_to_vec3_local(e["EmitRightW"]);
-				if (e.contains("EmitterVelocitySensitivity")) out.EmitProperties.EmitterVelocitySensitivity = e["EmitterVelocitySensitivity"].get<float>();
-				if (e.contains("EmitUpW")) out.EmitProperties.EmitUpW = json_to_vec3_local(e["EmitUpW"]);
-				if (e.contains("MaxParticles")) out.EmitProperties.MaxParticles = e["MaxParticles"].get<uint32_t>();
-				if (e.contains("Gravity")) out.EmitProperties.Gravity = json_to_vec3_local(e["Gravity"]);
-				if (e.contains("EmissiveColor")) out.EmitProperties.EmissiveColor = json_to_vec3_local(e["EmissiveColor"]);
-			}
-
-			if (j.contains("TexturePath"))
-				out.TexturePath = UTF8ToWString(j["TexturePath"].get<std::string>());
-
-			return true;
-		}
-		catch (...)
-		{
-			return false;
-		}
-	}
-
-	uint32_t ParticleSystem::CreateParticleFromFile(const std::string& utf8Path)
-	{
-		try
-		{
-			std::ifstream ifs(utf8Path, std::ios::binary);
-			if (!ifs) return 0xffffffff;
-			std::ostringstream ss;
-			ss << ifs.rdbuf();
-			auto content = ss.str();
-			ifs.close();
-
-			ParticleProperty props;
-			if (!ParseParticlePropertyFromJson(content, props)) return 0xffffffff;
-
-			return CreateParticle(props);
-		}
-		catch (...)
-		{
-			return 0xffffffff;
-		}
-	}
+	float ParticleSystem::GetCurrentLife(uint32_t h) { auto e = Get(h); return e ? e->elapsed : -1; }
+	void ParticleSystem::Update(ComputeContext& c, float dt) { CollectRetired();for (auto& s : slots)if (s.value && !s.value->preview)Advance(c, *s.value, dt); }
+	void ParticleSystem::UpdatePreview(ComputeContext& c, uint32_t h, float dt) { CollectRetired();if (auto e = Get(h))Advance(c, *e, dt); }
+	void ParticleSystem::Render(GraphicsContext& c, const Camera& cam, ColorBuffer& color, DepthBuffer& depth) { for (auto& s : slots)if (s.value && !s.value->preview)Draw(c, *s.value, cam, color, depth); }
+	void ParticleSystem::RenderPreview(GraphicsContext& c, uint32_t h, const Camera& cam, ColorBuffer& color, DepthBuffer& depth) { if (auto e = Get(h))Draw(c, *e, cam, color, depth); }
+	uint32_t ParticleSystem::ReadAliveCountForDiagnostics(uint32_t h) { auto e = Get(h); if (!e)return 0; ReadbackBuffer read; read.Create(L"Particle diagnostics", e->settings.capacity, sizeof(GpuParticle)); auto& ctx = GraphicsContext::Begin(L"Particle readback"); ctx.TransitionResource(e->buffer, D3D12_RESOURCE_STATE_COPY_SOURCE); ctx.CopyBufferRegion(read, 0, e->buffer, 0, e->settings.capacity * sizeof(GpuParticle)); ctx.Finish(true); auto p = static_cast<const GpuParticle*>(read.Map()); uint32_t count = 0; for (uint32_t i = 0; i < e->settings.capacity; i++)if (p[i].positionAge.w >= 0 && p[i].velocityLife.w > 0)count++; read.Unmap(); return count; }
+	void ParticleSystem::Shutdown() { DX12Core::gCommandManager.IdleGPU();slots.clear();retired.clear(); initialized = false; }
 }

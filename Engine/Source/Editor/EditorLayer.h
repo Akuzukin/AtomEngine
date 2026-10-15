@@ -103,6 +103,7 @@ class EditorLayer
     }
 
   private:
+    friend class ParticleComponentEditor;
     friend class ProjectPanel;
     ProjectPanel mProjectPanel;
     friend class ProjectSettingsPanel;
@@ -156,7 +157,7 @@ class EditorLayer
     void PlayViewport(Scene &scene);
     void ClearThumbnails();
     void Inspector(Scene &scene);
-    void ScriptFields(ScriptAttachment &attachment,const std::string &live="{}");
+    void ScriptFields(World &world,ScriptAttachment &attachment,const std::string &live="{}");
     void ValidateScripts(World &world);
     ScriptSystem mScriptInspector;
     struct ScriptSchema { std::filesystem::file_time_type stamp{}; std::string json, error; };

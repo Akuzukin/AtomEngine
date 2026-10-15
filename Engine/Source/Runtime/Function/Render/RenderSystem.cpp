@@ -336,6 +336,7 @@ void Renderer::Update(World &world, float deltaTime)
     if (ShaderLibrary::PollChanges())
         DX12Core::gCommandManager.IdleGPU();
     GraphicsContext &gfxContext = GraphicsContext::Begin(L"Scene Update");
+    ParticleSystem::Update(gfxContext.GetComputeContext(),deltaTime);
     // ワールドからメッシュコンポーネントとトランスフォームコンポーネントを取得
     auto view = world.View<MeshComponent, TransformComponent, MaterialComponent>();
 
@@ -343,6 +344,9 @@ void Renderer::Update(World &world, float deltaTime)
     {
         // メッシュコンポーネントを更新
         auto &mesh = view.get<MeshComponent>(entity);
+        if(!world.IsEnabled(entity,ComponentKind::Mesh))continue;
+        // Hidden pools still advance animation time, but need no GPU constants or matrices.
+        if(!mesh.IsRender()){mesh.UpdateAnimation(deltaTime);continue;}
 
         auto &material = view.get<MaterialComponent>(entity);
         auto &transform = view.get<TransformComponent>(entity);

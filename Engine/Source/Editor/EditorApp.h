@@ -50,6 +50,7 @@ namespace AtomEngine
 
 	private:
 		ImGuiCommon mImGui;
+		float mParticlePreviewDelta = 0;
 		std::unique_ptr<DebugCamera> mCameraController;
 		std::weak_ptr<void> mCameraWorld;
 
