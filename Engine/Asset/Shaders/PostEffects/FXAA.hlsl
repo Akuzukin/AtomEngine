@@ -1,14 +1,19 @@
 #include "../Utility.hlsli"
+
 Texture2D<float4> Source : register(t0);
+
 SamplerState LinearClamp : register(s0);
+
 cbuffer Constants : register(b0)
 {
     float2 InvSize;
 }
+
 float Luma(float3 c)
 {
     return dot(ApplySRGBCurve(max(c, 0)), float3(.299, .587, .114));
 }
+
 float4 main(float4 position : SV_Position, float2 uv : TEXCOORD0) : SV_Target
 {
     float3 center = Source.SampleLevel(LinearClamp, uv, 0).rgb;

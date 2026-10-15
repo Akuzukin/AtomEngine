@@ -211,6 +211,19 @@ inline void RunEngineCompletionSmokeChecks() {
         EmitSceneParticle(particleAssetWorld,assetInstance,Vector3::ZERO);ParticleSystem::ReleaseParticle(bound.runtimeId);
         WriteLog(LogLevel::Info,"Smoke","Particle v2 GPU emission, component references and .particle creation/export/reopen/atomic save/scene isolation/asset instantiation passed");
         auto audio=Audio::GetInstance();auto master=audio->GetMasterVolume(),bus=audio->GetBusVolume(1);audio->SetMasterVolume(.4f);audio->SetBusVolume(1,.3f);
+        ParticleSettings varied;varied.randomize=true;varied.capacity=varied.burst=64;varied.rate=0;
+        varied.lifetimeRange={1,3};varied.speedRange={2,4};varied.sizeStartRange={.1f,.3f};varied.sizeEndRange={.01f,.04f};
+        varied.colorStartMin={.1f,.2f,.3f,.4f};varied.colorStartMax={.5f,.6f,.7f,.8f};varied.colorEndMin={.2f,.1f,.1f,0};varied.colorEndMax={.8f,.7f,.6f,.2f};
+        auto variedRoundtrip=ReadParticleSettings(ParticleJson(varied).dump());FeatureCheck(variedRoundtrip.randomize&&variedRoundtrip.lifetimeRange.y==3,"Random ranges serialization failed");
+        auto randomHandle=ParticleSystem::Create(varied,true);ParticleSystem::EmitParticle(randomHandle,Vector3::ZERO);
+        {auto &gpu=GraphicsContext::Begin(L"Random spawn test");ParticleSystem::UpdatePreview(gpu.GetComputeContext(),randomHandle,1.f/60);gpu.Finish(true);}
+        auto samples=ParticleSystem::ReadSpawnSamplesForDiagnostics(randomHandle);FeatureCheck(samples.size()==64,"Random particle burst missing");
+        std::array<float,12> minimum{1,2,.1f,.01f,.1f,.2f,.3f,.4f,.2f,.1f,.1f,0},maximum{3,4,.3f,.04f,.5f,.6f,.7f,.8f,.8f,.7f,.6f,.2f};
+        for(size_t channel=0;channel<12;channel++){float low=maximum[channel],high=minimum[channel];for(auto &sample:samples){FeatureCheck(std::isfinite(sample[channel])&&sample[channel]>=minimum[channel]-1e-5f&&sample[channel]<=maximum[channel]+1e-5f,"GPU random value out of bounds");low=std::min(low,sample[channel]);high=std::max(high,sample[channel]);}FeatureCheck(high-low>(maximum[channel]-minimum[channel])*.5f,"GPU random values lack variation");}
+        ParticleSystem::ReleaseParticle(randomHandle);
+        bool badRange=false;auto badRandom=ParticleJson(varied);badRandom["lifetimeRange"]={3,1};try{ReadParticleSettings(badRandom.dump());}catch(...){badRange=true;}FeatureCheck(badRange,"Inverted random range accepted");
+        auto legacy=ParticleJson(ParticleSettings{});legacy.erase("randomize");FeatureCheck(!ReadParticleSettings(legacy.dump()).randomize,"Old asset unexpectedly randomized");
+        WriteLog(LogLevel::Info,"Smoke","GPU random lifetime/speed/sizes/RGBA bounds, variation, serialization and legacy defaults passed");
         FeatureCheck(audio->GetMasterVolume()==.4f&&audio->GetBusVolume(1)==.3f,"Audio mixer state failed");audio->SetMasterVolume(master);audio->SetBusVolume(1,bus);
     }
     WriteLog(LogLevel::Info,"Smoke","Reflection, live fields, query/collision filters, Active, UI layout/navigation, reload state, templates/pools and prefab attachment passed");

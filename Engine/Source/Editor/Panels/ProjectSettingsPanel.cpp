@@ -24,7 +24,8 @@ namespace AtomEngine
 		ImGui::SameLine(); if (ImGui::Button(EditorLocalization::Label("Restore defaults")))draft = ProjectSettings{};
 		ImGui::BeginDisabled(editor.IsPlaying()); if (ImGui::Button(EditorLocalization::Label("Apply defaults to current scene")))
 		{
-			editor.Capture(scene, "Apply project defaults"); auto previous = scene.GetWorld().settings;
+			editor.Capture(scene, "Apply project defaults"); 
+			auto previous = scene.GetWorld().settings;
 			auto applied = draft.defaults;
 			applied.hasEditorCamera = previous.hasEditorCamera;
 			applied.editorPosition = previous.editorPosition;

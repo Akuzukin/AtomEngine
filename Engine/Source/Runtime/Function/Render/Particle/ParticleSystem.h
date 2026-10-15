@@ -1,4 +1,6 @@
 #pragma once
+#include <array>
+#include <vector>
 #include "ParticleSettings.h"
 #include "Runtime/Function/Camera/CameraBase.h"
 #include "Runtime/Platform/DirectX12/Context/ComputeContext.h"
@@ -15,6 +17,7 @@ namespace AtomEngine
 		static void StopParticle(uint32_t handle); static void ReleaseParticle(uint32_t handle);
 		static float GetCurrentLife(uint32_t handle);
 		static uint32_t ReadAliveCountForDiagnostics(uint32_t handle);
+        static std::vector<std::array<float,12>> ReadSpawnSamplesForDiagnostics(uint32_t handle);
 		static void Update(ComputeContext& context, float dt);
 		static void UpdatePreview(ComputeContext& context, uint32_t handle, float dt);
 		static void Render(GraphicsContext& context, const Camera& camera, ColorBuffer& color, DepthBuffer& depth);

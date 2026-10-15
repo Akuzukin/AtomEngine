@@ -173,6 +173,30 @@ namespace AtomEngine
 			changed |= ImGui::DragFloat("End size", &s.sizeEnd, .01f, 0, 20);
 			changed |= ImGui::ColorEdit4("Start color", &s.colorStart.x);
 			changed |= ImGui::ColorEdit4("End color", &s.colorEnd.x);
+            bool toggle=ImGui::Checkbox("Randomize per particle",&s.randomize);changed|=toggle;
+            auto defaultRanges=[&]{auto current=ParticleJson(s),defaults=ParticleJson(ParticleSettings{});for(auto key:{"lifetimeRange","speedRange","sizeStartRange","sizeEndRange","colorStartMin","colorStartMax","colorEndMin","colorEndMax"})if(current[key]!=defaults[key])return false;return true;};
+            if(toggle&&s.randomize&&defaultRanges()){
+                s.lifetimeRange={s.lifetime*.8f,s.lifetime*1.2f};s.speedRange={s.speed*.8f,s.speed*1.2f};
+                s.sizeStartRange={s.sizeStart*.8f,s.sizeStart*1.2f};s.sizeEndRange={s.sizeEnd*.8f,s.sizeEnd*1.2f};
+                for(int channel=0;channel<4;channel++){
+                    float delta=channel==3?0.f:.05f;
+                    (&s.colorStartMin.x)[channel]=std::clamp((&s.colorStart.x)[channel]-delta,0.f,1.f);
+                    (&s.colorStartMax.x)[channel]=std::clamp((&s.colorStart.x)[channel]+delta,0.f,1.f);
+                    (&s.colorEndMin.x)[channel]=std::clamp((&s.colorEnd.x)[channel]-delta,0.f,1.f);
+                    (&s.colorEndMax.x)[channel]=std::clamp((&s.colorEnd.x)[channel]+delta,0.f,1.f);
+                }
+            }
+            if(s.randomize){
+                ImGui::TextWrapped("Random ranges replace the fixed values above. Left = minimum, right = maximum. Values are sampled once at birth.");
+                changed|=ImGui::DragFloat2("Lifetime min/max",&s.lifetimeRange.x,.01f,.001f,60);
+                changed|=ImGui::DragFloat2("Speed min/max",&s.speedRange.x,.01f,0,100);
+                changed|=ImGui::DragFloat2("Start size min/max",&s.sizeStartRange.x,.01f,0,20);
+                changed|=ImGui::DragFloat2("End size min/max",&s.sizeEndRange.x,.01f,0,20);
+                changed|=ImGui::ColorEdit4("Start color minimum",&s.colorStartMin.x);
+                changed|=ImGui::ColorEdit4("Start color maximum",&s.colorStartMax.x);
+                changed|=ImGui::ColorEdit4("End color minimum",&s.colorEndMin.x);
+                changed|=ImGui::ColorEdit4("End color maximum",&s.colorEndMax.x);
+            }
 			if(changed){auto after=s;auto afterAwake=c.playOnAwake;c.settings=before;c.preset=oldPreset;c.playOnAwake=oldAwake;try{after=ReadParticleSettings(ParticleJson(after).dump());auto apply=[&]{c.settings=after;c.preset="";c.playOnAwake=afterAwake;};if(editor&&!assetWorld){editor->Run(apply);editor->mHistoryPending=true;}else apply();dirty=true;error.clear();}catch(const std::exception &ex){error=ex.what();}}
 			ImGui::EndChild();ImGui::SameLine();ImGui::BeginChild("Preview",ImVec2(0,0),true);
 			if (ImGui::Button("Replay"))

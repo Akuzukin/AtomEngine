@@ -18,7 +18,7 @@ Output main(uint vertex : SV_VertexID, uint instance : SV_InstanceID)
     o.position = mul(float4(p.positionAge.xyz + (xy.x * right + xy.y * up) * p.colorSize.w, 1), viewProj);
     o.uv = xy + 0.5;
     float age = saturate(p.positionAge.w / max(p.velocityLife.w, .0001));
-    o.color = float4(p.colorSize.rgb, lerp(startColor.a, endColor.a, age));
+    o.color = float4(p.colorSize.rgb, lerp(p.initialColor.a, p.finalColor.a, age));
     if (p.positionAge.w < 0)
     {
         o.position = float4(0, 0, 0, 1);

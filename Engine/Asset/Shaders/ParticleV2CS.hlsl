@@ -21,7 +21,7 @@ float random(uint x)
     uint offset = (i + capacity - spawnStart) % capacity;
     if (offset < spawnCount)
     {
-        uint seed = i + asuint(time);
+        uint seed = hash(i ^ pad0);
         float a = random(seed) * 6.2831853, z = random(seed + 17) * 2 - 1;
         float3 d = float3(sqrt(max(0, 1 - z * z)) * cos(a), z, sqrt(max(0, 1 - z * z)) * sin(a));
         float3 position = 0;
@@ -41,7 +41,14 @@ float random(uint x)
             position = d * extentRadius.w;
         }
         p.positionAge = float4(originDt.xyz + position, 0);
-        p.velocityLife = float4(d * speed, gravityLife.w);
+        bool varied=controls.w!=0;
+        float initialSpeed=varied?lerp(lifeSpeedRanges.z,lifeSpeedRanges.w,random(seed+31)):speed;
+        p.velocityLife = float4(d * initialSpeed, varied?lerp(lifeSpeedRanges.x,lifeSpeedRanges.y,random(seed+53)):gravityLife.w);
+        p.sizes=float4(varied?lerp(sizeRanges.x,sizeRanges.y,random(seed+71)):controls.x,varied?lerp(sizeRanges.z,sizeRanges.w,random(seed+97)):controls.y,0,0);
+        float4 startRandom=float4(random(seed+113),random(seed+131),random(seed+151),random(seed+173));
+        float4 endRandom=float4(random(seed+197),random(seed+223),random(seed+251),random(seed+277));
+        p.initialColor=varied?lerp(startMin,startMax,startRandom):startColor;
+        p.finalColor=varied?lerp(endMin,endMax,endRandom):endColor;
     }
     else if (p.positionAge.w >= 0)
     {
@@ -55,6 +62,6 @@ float random(uint x)
         }
     }
     float age = saturate(p.positionAge.w / max(p.velocityLife.w, .0001));
-    p.colorSize = float4(lerp(startColor.rgb, endColor.rgb, age), lerp(controls.x, controls.y, age));
+    p.colorSize = float4(lerp(p.initialColor.rgb, p.finalColor.rgb, age), lerp(p.sizes.x, p.sizes.y, age));
     particles[i] = p;
 }
